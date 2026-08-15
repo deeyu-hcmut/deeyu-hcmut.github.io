@@ -1,0 +1,6 @@
+{
+  "name": "Portal Đoàn - Hội Khoa Điện - Điện tử",
+  "description": "Cổng thông tin, quản lý phong trào, đăng ký sự kiện và tự động hóa điểm danh Đoàn - Hội Khoa Điện - Điện tử (FEE Portal)",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
