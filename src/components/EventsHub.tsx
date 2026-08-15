@@ -153,34 +153,34 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   };
 
   return (
-    <div className="py-8 bg-slate-50 min-h-[70vh]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-10 bg-slate-50 min-h-[75vh]">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Hub Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="p-2 rounded-xl bg-blue-100 text-blue-700 border border-blue-200">
-                <Calendar className="w-5 h-5" />
+            <div className="flex items-center space-x-3">
+              <span className="p-3 rounded-2xl bg-blue-100/80 text-blue-700 border border-blue-200 shadow-2xs">
+                <Calendar className="w-6 h-6" />
               </span>
               <div>
-                <h2 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900">
+                <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
                   SỰ KIỆN & ĐĂNG KÝ THAM GIA
                 </h2>
-                <p className="text-xs text-slate-500 font-medium">
-                  Đăng ký trực tuyến, tự động cấp vé QR và điểm danh tham dự
+                <p className="text-sm text-slate-500 font-medium mt-0.5">
+                  Cổng đăng ký trực tuyến, tự động tạo vé điện tử QR độc nhất và điểm danh thời gian thực
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex items-center space-x-3">
             {/* View Mode Toggle */}
-            <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs">
               <button
                 onClick={() => setViewMode('GRID')}
-                className={`p-1.5 rounded-lg text-xs transition-all ${
-                  viewMode === 'GRID' ? 'bg-blue-600 text-white font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
+                  viewMode === 'GRID' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900'
                 }`}
                 title="Dạng lưới"
               >
@@ -188,8 +188,8 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               </button>
               <button
                 onClick={() => setViewMode('LIST')}
-                className={`p-1.5 rounded-lg text-xs transition-all ${
-                  viewMode === 'LIST' ? 'bg-blue-600 text-white font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
+                  viewMode === 'LIST' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900'
                 }`}
                 title="Dạng danh sách"
               >
@@ -197,8 +197,8 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               </button>
               <button
                 onClick={() => setViewMode('CALENDAR')}
-                className={`p-1.5 rounded-lg text-xs transition-all ${
-                  viewMode === 'CALENDAR' ? 'bg-blue-600 text-white font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
+                  viewMode === 'CALENDAR' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900'
                 }`}
                 title="Dạng lịch trình"
               >
@@ -211,7 +211,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               <button
                 id="create-event-btn"
                 onClick={() => setIsCreatingEvent(true)}
-                className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap"
+                className="flex items-center space-x-2 px-4 py-3 rounded-2xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">Tạo Sự kiện mới</span>
@@ -221,17 +221,17 @@ export const EventsHub: React.FC<EventsHubProps> = ({
         </div>
 
         {/* Filters and Search Toolbar */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-12 gap-4">
           {/* Search */}
           <div className="sm:col-span-4 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               id="event-search-input"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm kiếm sự kiện, địa điểm, từ khóa..."
-              className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
 
@@ -240,7 +240,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
             >
               {eventTypes.map(t => (
                 <option key={t.id} value={t.id} className="bg-white">{t.label}</option>
@@ -253,7 +253,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
             >
               {statusFilters.map(s => (
                 <option key={s.id} value={s.id} className="bg-white">{s.label}</option>
@@ -402,7 +402,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             </div>
           ) : (
             /* Default Grid Card View */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredEvents.map(evt => {
                 const percentage = Math.min(100, Math.round((evt.currentParticipants / evt.maxParticipants) * 100));
                 const isFull = evt.currentParticipants >= evt.maxParticipants;
@@ -411,77 +411,77 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                   <div
                     key={evt.id}
                     id={`event-card-${evt.id}`}
-                    className="rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group shadow-sm"
+                    className="rounded-3xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group shadow-xs"
                   >
                     {/* Banner Image with Overlays */}
-                    <div className="relative h-48 overflow-hidden bg-slate-100">
+                    <div className="relative h-56 overflow-hidden bg-slate-100">
                       <img 
                         src={evt.bannerUrl} 
                         alt={evt.title}
                         referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-black/20" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-black/20 to-transparent" />
                       
                       {/* Top Badges */}
-                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                         {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
                       </div>
 
                       {/* Date & Time pill bottom */}
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] text-white">
-                        <span className="flex items-center px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-sm border border-white/20">
-                          <Calendar className="w-3 h-3 mr-1 text-blue-300" />
+                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
+                        <span className="flex items-center px-3 py-1 rounded-lg bg-slate-900/85 backdrop-blur-md border border-white/20 font-medium">
+                          <Calendar className="w-3.5 h-3.5 mr-1.5 text-blue-300" />
                           {evt.eventDate}
                         </span>
-                        <span className="flex items-center px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-sm border border-white/20">
-                          <Clock className="w-3 h-3 mr-1 text-blue-300" />
+                        <span className="flex items-center px-3 py-1 rounded-lg bg-slate-900/85 backdrop-blur-md border border-white/20 font-medium">
+                          <Clock className="w-3.5 h-3.5 mr-1.5 text-blue-300" />
                           {evt.startTime} - {evt.endTime}
                         </span>
                       </div>
                     </div>
 
                     {/* Card Content */}
-                    <div className="p-5 flex-1 flex flex-col justify-between">
+                    <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-1">
+                        <div className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
                           {evt.typeName}
                         </div>
 
                         <h4 
                           onClick={() => setViewingEvent(evt)}
-                          className="font-tech text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug cursor-pointer"
+                          className="font-tech text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug cursor-pointer"
                         >
                           {evt.title}
                         </h4>
 
-                        <div className="mt-3 text-xs text-slate-500 space-y-1">
+                        <div className="mt-3 text-xs sm:text-sm text-slate-500 space-y-1.5">
                           <div className="flex items-start">
-                            <MapPin className="w-3.5 h-3.5 text-orange-600 mr-1.5 flex-shrink-0 mt-0.5" />
+                            <MapPin className="w-4 h-4 text-orange-600 mr-2 flex-shrink-0 mt-0.5" />
                             <span className="truncate">{evt.location}</span>
                           </div>
                         </div>
 
                         {/* Quota Progress Bar */}
-                        <div className="mt-4 pt-3 border-t border-slate-100">
-                          <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
-                            <span className="flex items-center text-[11px] font-medium">
-                              <Users className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                              Đã đăng ký:
+                        <div className="mt-5 pt-4 border-t border-slate-100">
+                          <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+                            <span className="flex items-center font-medium">
+                              <Users className="w-4 h-4 mr-1.5 text-slate-400" />
+                              Số lượng đăng ký:
                             </span>
-                            <span className="font-bold text-slate-800 font-mono text-[11px]">
-                              {evt.currentParticipants} / {evt.maxParticipants}
+                            <span className="font-bold text-slate-800 font-mono text-xs">
+                              {evt.currentParticipants} / {evt.maxParticipants} chỗ
                             </span>
                           </div>
                           
-                          <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                          <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
                             <div 
                               className={`h-full rounded-full transition-all duration-500 ${
                                 isFull 
                                   ? 'bg-amber-500' 
                                   : percentage > 75 
-                                  ? 'bg-orange-500' 
-                                  : 'bg-blue-600'
+                                  ? 'bg-gradient-to-r from-orange-500 to-amber-500' 
+                                  : 'bg-gradient-to-r from-blue-600 to-indigo-600'
                               }`}
                               style={{ width: `${percentage}%` }}
                             />
@@ -490,29 +490,29 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
                         <button
                           onClick={() => setViewingEvent(evt)}
-                          className="flex-1 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors text-center"
+                          className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors text-center cursor-pointer"
                         >
-                          Chi tiết
+                          Xem chi tiết
                         </button>
 
                         {evt.status === 'REGISTRATION_OPEN' ? (
                           <button
                             id={`register-card-btn-${evt.id}`}
                             onClick={() => setRegisteringEvent(evt)}
-                            className="flex-1 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm active:scale-95 transition-all text-center flex items-center justify-center space-x-1"
+                            className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-600/20 active:scale-95 transition-all text-center flex items-center justify-center space-x-1.5 cursor-pointer"
                           >
-                            <Ticket className="w-3.5 h-3.5" />
-                            <span>Đăng ký</span>
+                            <Ticket className="w-4 h-4" />
+                            <span>Đăng ký ngay</span>
                           </button>
                         ) : (
                           <button
                             disabled
-                            className="flex-1 py-2 rounded-xl text-xs font-medium bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed text-center"
+                            className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed text-center"
                           >
-                            {evt.status === 'COMPLETED' ? 'Đã diễn ra' : 'Hết chỗ'}
+                            {evt.status === 'COMPLETED' ? 'Đã kết thúc' : 'Hết slot'}
                           </button>
                         )}
                       </div>

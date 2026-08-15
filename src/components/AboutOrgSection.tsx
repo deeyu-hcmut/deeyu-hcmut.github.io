@@ -64,19 +64,19 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
   ];
 
   return (
-    <div className="py-12 bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-14 bg-slate-50 border-b border-slate-200">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold mb-3">
-            <CircuitBoard className="w-3.5 h-3.5" />
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-100/90 border border-blue-200 text-blue-700 text-xs font-bold mb-4 shadow-2xs">
+            <CircuitBoard className="w-4 h-4" />
             <span>Tổ chức & Bản sắc Đoàn - Hội FEE</span>
           </div>
-          <h2 className="font-tech text-2xl sm:text-4xl font-extrabold text-slate-900">
+          <h2 className="font-tech text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
             SƠ ĐỒ CƠ CẤU TỔ CHỨC & SỨ MỆNH
           </h2>
-          <p className="mt-3 text-sm text-slate-600 leading-relaxed font-medium">
+          <p className="mt-3 text-base text-slate-600 leading-relaxed font-medium">
             Đại diện quyền lợi hợp pháp, đồng hành cùng đoàn viên, hội viên và sinh viên Khoa Điện - Điện tử trong học tập, nghiên cứu và rèn luyện.
           </p>
         </div>

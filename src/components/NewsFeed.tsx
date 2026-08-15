@@ -94,43 +94,43 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
   };
 
   return (
-    <div className="py-8 bg-slate-50 min-h-[70vh]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-10 bg-slate-50 min-h-[75vh]">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header & Search */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="p-2 rounded-xl bg-blue-100 text-blue-700 border border-blue-200">
-                <Newspaper className="w-5 h-5" />
+            <div className="flex items-center space-x-3">
+              <span className="p-3 rounded-2xl bg-blue-100/80 text-blue-700 border border-blue-200 shadow-2xs">
+                <Newspaper className="w-6 h-6" />
               </span>
               <div>
-                <h2 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900">
+                <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
                   BẢNG TIN & HOẠT ĐỘNG ĐOÀN - HỘI
                 </h2>
-                <p className="text-xs text-slate-500 font-medium">Cập nhật tin tức phong trào, học bổng, thông báo và cuộc thi NCKH khoa Điện - Điện tử</p>
+                <p className="text-sm text-slate-500 font-medium mt-0.5">Cập nhật tin tức phong trào, học bổng doanh nghiệp, thông báo và cuộc thi NCKH khoa Điện - Điện tử</p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
             {/* Search Bar */}
-            <div className="relative flex-1 sm:w-72">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <div className="relative flex-1 sm:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 id="news-search-input"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm tin tức, từ khóa, tag..."
-                className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
               />
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -140,7 +140,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
               <button
                 id="create-news-btn"
                 onClick={() => setIsCreatingModal(true)}
-                className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap"
+                className="flex items-center space-x-2 px-4 py-3 rounded-2xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">Đăng tin mới</span>

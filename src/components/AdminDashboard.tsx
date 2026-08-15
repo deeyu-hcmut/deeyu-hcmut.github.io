@@ -148,29 +148,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   ];
 
   return (
-    <div className="py-8 bg-slate-50 min-h-[75vh]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-10 bg-slate-50 min-h-[75vh]">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-blue-100 text-blue-700 border border-blue-200 shadow-2xs">
-              <ShieldCheck className="w-6 h-6" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-8 border-b border-slate-200">
+          <div className="flex items-center space-x-3.5">
+            <div className="p-3 rounded-2xl bg-blue-100/80 text-blue-700 border border-blue-200 shadow-2xs">
+              <ShieldCheck className="w-7 h-7" />
             </div>
             <div>
-              <h2 className="font-tech text-xl sm:text-2xl font-extrabold text-slate-900">
+              <h2 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 TRUNG TÂM QUẢN TRỊ & TỰ ĐỘNG HÓA (FEE ADMIN)
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
-                Quản lý thành viên, xuất file Excel, tự động hóa Email/Push và kiểm soát phân quyền
+              <p className="text-sm text-slate-500 font-medium mt-0.5">
+                Quản lý người tham gia, xuất file Excel, tự động hóa Email/Push 24h và kiểm soát phân quyền RBAC
               </p>
             </div>
           </div>
 
           {/* Role badge */}
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-slate-500 font-medium">Quyền hiện tại:</span>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-600 text-white shadow-sm">
+          <div className="flex items-center space-x-2.5 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-2xs">
+            <span className="text-xs text-slate-500 font-semibold">Quyền hiện tại:</span>
+            <span className="px-3 py-1 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs">
               {currentRole}
             </span>
           </div>
@@ -178,24 +178,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         {/* Action Notice Alert */}
         {actionNotice && (
-          <div className="mt-4 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between animate-in fade-in shadow-2xs">
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span className="font-medium">{actionNotice}</span>
+          <div className="mt-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between animate-in fade-in shadow-2xs">
+            <div className="flex items-center space-x-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <span className="font-semibold">{actionNotice}</span>
             </div>
-            <button onClick={() => setActionNotice(null)} className="text-emerald-700 hover:text-emerald-900 font-semibold">
+            <button onClick={() => setActionNotice(null)} className="text-emerald-700 hover:text-emerald-900 font-bold cursor-pointer">
               Đóng
             </button>
           </div>
         )}
 
         {/* Nav Tabs */}
-        <div className="mt-6 flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200">
+        <div className="mt-8 flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200">
           <button
             onClick={() => setActiveTab('REGISTRATIONS')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'REGISTRATIONS'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
             }`}
           >
@@ -205,9 +205,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('AUTOMATION')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'AUTOMATION'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
             }`}
           >
@@ -217,9 +217,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('ROLES')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'ROLES'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
             }`}
           >
@@ -229,9 +229,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('EMAIL_LOGS')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'EMAIL_LOGS'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
             }`}
           >
