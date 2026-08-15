@@ -1,32 +1,29 @@
-name: Deploy to GitHub Pages (Main Branch)
+name: Build and Commit to Main
 
 on:
   push:
     branches: ["main"]
     paths-ignore:
       - 'assets/**'
+      - '.nojekyll'
   workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "build-main"
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -39,31 +36,16 @@ jobs:
       - name: Build with Vite
         run: npx vite build
 
-      - name: Create .nojekyll
-        run: touch dist/.nojekyll
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
       - name: Commit build output directly to main
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          touch dist/.nojekyll
           cp -r dist/* .
-          touch .nojekyll
-          git add -A
+          git add assets/ index.html .nojekyll
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "build: compile assets directly on main [skip ci]"
+            git commit -m "chore(release): compile website directly to main [skip ci]"
             git push origin main
           fi
