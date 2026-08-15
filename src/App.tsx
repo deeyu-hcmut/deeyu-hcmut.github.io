@@ -34,7 +34,6 @@ import { EventsHub } from './components/EventsHub';
 import { QRCheckInScanner } from './components/QRCheckInScanner';
 import { StudentPortalLookup } from './components/StudentPortalLookup';
 import { AdminDashboard } from './components/AdminDashboard';
-import { ArchitectureDocViewer } from './components/ArchitectureDocViewer';
 import { INITIAL_STATS } from './data/mockData';
 
 export default function App() {
@@ -251,10 +250,6 @@ export default function App() {
             onOpenQRScanner={() => setIsQRScannerOpen(true)}
           />
         )}
-
-        {activeTab === 'architecture' && (
-          <ArchitectureDocViewer />
-        )}
       </main>
 
       {/* Floating QR Scanner Modal if triggered */}
@@ -370,10 +365,6 @@ export default function App() {
           <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
             <p className="text-slate-400">© 2026 Đoàn - Hội Khoa Điện - Điện tử (FEE - HCMUT). All rights reserved.</p>
             <div className="flex items-center space-x-4">
-              <button onClick={() => setActiveTab('architecture')} className="text-blue-400 hover:underline cursor-pointer">
-                Kiến trúc Hệ thống & Prisma Schema
-              </button>
-              <span className="text-slate-600">•</span>
               <button onClick={scrollToTop} className="text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer">
                 <span>Về đầu trang</span>
                 <ArrowUp className="w-3.5 h-3.5" />

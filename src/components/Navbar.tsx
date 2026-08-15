@@ -79,7 +79,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'about', label: 'Cơ cấu Tổ chức', icon: Users },
     { id: 'lookup', label: 'Tra cứu Hoạt động', icon: GraduationCap },
     { id: 'admin', label: 'Quản trị & Tự động hóa', icon: ShieldCheck, restricted: currentRole === 'STUDENT' },
-    { id: 'architecture', label: 'Kiến trúc & Schema', icon: Layers },
   ];
 
   return (
