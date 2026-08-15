@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# ⚡ CỔNG THÔNG TIN ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ (FEE PORTAL)
 
-# Run and deploy your AI Studio app
+> **Cổng thông tin điện tử, quản lý phong trào sinh viên, đăng ký sự kiện và tự động hóa điểm danh Đoàn - Hội Khoa Điện - Điện tử (FEE - HCMUT).**
 
-This contains everything you need to run your app locally.
+🌐 **Trang web chính thức:** [https://deeyu-hcmut.github.io/](https://deeyu-hcmut.github.io/)
 
-View your app in AI Studio: https://ai.studio/apps/0dfcf9c7-555c-4b05-bc18-c3ad63f06f18
+---
 
-## Run Locally
+## 🚀 Các tính năng chính
 
-**Prerequisites:**  Node.js
+- 🏠 **Trang chủ & Bản tin:** Cập nhật tin tức, sự kiện, học bổng doanh nghiệp, phong trào Sinh viên 5 Tốt và chiến dịch Mùa Hè Xanh.
+- 🎟️ **Cổng Sự kiện & Xuất Vé Điện Tử:** Sinh viên đăng ký tham gia sự kiện và nhận mã vé điện tử QR độc nhất.
+- 📷 **Điểm danh Tự động (QR Check-in Scanner):** Quét mã vé QR qua camera hoặc nhập mã vé/MSSV để ghi nhận tham gia thời gian thực.
+- 🔍 **Tra cứu Sinh viên:** Sinh viên tra cứu lịch sử tham dự sự kiện và điểm rèn luyện theo MSSV.
+- 📊 **Dashboard Quản trị:** Ban tổ chức theo dõi số lượng đăng ký, xuất danh sách điểm danh ra file Excel (`.xlsx`) và gửi email nhắc nhở tự động.
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🛠️ Công nghệ sử dụng
+
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Lucide Icons, Motion, Canvas Confetti.
+- **Backend / Serverless Storage:** Express + LocalStorage Fallback cho GitHub Pages tĩnh.
+- **Triển khai:** Tự động hóa qua **GitHub Actions & GitHub Pages**.
+
+---
+
+## 💻 Hướng dẫn chạy thử nghiệm trên máy cá nhân (Local)
+
+1. **Cài đặt thư viện:**
+   ```bash
+   npm install
+   ```
+
+2. **Chạy máy chủ phát triển:**
+   ```bash
+   npm run dev
+   ```
+
+3. Mở trình duyệt tại: `http://localhost:3000` (hoặc port hiển thị trên terminal).
