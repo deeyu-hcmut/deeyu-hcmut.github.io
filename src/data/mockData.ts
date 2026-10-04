@@ -331,53 +331,7 @@ export const INITIAL_BCH: BCHMember[] = [
   }
 ];
 
-export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
-  {
-    id: 'reg-001',
-    eventId: 'evt-1',
-    eventTitle: 'EE TECH DAY 2026: Triển lãm Đồ án & Ngày hội Tuyển dụng',
-    fullName: 'Nguyễn Văn An',
-    mssv: '2211001',
-    email: '2211001@student.university.edu.vn',
-    phone: '0912345678',
-    classGroup: 'D22_DKTD01',
-    faculty: 'Khoa Điện - Điện tử',
-    registeredAt: '2026-08-14T10:15:00Z',
-    ticketCode: 'TECH-88392',
-    checkedIn: true,
-    checkedInAt: '2026-08-15T08:10:00Z',
-    note: 'Đã nhận quà tặng đại biểu',
-  },
-  {
-    id: 'reg-002',
-    eventId: 'evt-1',
-    eventTitle: 'EE TECH DAY 2026: Triển lãm Đồ án & Ngày hội Tuyển dụng',
-    fullName: 'Trần Thị Bích Ngọc',
-    mssv: '2211089',
-    email: '2211089@student.university.edu.vn',
-    phone: '0987654321',
-    classGroup: 'D22_DTVT02',
-    faculty: 'Khoa Điện - Điện tử',
-    registeredAt: '2026-08-14T11:45:00Z',
-    ticketCode: 'TECH-91204',
-    checkedIn: false,
-  },
-  {
-    id: 'reg-003',
-    eventId: 'evt-2',
-    eventTitle: 'Hội thảo Chuyên sâu: Thiết kế Vi mạch Bán dẫn VLSI',
-    fullName: 'Lê Quang Minh',
-    mssv: '2111054',
-    email: '2111054@student.university.edu.vn',
-    phone: '0909112233',
-    classGroup: 'D21_DTVT01',
-    faculty: 'Khoa Điện - Điện tử',
-    registeredAt: '2026-08-13T09:20:00Z',
-    ticketCode: 'VLSI-44211',
-    checkedIn: true,
-    checkedInAt: '2026-08-15T09:05:00Z',
-  }
-];
+export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [];
 
 export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {

@@ -24,7 +24,7 @@ import {
 const STORAGE_KEYS = {
   EVENTS: 'fee_portal_events',
   NEWS: 'fee_portal_news',
-  REGISTRATIONS: 'fee_portal_registrations',
+  REGISTRATIONS: 'fee_portal_registrations_v2',
   NOTIFICATIONS: 'fee_portal_notifications',
   EMAIL_LOGS: 'fee_portal_email_logs',
 };

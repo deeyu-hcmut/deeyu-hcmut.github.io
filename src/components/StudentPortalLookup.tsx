@@ -23,7 +23,7 @@ interface StudentPortalLookupProps {
 }
 
 export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events }) => {
-  const [mssvInput, setMssvInput] = useState('2211001');
+  const [mssvInput, setMssvInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<{
     mssv: string;
@@ -106,7 +106,7 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
                 value={mssvInput}
                 onChange={(e) => setMssvInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleLookup(mssvInput)}
-                placeholder="Nhập MSSV (VD: 2211001, 2111054, 2211089)..."
+                placeholder="Nhập Mã số sinh viên (MSSV) để tra cứu..."
                 className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-3.5 text-base text-slate-900 dark:text-slate-100 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs transition-all"
               />
             </div>
@@ -120,34 +120,24 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
               <span>Tra cứu ngay</span>
             </button>
           </div>
-
-          {/* Quick MSSV Suggestions */}
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold text-slate-400">Mẫu gợi ý:</span>
-            <button
-              onClick={() => { setMssvInput('2211001'); handleLookup('2211001'); }}
-              className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-            >
-              2211001 (Nguyễn Văn An)
-            </button>
-            <button
-              onClick={() => { setMssvInput('2111054'); handleLookup('2111054'); }}
-              className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-            >
-              2111054 (Lê Quang Minh)
-            </button>
-            <button
-              onClick={() => { setMssvInput('2211089'); handleLookup('2211089'); }}
-              className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-            >
-              2211089 (Trần Thị Bích Ngọc)
-            </button>
-          </div>
         </div>
 
         {/* Results Card */}
         {data && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3">
+          data.history.length === 0 ? (
+            <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm text-center animate-in fade-in slide-in-from-bottom-3">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-400/30 flex items-center justify-center text-amber-600 dark:text-amber-300">
+                <AlertCircle className="w-7 h-7" />
+              </div>
+              <h4 className="font-tech text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">
+                Chưa có dữ liệu hoạt động cho MSSV <span className="font-mono text-blue-600 dark:text-blue-300">{data.mssv}</span>
+              </h4>
+              <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                Mã số sinh viên này chưa đăng ký tham gia sự kiện nào hoặc chưa có lịch sử điểm danh được ghi nhận trên hệ thống Đoàn - Hội.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3">
             
             {/* Summary Metrics */}
             <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -253,7 +243,7 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
             </div>
 
           </div>
-        )}
+        ))}
 
         {/* Ticket Modal */}
         {activeTicketRecord && (
