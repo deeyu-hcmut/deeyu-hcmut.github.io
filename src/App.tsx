@@ -361,14 +361,14 @@ export default function App() {
             
             {/* Col 1: Brand & Slogan */}
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
+              <div className="flex flex-col items-start space-y-3">
                 <img
                   src={`${import.meta.env.BASE_URL}logo.png`}
                   alt=""
-                  width={48}
-                  height={48}
+                  width={96}
+                  height={96}
                   loading="lazy"
-                  className="w-12 h-12 flex-shrink-0"
+                  className="w-24 h-24"
                 />
                 <span className="font-tech text-base font-extrabold text-white leading-tight">
                   Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
