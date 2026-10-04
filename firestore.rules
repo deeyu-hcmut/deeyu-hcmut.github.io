@@ -207,11 +207,11 @@ service cloud.firestore {
       let after = request.resource.data;
       return after.diff(resource.data).affectedKeys().hasOnly(['gender', 'dateOfBirth', 'classGroup', 'email', 'phone',
                                                                'isUnionMember', 'unionJoinDate', 'isAssociationMember',
-                                                               'accountEmail', 'profileCompletedAt', 'updatedAt'])
+                                                               'status', 'accountEmail', 'profileCompletedAt', 'updatedAt'])
         && after.accountEmail == request.auth.token.email
         && after.phone is string && after.phone.size() <= 20
         && after.email is string && after.email.size() <= 100
-        && after.classGroup is string && after.classGroup.size() <= 50
+        && after.classGroup is string && after.classGroup.matches('^[A-Z0-9]{8}$')
         && isValidMember(memberId);
     }
 

@@ -133,7 +133,8 @@ export interface MemberRecord {
 // Fields a student fills in (or corrects) on their first sign-in
 export type StudentProfilePatch = Pick<
   MemberRecord,
-  'gender' | 'dateOfBirth' | 'classGroup' | 'email' | 'phone' | 'isUnionMember' | 'unionJoinDate' | 'isAssociationMember'
+  | 'gender' | 'dateOfBirth' | 'classGroup' | 'email' | 'phone' | 'isUnionMember' | 'unionJoinDate'
+  | 'isAssociationMember' | 'status'
 >;
 
 export interface NotificationItem {

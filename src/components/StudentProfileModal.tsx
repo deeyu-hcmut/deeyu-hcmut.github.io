@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { GraduationCap, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
-import { MemberGender, MemberRecord } from '../types';
+import { MemberGender, MemberRecord, MemberStatus } from '../types';
 import { api } from '../services/api';
+import { CLASS_GROUP_PATTERN } from '../services/shared';
+
+const STATUS_OPTIONS: { value: MemberStatus; label: string }[] = [
+  { value: 'STUDYING', label: 'Đang học' },
+  { value: 'RESERVED', label: 'Bảo lưu' },
+  { value: 'GRADUATED', label: 'Đã tốt nghiệp' },
+  { value: 'DROPPED', label: 'Thôi học' },
+];
 
 const inputClass =
   'w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500';
@@ -55,6 +63,8 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
   const [isUnionMember, setIsUnionMember] = useState<boolean | null>(answered ? linked!.isUnionMember : null);
   const [unionJoinDate, setUnionJoinDate] = useState(linked?.unionJoinDate ?? '');
   const [isAssociationMember, setIsAssociationMember] = useState<boolean | null>(answered ? linked!.isAssociationMember : null);
+  // Imported records default to "Đang học"; the student confirms it on the first form
+  const [status, setStatus] = useState<MemberStatus | ''>(answered ? linked!.status : '');
   const [saved, setSaved] = useState(false);
 
   const startForm = (member: MemberRecord) => {
@@ -68,6 +78,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
     if (member.profileCompletedAt) {
       setIsUnionMember(member.isUnionMember);
       setIsAssociationMember(member.isAssociationMember);
+      setStatus(member.status);
     }
   };
 
@@ -91,9 +102,23 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
       setError('Vui lòng trả lời bạn có phải Đoàn viên / Hội viên không.');
       return;
     }
+    if (!status) {
+      setError('Vui lòng chọn trạng thái học tập.');
+      return;
+    }
     setBusy(true);
     setError(null);
-    const patch = { gender, dateOfBirth, classGroup, email, phone, isUnionMember, unionJoinDate, isAssociationMember };
+    const patch = {
+      gender,
+      dateOfBirth,
+      classGroup: classGroup.trim().toUpperCase(),
+      email,
+      phone,
+      isUnionMember,
+      unionJoinDate,
+      isAssociationMember,
+      status,
+    };
     try {
       await api.saveMyProfile(record.id, patch, accountEmail);
       setSaved(true);
@@ -191,7 +216,17 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
               </div>
               <div>
                 <label className={labelClass}>Lớp / Chi đoàn *</label>
-                <input required maxLength={50} value={classGroup} onChange={e => setClassGroup(e.target.value)} className={inputClass} />
+                <input
+                  required
+                  maxLength={8}
+                  value={classGroup}
+                  onChange={e => setClassGroup(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                  placeholder="VD: DD23KSTN"
+                  pattern={CLASS_GROUP_PATTERN.source}
+                  title="Đúng 8 ký tự chữ hoặc số, ví dụ DD23KSTN"
+                  className={`${inputClass} font-mono uppercase`}
+                />
+                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Đúng 8 ký tự, ví dụ DD23KSTN</p>
               </div>
               <div>
                 <label className={labelClass}>Số điện thoại *</label>
@@ -217,10 +252,20 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
 
             {isUnionMember && (
               <div>
-                <label className={labelClass}>Ngày vào Đoàn (nếu nhớ)</label>
-                <input type="date" value={unionJoinDate} onChange={e => setUnionJoinDate(e.target.value)} className={inputClass} />
+                <label className={labelClass}>Ngày vào Đoàn *</label>
+                <input required type="date" value={unionJoinDate} onChange={e => setUnionJoinDate(e.target.value)} className={inputClass} />
               </div>
             )}
+
+            <div>
+              <label className={labelClass}>Trạng thái học tập *</label>
+              <select required value={status} onChange={e => setStatus(e.target.value as MemberStatus)} className={inputClass}>
+                <option value="">— Chọn —</option>
+                {STATUS_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
 
             <div className="flex justify-end gap-3 pt-1">
               <button type="button" onClick={onLater} disabled={busy} className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 disabled:opacity-50">

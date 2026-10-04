@@ -160,19 +160,27 @@ export function isHcmutEmail(email: string | null | undefined): boolean {
   return Boolean(email && /@hcmut\.edu\.vn$/i.test(email.trim()));
 }
 
-// Validates the first sign-in form; every field except the Đoàn join date is required
+// Lớp / Chi đoàn code students type on the profile form, e.g. DD23KSTN
+export const CLASS_GROUP_PATTERN = /^[A-Z0-9]{8}$/;
+
+// Validates the first sign-in form; every field is required (the Đoàn join date only for Đoàn viên)
 export function buildStudentProfile(patch: StudentProfilePatch): StudentProfilePatch {
   const gender = MEMBER_GENDERS.includes(patch.gender) ? patch.gender : '';
   if (!gender) throw new Error('Vui lòng chọn giới tính.');
   const dateOfBirth = text(patch.dateOfBirth, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) throw new Error('Vui lòng nhập ngày sinh.');
-  const classGroup = text(patch.classGroup, 50);
-  if (!classGroup) throw new Error('Vui lòng nhập lớp / chi đoàn.');
+  const classGroup = text(patch.classGroup, 50).toUpperCase();
+  if (!CLASS_GROUP_PATTERN.test(classGroup)) {
+    throw new Error('Lớp / Chi đoàn phải gồm đúng 8 ký tự chữ hoặc số, ví dụ DD23KSTN.');
+  }
   const phone = text(patch.phone, 20);
   if (!/^[0-9+ .-]{8,20}$/.test(phone)) throw new Error('Số điện thoại không hợp lệ.');
   const email = text(patch.email, 100);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Email liên hệ không hợp lệ.');
   const isUnionMember = Boolean(patch.isUnionMember);
+  const unionJoinDate = isUnionMember ? text(patch.unionJoinDate, 10) : '';
+  if (isUnionMember && !/^\d{4}-\d{2}-\d{2}$/.test(unionJoinDate)) throw new Error('Vui lòng nhập ngày vào Đoàn.');
+  if (!MEMBER_STATUSES.includes(patch.status)) throw new Error('Vui lòng chọn trạng thái học tập.');
   return {
     gender,
     dateOfBirth,
@@ -180,8 +188,9 @@ export function buildStudentProfile(patch: StudentProfilePatch): StudentProfileP
     email,
     phone,
     isUnionMember,
-    unionJoinDate: isUnionMember ? text(patch.unionJoinDate, 10) : '',
+    unionJoinDate,
     isAssociationMember: Boolean(patch.isAssociationMember),
+    status: patch.status,
   };
 }
 
