@@ -101,7 +101,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'news', label: 'Bản tin & Hoạt động', icon: Newspaper },
     { id: 'about', label: 'Cơ cấu Tổ chức', icon: Users },
     { id: 'lookup', label: 'Tra cứu Hoạt động', icon: GraduationCap },
-    { id: 'admin', label: 'Quản trị & Tự động hóa', icon: ShieldCheck, restricted: currentRole === 'STUDENT' },
+    // Students never see the admin area; BCH reach it after signing in
+    ...(currentRole === 'STUDENT' ? [] : [{ id: 'admin', label: 'Quản trị & Tự động hóa', icon: ShieldCheck }]),
   ];
 
   return (

@@ -566,7 +566,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* TAB 3: ROLES & PERMISSIONS (RBAC) */}
         {activeTab === 'ROLES' && (
           <div className="mt-6 space-y-6">
-            {FIREBASE_ENABLED && (
+            {/* How to grant roles: only the Super Admin can edit admins/{email} */}
+            {FIREBASE_ENABLED && currentRole === 'SUPER_ADMIN' && (
               <div className="p-5 rounded-3xl border border-blue-200 dark:border-blue-400/30 bg-blue-50/60 dark:bg-blue-950/40 text-sm text-slate-700 dark:text-slate-200">
                 <p>
                   Quyền được cấp trong Firestore: mỗi tài khoản BCH là một document <code className="font-mono text-xs">admins/&lt;email&gt;</code> với
