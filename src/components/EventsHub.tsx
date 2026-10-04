@@ -26,6 +26,7 @@ import {
 import { EventItem, EventStatus, EventType, Role, RegistrationRecord } from '../types';
 import { EventDetailModal } from './EventDetailModal';
 import { sizedImage } from '../utils/image';
+import { canManageEvents as roleCanManageEvents } from '../utils/roles';
 
 // Modals load on first open, keeping qrcode out of the initial bundle
 const RegistrationModal = lazy(() => import('./RegistrationModal').then(m => ({ default: m.RegistrationModal })));
@@ -64,7 +65,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const canManageEvents = currentRole === 'SUPER_ADMIN' || currentRole === 'EVENT_MANAGER';
+  const canManageEvents = roleCanManageEvents(currentRole);
 
   const closeDeleteDialog = () => {
     if (deleteBusy) return;
@@ -320,7 +321,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               </div>
 
               {/* Create Event (Admin/Manager) */}
-              {(currentRole === 'SUPER_ADMIN' || currentRole === 'EVENT_MANAGER') && (
+              {canManageEvents && (
                 <button
                   id="create-event-btn"
                   onClick={openCreateEvent}
@@ -799,7 +800,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
               <h3 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center space-x-2">
                 {editingEvent ? <Pencil className="w-5 h-5 text-blue-600 dark:text-blue-300" /> : <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />}
-                <span>{editingEvent ? 'Sửa sự kiện' : 'Tạo Sự kiện Mới (Ban CTXH & Quản trị)'}</span>
+                <span>{editingEvent ? 'Sửa sự kiện' : 'Tạo Sự kiện Mới (Ban HC-TV / TT-SK)'}</span>
               </h3>
 
               <form onSubmit={handleCreateEventSubmit} className="space-y-4">

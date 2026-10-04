@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   ShieldCheck, 
   Users, 
@@ -21,11 +21,17 @@ import {
   Eye,
   Layers,
   ArrowUpRight,
-  Database
+  Database,
+  Contact
 } from 'lucide-react';
 import { EventItem, RegistrationRecord, Role, EmailDispatchLog } from '../types';
 import { api } from '../services/api';
 import { FIREBASE_ENABLED } from '../services/firebaseConfig';
+import { ROLE_LABELS, canManageEvents, canManageMembers } from '../utils/roles';
+
+const MemberManager = lazy(() => import('./MemberManager').then(m => ({ default: m.MemberManager })));
+
+type AdminTab = 'REGISTRATIONS' | 'AUTOMATION' | 'MEMBERS' | 'ROLES' | 'EMAIL_LOGS';
 
 interface AdminDashboardProps {
   events: EventItem[];
@@ -40,7 +46,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   setCurrentRole,
   onOpenQRScanner
 }) => {
-  const [activeTab, setActiveTab] = useState<'REGISTRATIONS' | 'AUTOMATION' | 'ROLES' | 'EMAIL_LOGS'>('REGISTRATIONS');
+  const eventAccess = canManageEvents(currentRole);
+  const memberAccess = canManageMembers(currentRole);
+  const visibleTabs: AdminTab[] = [
+    ...(eventAccess ? ['REGISTRATIONS', 'AUTOMATION'] as const : []),
+    ...(memberAccess ? ['MEMBERS'] as const : []),
+    'ROLES',
+    ...(eventAccess ? ['EMAIL_LOGS'] as const : []),
+  ];
+  const [requestedTab, setActiveTab] = useState<AdminTab>(visibleTabs[0]);
+  // Falls back when the role changes (demo role switcher) and hides the current tab
+  const activeTab = visibleTabs.includes(requestedTab) ? requestedTab : visibleTabs[0];
   const [selectedEventId, setSelectedEventId] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [registrations, setRegistrations] = useState<RegistrationRecord[]>([]);
@@ -53,6 +69,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [previewType, setPreviewType] = useState<'TICKET' | 'REMINDER' | 'CHECKIN'>('TICKET');
 
   const loadData = async () => {
+    // Registrations and email logs are readable by event staff only
+    if (!eventAccess) return;
     setLoading(true);
     try {
       const [regs, logs] = await Promise.all([
@@ -70,7 +88,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   useEffect(() => {
     loadData();
-  }, [selectedEventId]);
+  }, [selectedEventId, eventAccess]);
 
   const handleSearch = () => {
     loadData();
@@ -127,20 +145,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     {
       role: 'SUPER_ADMIN',
       title: 'Super Admin (Ban Thường vụ Đoàn - Hội Khoa)',
-      desc: 'Toàn quyền quản trị cổng thông tin, phê duyệt tin tức, tạo sự kiện, phân quyền người dùng và xuất dữ liệu tham gia.',
-      permissions: ['Toàn quyền hệ thống', 'Quản lý thành viên & BCH', 'Xuất báo cáo Excel', 'Gửi thông báo Push toàn khoa']
+      desc: 'Toàn quyền quản trị cổng thông tin: sự kiện, tin tức, danh sách sinh viên - đoàn viên - hội viên, phân quyền người dùng và xuất dữ liệu.',
+      permissions: ['Toàn quyền hệ thống', 'Phân quyền tài khoản BCH', 'Quản lý sự kiện, tin tức & thành viên', 'Quét QR điểm danh']
     },
     {
-      role: 'EVENT_MANAGER',
-      title: 'Ban CTXH (Quản trị Sự kiện & Tình nguyện)',
-      desc: 'Quản lý danh sách đăng ký sự kiện, sử dụng trạm quét QR điểm danh, gửi email nhắc nhở 24h cho người tham dự.',
-      permissions: ['Tạo & chỉnh sửa sự kiện', 'Quét QR điểm danh', 'Gửi email nhắc nhở 24h', 'Xuất danh sách sinh viên']
+      role: 'HC_TV',
+      title: 'Ban HC-TV',
+      desc: 'Quản lý sự kiện và danh sách đăng ký, vận hành trạm quét QR điểm danh, gửi email nhắc nhở 24h cho người tham dự.',
+      permissions: ['Tạo & chỉnh sửa sự kiện', 'Quét QR điểm danh', 'Gửi email nhắc nhở 24h', 'Xuất danh sách đăng ký (Excel)']
     },
     {
-      role: 'EDITOR',
-      title: 'Ban Truyền thông',
-      desc: 'Phụ trách truyền thông, soạn thảo, đăng tải các bài viết hoạt động Đoàn - Hội, thông báo học vụ, cuộc thi NCKH và quản lý banner.',
-      permissions: ['Đăng bài viết mới', 'Quản lý danh mục & Tags', 'Duyệt bài cộng tác viên']
+      role: 'TT_SK',
+      title: 'Ban TT-SK',
+      desc: 'Phụ trách truyền thông và sự kiện: đăng tải bài viết hoạt động Đoàn - Hội, thông báo, cuộc thi; tạo và quản lý sự kiện.',
+      permissions: ['Đăng & chỉnh sửa tin tức', 'Tạo & chỉnh sửa sự kiện', 'Quét QR điểm danh', 'Xuất danh sách đăng ký (Excel)']
+    },
+    {
+      role: 'QLNS_CTSV',
+      title: 'Ban QLNS-CTSV',
+      desc: 'Quản lý hồ sơ sinh viên, đoàn viên và hội viên của khoa: thêm, sửa, xoá, nhập/xuất Excel danh sách.',
+      permissions: ['Quản lý danh sách sinh viên', 'Quản lý đoàn viên & hội viên', 'Nhập / xuất Excel thành viên', 'Quét QR điểm danh']
     },
     {
       role: 'STUDENT',
@@ -170,12 +194,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </div>
 
-          {/* Role badge */}
-          <div className="flex items-center space-x-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs">
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Quyền hiện tại:</span>
-            <span className="px-3 py-1 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs">
-              {currentRole}
-            </span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Every staff role may scan tickets */}
+            {currentRole !== 'STUDENT' && (
+              <button
+                onClick={onOpenQRScanner}
+                className="flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm"
+              >
+                <QrCode className="w-4 h-4" />
+                <span>Mở Trạm Quét QR</span>
+              </button>
+            )}
+
+            {/* Role badge */}
+            <div className="flex items-center space-x-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Quyền hiện tại:</span>
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs">
+                {ROLE_LABELS[currentRole]}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -194,6 +231,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         {/* Nav Tabs */}
         <div className="mt-8 flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200 dark:border-slate-700">
+          {eventAccess && (<>
           <button
             onClick={() => setActiveTab('REGISTRATIONS')}
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
@@ -217,6 +255,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <Mail className="w-4 h-4" />
             <span>Tự động hóa Email & Push 24h</span>
           </button>
+          </>)}
+
+          {memberAccess && (
+            <button
+              onClick={() => setActiveTab('MEMBERS')}
+              className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+                activeTab === 'MEMBERS'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <Contact className="w-4 h-4" />
+              <span>Sinh viên - Đoàn viên - Hội viên</span>
+            </button>
+          )}
 
           <button
             onClick={() => setActiveTab('ROLES')}
@@ -230,6 +283,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <span>Phân quyền Người dùng (RBAC)</span>
           </button>
 
+          {eventAccess && (
           <button
             onClick={() => setActiveTab('EMAIL_LOGS')}
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
@@ -241,6 +295,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <Clock className="w-4 h-4" />
             <span>Nhật ký Gửi thư ({emailLogs.length})</span>
           </button>
+          )}
         </div>
 
         {/* TAB 1: REGISTRATIONS & EXCEL EXPORT */}
@@ -284,7 +339,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
               </div>
 
-              {/* Action Buttons: Export Excel & Open Scanner */}
+              {/* Export Excel (the QR station button sits in the page header) */}
               <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                 <button
                   id="admin-export-excel-btn"
@@ -293,14 +348,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 >
                   <FileSpreadsheet className="w-4 h-4" />
                   <span>Xuất file Excel (.xlsx)</span>
-                </button>
-
-                <button
-                  onClick={onOpenQRScanner}
-                  className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm"
-                >
-                  <QrCode className="w-4 h-4" />
-                  <span>Mở Trạm Quét QR</span>
                 </button>
               </div>
             </div>
@@ -509,6 +556,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         )}
 
+        {/* TAB: STUDENT / MEMBER RECORDS (Ban QLNS-CTSV) */}
+        {activeTab === 'MEMBERS' && (
+          <Suspense fallback={<div className="py-16 text-center text-sm text-slate-500 dark:text-slate-400">Đang tải...</div>}>
+            <MemberManager />
+          </Suspense>
+        )}
+
         {/* TAB 3: ROLES & PERMISSIONS (RBAC) */}
         {activeTab === 'ROLES' && (
           <div className="mt-6 space-y-6">
@@ -517,7 +571,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <p>
                   Quyền được cấp trong Firestore: mỗi tài khoản BCH là một document <code className="font-mono text-xs">admins/&lt;email&gt;</code> với
                   trường <code className="font-mono text-xs">role</code> là <code className="font-mono text-xs">SUPER_ADMIN</code>,{' '}
-                  <code className="font-mono text-xs">EVENT_MANAGER</code> hoặc <code className="font-mono text-xs">EDITOR</code>.
+                  <code className="font-mono text-xs">HC_TV</code>, <code className="font-mono text-xs">TT_SK</code> hoặc{' '}
+                  <code className="font-mono text-xs">QLNS_CTSV</code>. Tài khoản chưa có trong danh sách là sinh viên và không quét QR điểm danh được.
                 </p>
               </div>
             )}

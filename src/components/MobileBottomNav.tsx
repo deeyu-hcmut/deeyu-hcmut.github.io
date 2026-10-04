@@ -4,7 +4,8 @@ import { Zap, Calendar, Newspaper, Users, QrCode, GraduationCap } from 'lucide-r
 interface MobileBottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  onOpenQRScanner: () => void;
+  // Undefined hides the check-in button (students cannot scan)
+  onOpenQRScanner?: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
@@ -15,7 +16,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   const items = [
     { id: 'home', label: 'Trang chủ', icon: Zap },
     { id: 'events', label: 'Sự kiện', icon: Calendar },
-    { id: 'scan', label: 'Điểm danh', icon: QrCode, isAction: true },
+    ...(onOpenQRScanner
+      ? [{ id: 'scan', label: 'Điểm danh', icon: QrCode, isAction: true }]
+      : [{ id: 'about', label: 'Tổ chức', icon: Users }]),
     { id: 'news', label: 'Bản tin', icon: Newspaper },
     { id: 'lookup', label: 'Tra cứu', icon: GraduationCap },
   ];

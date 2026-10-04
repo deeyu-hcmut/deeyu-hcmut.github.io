@@ -26,6 +26,7 @@ import { Role, EventItem, NewsItem, BCHMember, RegistrationRecord } from './type
 import { api } from './services/api';
 import { FIREBASE_ENABLED } from './services/firebaseConfig';
 import type { StaffSession } from './services/auth';
+import { canCheckIn } from './utils/roles';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { HeroSection } from './components/HeroSection';
@@ -116,6 +117,9 @@ export default function App() {
   // Overlay Modals
   const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Every staff role can run the check-in station; students never see it
+  const openQRScanner = canCheckIn(currentRole) ? () => setIsQRScannerOpen(true) : undefined;
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -226,7 +230,7 @@ export default function App() {
         session={session}
         onSignIn={handleSignIn}
         onSignOut={handleSignOut}
-        onOpenQRScanner={() => setIsQRScannerOpen(true)}
+        onOpenQRScanner={openQRScanner}
         onOpenStudentLookup={() => setActiveTab('lookup')}
       />
 
@@ -238,7 +242,7 @@ export default function App() {
               upcomingEvent={events.find(e => e.status === 'REGISTRATION_OPEN') || events[0]}
               onExploreEvents={() => setActiveTab('events')}
               onOpenLookup={() => setActiveTab('lookup')}
-              onOpenQRScanner={() => setIsQRScannerOpen(true)}
+              onOpenQRScanner={openQRScanner}
               onReadNews={() => setActiveTab('news')}
             />
 
@@ -381,7 +385,7 @@ export default function App() {
       </main>
 
       {/* Floating QR Scanner Modal if triggered */}
-      {isQRScannerOpen && (
+      {isQRScannerOpen && openQRScanner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-4 sm:p-6 shadow-2xl">
             <Suspense fallback={<TabFallback />}>
@@ -399,7 +403,7 @@ export default function App() {
       <MobileBottomNav
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenQRScanner={() => setIsQRScannerOpen(true)}
+        onOpenQRScanner={openQRScanner}
       />
 
       {/* Smooth Transition into Footer */}
@@ -476,14 +480,16 @@ export default function App() {
                     Tra cứu Hoạt động
                   </button>
                 </li>
-                <li>
-                  <button 
-                    onClick={() => setIsQRScannerOpen(true)} 
-                    className="hover:text-orange-400 transition-colors cursor-pointer"
-                  >
-                    Quét QR Điểm danh
-                  </button>
-                </li>
+                {openQRScanner && (
+                  <li>
+                    <button 
+                      onClick={openQRScanner} 
+                      className="hover:text-orange-400 transition-colors cursor-pointer"
+                    >
+                      Quét QR Điểm danh
+                    </button>
+                  </li>
+                )}
               </ul>
             </div>
 

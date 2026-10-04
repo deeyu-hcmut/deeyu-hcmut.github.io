@@ -6,7 +6,8 @@ interface HeroSectionProps {
   upcomingEvent?: EventItem;
   onExploreEvents: () => void;
   onOpenLookup: () => void;
-  onOpenQRScanner: () => void;
+  // Undefined hides the button: only staff may run the check-in station
+  onOpenQRScanner?: () => void;
   onReadNews: () => void;
 }
 
@@ -79,6 +80,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <span>Tra cứu Hoạt động</span>
               </button>
 
+              {onOpenQRScanner && (
               <button
                 id="hero-qr-checkin-btn"
                 onClick={onOpenQRScanner}
@@ -87,6 +89,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <QrCode className="w-4 h-4 text-orange-600 dark:text-orange-300" />
                 <span>Quét QR Điểm danh</span>
               </button>
+              )}
             </div>
 
             {/* Live Highlight Event Banner */}

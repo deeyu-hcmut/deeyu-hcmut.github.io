@@ -1,4 +1,4 @@
-import { EventItem, EventType, FacultyStats, NewsItem, RegistrationRecord } from '../types';
+import { EventItem, EventType, FacultyStats, MemberGender, MemberRecord, MemberStatus, NewsItem, RegistrationRecord } from '../types';
 import { INITIAL_STATS } from '../data/mockData';
 
 // Logic shared by the localStorage backend (api.ts) and the Firestore backend (firebaseApi.ts).
@@ -22,7 +22,7 @@ export function buildNews(newsData: Partial<NewsItem>): Omit<NewsItem, 'id'> {
     content: newsData.content || '',
     category: newsData.category || 'HOAT_DONG_KHOA',
     categoryName: newsData.categoryName || 'Hoạt động Khoa',
-    author: newsData.author || 'Ban Truyền thông',
+    author: newsData.author || 'Ban TT-SK',
     authorRole: newsData.authorRole || 'Cộng tác viên Truyền thông',
     publishedAt: new Date().toISOString(),
     coverImage: newsData.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
@@ -109,6 +109,49 @@ export function filterEvents(events: EventItem[], type?: string, status?: string
     result = result.filter(evt => evt.status === status);
   }
   return result;
+}
+
+export type MemberInput = Omit<MemberRecord, 'id' | 'updatedAt'>;
+
+const MEMBER_GENDERS: MemberGender[] = ['NAM', 'NU', 'KHAC', ''];
+const MEMBER_STATUSES: MemberStatus[] = ['STUDYING', 'RESERVED', 'GRADUATED', 'DROPPED'];
+
+// Same key as registrations / students: the lower-cased MSSV
+export function memberIdOf(mssv: string): string {
+  return mssv.trim().toLowerCase();
+}
+
+function text(value: unknown, max: number): string {
+  return String(value ?? '').trim().slice(0, max);
+}
+
+// Normalises a form / Excel row; `previous` fills in what the input leaves out
+export function buildMember(input: Partial<MemberInput>, previous?: MemberRecord): MemberRecord {
+  const merged = { ...previous, ...Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined)) };
+  const mssv = text(merged.mssv, 20);
+  const id = memberIdOf(mssv);
+  if (!/^[a-z0-9]{1,20}$/.test(id)) throw new Error(`MSSV "${mssv}" không hợp lệ (chỉ gồm chữ và số, tối đa 20 ký tự).`);
+  const fullName = text(merged.fullName, 100);
+  if (!fullName) throw new Error(`Thiếu họ tên cho MSSV ${mssv}.`);
+  const isUnionMember = Boolean(merged.isUnionMember);
+  return {
+    id,
+    mssv,
+    fullName,
+    gender: MEMBER_GENDERS.includes(merged.gender as MemberGender) ? (merged.gender as MemberGender) : '',
+    dateOfBirth: text(merged.dateOfBirth, 10),
+    cohort: text(merged.cohort, 20),
+    classGroup: text(merged.classGroup, 50),
+    email: text(merged.email, 100),
+    phone: text(merged.phone, 20),
+    isUnionMember,
+    unionJoinDate: isUnionMember ? text(merged.unionJoinDate, 10) : '',
+    unionCardNumber: isUnionMember ? text(merged.unionCardNumber, 30) : '',
+    isAssociationMember: Boolean(merged.isAssociationMember),
+    status: MEMBER_STATUSES.includes(merged.status as MemberStatus) ? (merged.status as MemberStatus) : 'STUDYING',
+    note: text(merged.note, 500),
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 export function filterRegistrations(records: RegistrationRecord[], eventId?: string, search?: string): RegistrationRecord[] {

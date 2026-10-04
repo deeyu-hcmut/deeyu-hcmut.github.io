@@ -95,7 +95,7 @@ async function startServer() {
       content: req.body.content || '',
       category: req.body.category || 'HOAT_DONG_KHOA',
       categoryName: req.body.categoryName || 'Hoạt động Khoa',
-      author: req.body.author || 'Ban Truyền thông',
+      author: req.body.author || 'Ban TT-SK',
       authorRole: req.body.authorRole || 'Cộng tác viên Truyền thông',
       publishedAt: new Date().toISOString(),
       coverImage: req.body.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',

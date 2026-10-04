@@ -3,6 +3,7 @@ import { doc, getDoc } from 'firebase/firestore/lite';
 import { app, db } from './firebase';
 import { USE_FIREBASE_EMULATOR } from './firebaseConfig';
 import { Role } from '../types';
+import { normalizeRole } from '../utils/roles';
 
 export interface StaffSession {
   email: string;
@@ -10,8 +11,6 @@ export interface StaffSession {
   // STUDENT when the Google account is not listed in admins/{email}
   role: Role;
 }
-
-const STAFF_ROLES: Role[] = ['SUPER_ADMIN', 'EDITOR', 'EVENT_MANAGER'];
 
 export const auth = getAuth(app);
 
@@ -22,8 +21,7 @@ if (USE_FIREBASE_EMULATOR) {
 async function resolveRole(email: string): Promise<Role> {
   try {
     const snap = await getDoc(doc(db, 'admins', email));
-    const role = snap.exists() ? (snap.data().role as Role) : 'STUDENT';
-    return STAFF_ROLES.includes(role) ? role : 'STUDENT';
+    return snap.exists() ? normalizeRole(snap.data().role) : 'STUDENT';
   } catch {
     return 'STUDENT';
   }

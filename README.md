@@ -59,10 +59,17 @@ Mở [Firestore → Rules](https://console.firebase.google.com/project/deeyu-hcm
 ### 3. Cấp quyền BCH
 Trong [Firestore → Data](https://console.firebase.google.com/project/deeyu-hcmut/firestore/data), collection `admins`. Mỗi tài khoản là một document:
 - **Document ID**: email Google, ví dụ `dtn-ddt@hcmut.edu.vn`
-- **Trường** `role` (string): `SUPER_ADMIN`, `EVENT_MANAGER` (Ban CTXH: sự kiện, điểm danh) hoặc `EDITOR` (Ban Truyền thông: tin tức)
+- **Trường** `role` (string), một trong:
 
-### 4. Nạp dữ liệu ban đầu (tuỳ chọn)
-Đăng nhập bằng tài khoản `SUPER_ADMIN` → **Quản trị → Phân quyền** → **Nạp dữ liệu mẫu** (chỉ chạy khi database còn trống).
+| `role` | Ban | Quyền |
+|---|---|---|
+| `SUPER_ADMIN` | Ban Thường vụ | Toàn quyền, cấp quyền tài khoản (`admins`), sửa BCH |
+| `HC_TV` | Ban HC-TV | Tạo/sửa/xoá sự kiện, danh sách đăng ký, xuất Excel, nhắc nhở 24h |
+| `TT_SK` | Ban TT-SK | Như HC-TV, thêm đăng/sửa/xoá tin tức |
+| `QLNS_CTSV` | Ban QLNS-CTSV | Quản lý danh sách sinh viên, đoàn viên, hội viên (collection `members`) |
+
+Mọi vai trò trên đều quét QR điểm danh được. Tài khoản không có trong `admins` là sinh viên: không thấy nút quét QR.
+Giá trị cũ `EVENT_MANAGER` / `EDITOR` vẫn được hiểu là `HC_TV` / `TT_SK`.
 
 ### Chạy local
 `npm run dev` dùng luôn project thật — cẩn thận khi thử đăng ký/xoá.

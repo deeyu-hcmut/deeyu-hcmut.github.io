@@ -27,6 +27,7 @@ import { api } from '../services/api';
 import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 import type { StaffSession } from '../services/auth';
 import { useTheme } from '../theme';
+import { ROLE_LABELS, STAFF_ROLES } from '../utils/roles';
 
 // Every Firestore poll is billed as reads, so poll far less often than the local demo
 const NOTIFICATION_POLL_MS = FIREBASE_ENABLED ? 120_000 : 8000;
@@ -39,7 +40,8 @@ interface NavbarProps {
   session: StaffSession | null;
   onSignIn: () => void;
   onSignOut: () => void;
-  onOpenQRScanner: () => void;
+  // Undefined hides the button: only staff may run the check-in station
+  onOpenQRScanner?: () => void;
   onOpenStudentLookup: () => void;
 }
 
@@ -93,13 +95,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
-  const ROLE_LABELS: Record<Role, string> = {
-    SUPER_ADMIN: 'Super Admin',
-    EVENT_MANAGER: 'Ban CTXH (Quản lý sự kiện)',
-    EDITOR: 'Ban Truyền thông',
-    STUDENT: 'Chưa được cấp quyền BCH',
-  };
-
   const navLinks = [
     { id: 'home', label: 'Trang chủ', icon: Zap },
     { id: 'events', label: 'Sự kiện & Đăng ký', icon: Calendar },
@@ -146,6 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0 ml-2">
             
             {/* Quick QR Attendance Button */}
+            {onOpenQRScanner && (
             <button
               id="header-qr-checkin-btn"
               onClick={onOpenQRScanner}
@@ -154,6 +150,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <QrCode className="w-4 h-4" />
               <span>Quét QR Điểm danh</span>
             </button>
+            )}
 
             {/* Light / dark theme toggle */}
             <button
@@ -271,7 +268,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{session.displayName || session.email}</p>
                           <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{session.email}</p>
                           <p className={`mt-1.5 inline-block px-2 py-0.5 rounded-md text-[11px] font-bold ${currentRole === 'STUDENT' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'}`}>
-                            {ROLE_LABELS[currentRole]}
+                            {currentRole === 'STUDENT' ? 'Chưa được cấp quyền BCH' : ROLE_LABELS[currentRole]}
                           </p>
                         </div>
                         <button
@@ -295,9 +292,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                           className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
                         >
                           <option value="STUDENT">Sinh viên / Đoàn viên</option>
-                          <option value="EVENT_MANAGER">Ban CTXH (Quản lý sự kiện)</option>
-                          <option value="EDITOR">Ban Truyền thông</option>
-                          <option value="SUPER_ADMIN">Super Admin</option>
+                          {STAFF_ROLES.map(role => (
+                            <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+                          ))}
                         </select>
                       </div>
                     )}

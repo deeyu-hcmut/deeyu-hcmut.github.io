@@ -4,7 +4,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ---------- Staff roles: admins/{email} = { role: 'SUPER_ADMIN' | 'EVENT_MANAGER' | 'EDITOR' } ----------
+    // ---------- Staff roles: admins/{email} = { role: 'SUPER_ADMIN' | 'HC_TV' | 'TT_SK' | 'QLNS_CTSV' } ----------
+    // Legacy values still accepted: EVENT_MANAGER (= HC_TV), EDITOR (= TT_SK). Mirrors src/utils/roles.ts.
 
     function signedIn() {
       return request.auth != null && request.auth.token.email_verified == true;
@@ -18,9 +19,11 @@ service cloud.firestore {
       return signedIn() && exists(adminPath()) && get(adminPath()).data.role in roles;
     }
 
-    function isStaff() { return hasRole(['SUPER_ADMIN', 'EVENT_MANAGER', 'EDITOR']); }
-    function canManageEvents() { return hasRole(['SUPER_ADMIN', 'EVENT_MANAGER']); }
-    function canEditNews() { return hasRole(['SUPER_ADMIN', 'EDITOR']); }
+    // Every staff role may run the QR check-in station
+    function isStaff() { return hasRole(['SUPER_ADMIN', 'HC_TV', 'TT_SK', 'QLNS_CTSV', 'EVENT_MANAGER', 'EDITOR']); }
+    function canManageEvents() { return hasRole(['SUPER_ADMIN', 'HC_TV', 'TT_SK', 'EVENT_MANAGER', 'EDITOR']); }
+    function canEditNews() { return hasRole(['SUPER_ADMIN', 'TT_SK', 'EDITOR']); }
+    function canManageMembers() { return hasRole(['SUPER_ADMIN', 'QLNS_CTSV']); }
     function isSuperAdmin() { return hasRole(['SUPER_ADMIN']); }
 
     function registrationPath(regId) {
@@ -56,6 +59,8 @@ service cloud.firestore {
 
     match /emailLogs/{logId} {
       allow read, write: if canManageEvents();
+      // Check-in confirmation queued by whoever scans the ticket
+      allow create: if isStaff();
     }
 
     // ---------- Events & public self-registration ----------
@@ -63,7 +68,15 @@ service cloud.firestore {
     match /events/{eventId} {
       allow read: if true;
       allow create, delete: if canManageEvents();
-      allow update: if canManageEvents() || isRegistrationCounterBump(eventId);
+      allow update: if canManageEvents() || isRegistrationCounterBump(eventId) || (isStaff() && isCheckInCounterBump());
+    }
+
+    // Staff without event rights may only count one more check-in
+    function isCheckInCounterBump() {
+      let before = resource.data;
+      let after = request.resource.data;
+      return after.diff(before).affectedKeys().hasOnly(['checkedInCount'])
+        && after.checkedInCount == before.get('checkedInCount', 0) + 1;
     }
 
     // Anonymous visitors may only add one participant, in the same transaction that
@@ -85,8 +98,20 @@ service cloud.firestore {
     // `get` is public (duplicate check, MSSV lookup); listing everything is staff only.
     match /registrations/{regId} {
       allow get: if true;
-      allow list, update, delete: if canManageEvents();
+      allow list: if isStaff();
+      allow update, delete: if canManageEvents();
+      allow update: if isStaff() && isCheckInUpdate();
       allow create: if isValidRegistration(regId);
+    }
+
+    // Marking a ticket as checked in: the only change the QR station makes
+    function isCheckInUpdate() {
+      let before = resource.data;
+      let after = request.resource.data;
+      return after.diff(before).affectedKeys().hasOnly(['checkedIn', 'checkedInAt'])
+        && before.checkedIn == false
+        && after.checkedIn == true
+        && after.checkedInAt is string && after.checkedInAt.size() <= 40;
     }
 
     function isValidRegistration(regId) {
@@ -117,6 +142,8 @@ service cloud.firestore {
     // Email / phone / note of a registration: written once with it, readable by staff only.
     match /registrationContacts/{regId} {
       allow read, update, delete: if canManageEvents();
+      // The QR station shows the scanned student's contact card
+      allow get: if isStaff();
       allow create: if request.resource.data.keys().hasOnly(['email', 'phone', 'note'])
         && request.resource.data.keys().hasAll(['email', 'phone', 'note'])
         && request.resource.data.email is string && request.resource.data.email.size() <= 100
@@ -131,6 +158,27 @@ service cloud.firestore {
       allow list, delete: if canManageEvents();
       allow create: if isStudentIndexWrite(mssvKey, []);
       allow update: if canManageEvents() || isStudentIndexWrite(mssvKey, resource.data.eventIds);
+    }
+
+    // ---------- Student / Đoàn viên / Hội viên records (Ban QLNS-CTSV) ----------
+
+    match /members/{memberId} {
+      allow read, delete: if canManageMembers();
+      allow create, update: if canManageMembers() && isValidMember(memberId);
+    }
+
+    function isValidMember(memberId) {
+      let m = request.resource.data;
+      return m.keys().hasOnly(['mssv', 'fullName', 'gender', 'dateOfBirth', 'cohort', 'classGroup', 'email', 'phone',
+                               'isUnionMember', 'unionJoinDate', 'unionCardNumber', 'isAssociationMember',
+                               'status', 'note', 'updatedAt'])
+        && memberId.matches('^[a-z0-9]{1,20}$')
+        && m.mssv is string && m.mssv.lower() == memberId
+        && m.fullName is string && m.fullName.size() > 0 && m.fullName.size() <= 100
+        && m.isUnionMember is bool
+        && m.isAssociationMember is bool
+        && m.status in ['STUDYING', 'RESERVED', 'GRADUATED', 'DROPPED']
+        && m.note is string && m.note.size() <= 500;
     }
 
     function isStudentIndexWrite(mssvKey, previousEventIds) {

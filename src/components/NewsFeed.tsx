@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { NewsItem, NewsCategory, Role } from '../types';
 import { sizedImage } from '../utils/image';
+import { canEditNews as roleCanEditNews } from '../utils/roles';
 
 interface NewsFeedProps {
   newsList: NewsItem[];
@@ -52,7 +53,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
   const [newTags, setNewTags] = useState('Đoàn - Hội, Tuổi trẻ');
   const [newCover, setNewCover] = useState('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80');
 
-  const canEditNews = currentRole === 'SUPER_ADMIN' || currentRole === 'EDITOR';
+  const canEditNews = roleCanEditNews(currentRole);
   // The create form doubles as the edit form when this is set
   const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
   const [savingNews, setSavingNews] = useState(false);
@@ -174,8 +175,8 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
       categoryName: catObj ? catObj.label : 'Hoạt động',
       tags: newTags.split(',').map(t => t.trim()).filter(Boolean),
       coverImage: newCover.trim() || undefined,
-      author: 'Ban Truyền thông Đoàn - Hội Khoa',
-      authorRole: 'Ban Truyền thông'
+      author: 'Ban TT-SK Đoàn - Hội Khoa',
+      authorRole: 'Ban TT-SK'
     });
 
     setIsCreatingModal(false);
@@ -233,7 +234,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
               </div>
 
               {/* Create News Button (Admin/Editor) */}
-              {(currentRole === 'SUPER_ADMIN' || currentRole === 'EDITOR') && (
+              {canEditNews && (
                 <button
                   id="create-news-btn"
                   onClick={openCreateNews}
@@ -653,7 +654,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700 mb-4">
               <h3 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
                 {editingNews ? <Pencil className="w-5 h-5 text-blue-600 dark:text-blue-300" /> : <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />}
-                <span>{editingNews ? 'Sửa bài viết' : 'Đăng Tin tức Mới (Ban Truyền thông)'}</span>
+                <span>{editingNews ? 'Sửa bài viết' : 'Đăng Tin tức Mới (Ban TT-SK)'}</span>
               </h3>
               <button onClick={closeNewsForm} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                 <X className="w-5 h-5" />

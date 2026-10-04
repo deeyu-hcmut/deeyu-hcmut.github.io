@@ -1,4 +1,4 @@
-import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats } from '../types';
+import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats, MemberRecord } from '../types';
 import { 
   INITIAL_EVENTS, 
   INITIAL_NEWS, 
@@ -17,7 +17,10 @@ import {
   filterEvents,
   filterNews,
   filterRegistrations,
-  generateTicketCode
+  generateTicketCode,
+  buildMember,
+  memberIdOf,
+  type MemberInput
 } from './shared';
 
 // Storage keys for client-side persistence (GitHub Pages static mode)
@@ -27,6 +30,7 @@ const STORAGE_KEYS = {
   REGISTRATIONS: 'fee_portal_registrations_v2',
   NOTIFICATIONS: 'fee_portal_notifications_v2',
   EMAIL_LOGS: 'fee_portal_email_logs_v2',
+  MEMBERS: 'fee_portal_members_v1',
 };
 
 function getLocalData<T>(key: string, initialData: T): T {
@@ -365,6 +369,37 @@ const clientStorage = {
 
   getEmailLogs: (): EmailDispatchLog[] => {
     return getLocalData<EmailDispatchLog[]>(STORAGE_KEYS.EMAIL_LOGS, []);
+  },
+
+  getMembers: (): MemberRecord[] =>
+    getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).sort((a, b) => a.mssv.localeCompare(b.mssv)),
+
+  saveMember: (input: MemberInput, previousId?: string): MemberRecord => {
+    const members = getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []);
+    const member = buildMember(input);
+    if (member.id !== previousId && members.some(m => m.id === member.id)) {
+      throw new Error(`MSSV ${member.mssv} đã có trong danh sách.`);
+    }
+    setLocalData(STORAGE_KEYS.MEMBERS, [member, ...members.filter(m => m.id !== previousId && m.id !== member.id)]);
+    return member;
+  },
+
+  deleteMember: (memberId: string): void => {
+    const members = getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []);
+    setLocalData(STORAGE_KEYS.MEMBERS, members.filter(m => m.id !== memberId));
+  },
+
+  importMembers: (rows: Partial<MemberInput>[]): { created: number; updated: number } => {
+    const byId = new Map(getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).map(m => [m.id, m]));
+    let created = 0;
+    rows.forEach(row => {
+      const previous = byId.get(memberIdOf(row.mssv || ''));
+      const member = buildMember(row, previous);
+      if (!previous) created++;
+      byId.set(member.id, member);
+    });
+    setLocalData(STORAGE_KEYS.MEMBERS, [...byId.values()]);
+    return { created, updated: rows.length - created };
   }
 };
 
@@ -495,7 +530,20 @@ const localApi = {
 
   // Email Logs
   getEmailLogs: async (): Promise<EmailDispatchLog[]> =>
-    (await fetchApi<EmailDispatchLog[]>('/api/email-logs')) ?? clientStorage.getEmailLogs()
+    (await fetchApi<EmailDispatchLog[]>('/api/email-logs')) ?? clientStorage.getEmailLogs(),
+
+  // Student / Đoàn viên / Hội viên records (Ban QLNS-CTSV); the demo keeps them in this browser only
+  getMembers: async (): Promise<MemberRecord[]> => clientStorage.getMembers(),
+
+  // previousId: the record being edited (its MSSV may change), undefined when adding
+  saveMember: async (input: MemberInput, previousId?: string): Promise<MemberRecord> =>
+    clientStorage.saveMember(input, previousId),
+
+  deleteMember: async (memberId: string): Promise<void> => clientStorage.deleteMember(memberId),
+
+  // Upsert by MSSV; cells left out of a row keep the stored value
+  importMembers: async (rows: Partial<MemberInput>[]): Promise<{ created: number; updated: number }> =>
+    clientStorage.importMembers(rows)
 };
 
 export type Api = typeof localApi;

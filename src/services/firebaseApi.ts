@@ -21,6 +21,7 @@ import {
   BCHMember,
   EmailDispatchLog,
   EventItem,
+  MemberRecord,
   NewsItem,
   NotificationItem,
   RegistrationRecord,
@@ -37,6 +38,8 @@ import {
   filterNews,
   filterRegistrations,
   generateTicketCode,
+  buildMember,
+  memberIdOf,
 } from './shared';
 
 /*
@@ -47,7 +50,8 @@ import {
  *   registrationContacts/{same id}     email/phone/note; staff only
  *   students/{mssvKey}                 { eventIds } index for the public MSSV lookup
  *   notifications/{id}                 public read; staff write
- *   emailLogs/{id}                     staff only
+ *   emailLogs/{id}                     event staff read; any staff adds on check-in
+ *   members/{mssvKey}                  student / Đoàn viên / Hội viên records; Ban QLNS-CTSV only
  *   admins/{email}                     { role } of each staff Google account
  */
 
@@ -455,6 +459,49 @@ const rawFirebaseApi: Api = {
     (await getDocs(query(collection(db, 'emailLogs'), orderBy('sentAt', 'desc'), limit(200)))).docs.map(d =>
       withId<EmailDispatchLog>(d)
     ),
+
+  getMembers: async () =>
+    (await getDocs(query(collection(db, 'members'), orderBy('mssv')))).docs.map(d => withId<MemberRecord>(d)),
+
+  saveMember: async (input, previousId) => {
+    const { id, ...member } = buildMember(input);
+    if (id !== previousId && (await getDoc(doc(db, 'members', id))).exists()) {
+      throw new Error(`MSSV ${member.mssv} đã có trong danh sách.`);
+    }
+    const batch = writeBatch(db);
+    batch.set(doc(db, 'members', id), member);
+    if (previousId && previousId !== id) batch.delete(doc(db, 'members', previousId));
+    await batch.commit();
+    return { id, ...member };
+  },
+
+  deleteMember: async memberId => {
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'members', memberId));
+    await batch.commit();
+  },
+
+  importMembers: async rows => {
+    const existing = new Map(
+      (await getDocs(collection(db, 'members'))).docs.map(d => [d.id, withId<MemberRecord>(d)])
+    );
+    const merged = new Map<string, MemberRecord>();
+    let created = 0;
+    rows.forEach(row => {
+      const key = memberIdOf(row.mssv || '');
+      const previous = merged.get(key) ?? existing.get(key);
+      const member = buildMember(row, previous);
+      if (!previous) created++;
+      merged.set(member.id, member);
+    });
+    const records = [...merged.values()];
+    for (let i = 0; i < records.length; i += 450) {
+      const batch = writeBatch(db);
+      records.slice(i, i + 450).forEach(({ id, ...member }) => batch.set(doc(db, 'members', id), member));
+      await batch.commit();
+    }
+    return { created, updated: rows.length - created };
+  },
 };
 
 function friendlyError(err: unknown): Error {

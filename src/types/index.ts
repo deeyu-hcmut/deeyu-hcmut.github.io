@@ -1,4 +1,6 @@
-export type Role = 'SUPER_ADMIN' | 'EDITOR' | 'EVENT_MANAGER' | 'STUDENT';
+// HC_TV replaces Ban CTXH (EVENT_MANAGER), TT_SK replaces Ban Truyền thông (EDITOR),
+// QLNS_CTSV keeps the student / Đoàn viên / Hội viên records. See src/utils/roles.ts.
+export type Role = 'SUPER_ADMIN' | 'HC_TV' | 'TT_SK' | 'QLNS_CTSV' | 'STUDENT';
 
 export interface UserProfile {
   id: string;
@@ -91,6 +93,29 @@ export interface BCHMember {
   avatarUrl: string;
   bio: string;
   department: string;
+}
+
+export type MemberGender = 'NAM' | 'NU' | 'KHAC' | '';
+export type MemberStatus = 'STUDYING' | 'RESERVED' | 'GRADUATED' | 'DROPPED';
+
+// Student / Đoàn viên / Hội viên record kept by Ban QLNS-CTSV; id is the lower-cased MSSV
+export interface MemberRecord {
+  id: string;
+  mssv: string;
+  fullName: string;
+  gender: MemberGender;
+  dateOfBirth: string; // YYYY-MM-DD or ''
+  cohort: string; // Khóa, e.g. K2022
+  classGroup: string;
+  email: string;
+  phone: string;
+  isUnionMember: boolean; // Đoàn viên
+  unionJoinDate: string; // YYYY-MM-DD or ''
+  unionCardNumber: string;
+  isAssociationMember: boolean; // Hội viên
+  status: MemberStatus;
+  note: string;
+  updatedAt: string;
 }
 
 export interface NotificationItem {
