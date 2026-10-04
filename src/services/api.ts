@@ -444,19 +444,6 @@ const clientStorage = {
     setLocalData(STORAGE_KEYS.MEMBERS, members.filter(m => m.id !== memberId));
   },
 
-  importMembers: (rows: Partial<MemberInput>[]): { created: number; updated: number } => {
-    const byId = new Map(getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).map(m => [m.id, m]));
-    let created = 0;
-    rows.forEach(row => {
-      const previous = byId.get(memberIdOf(row.mssv || ''));
-      const member = buildMember(row, previous);
-      if (!previous) created++;
-      byId.set(member.id, member);
-    });
-    setLocalData(STORAGE_KEYS.MEMBERS, [...byId.values()]);
-    return { created, updated: rows.length - created };
-  },
-
   // The demo has no sign-in, so these only serve the type; the first sign-in form needs Firebase
   getMyMemberProfile: (accountEmail: string): MemberRecord | null =>
     getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).find(m => m.accountEmail === accountEmail.toLowerCase()) ?? null,
@@ -636,9 +623,6 @@ const localApi = {
 
   deleteMember: async (memberId: string): Promise<void> => clientStorage.deleteMember(memberId),
 
-  // Upsert by MSSV; cells left out of a row keep the stored value
-  importMembers: async (rows: Partial<MemberInput>[]): Promise<{ created: number; updated: number }> =>
-    clientStorage.importMembers(rows),
 
   // ---------- First sign-in of a student with an @hcmut.edu.vn account ----------
 

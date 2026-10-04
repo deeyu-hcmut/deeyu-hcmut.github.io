@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Users,
   UserPlus,
   Search,
   FileSpreadsheet,
-  Upload,
-  Download,
   Pencil,
   Trash2,
   RefreshCw,
@@ -20,7 +18,7 @@ import {
 import { MemberGender, MemberRecord, MemberStatus } from '../types';
 import { api } from '../services/api';
 import type { MemberInput } from '../services/shared';
-import { normalizeKey as normalizeHeader, readFirstSheet, writeWorkbook, type XlsxModule } from '../utils/excel';
+import { writeWorkbook } from '../utils/excel';
 
 const STATUS_LABELS: Record<MemberStatus, string> = {
   STUDYING: 'Đang học',
@@ -56,94 +54,17 @@ const EMPTY_FORM: MemberInput = {
   note: '',
 };
 
-// ---------- Excel columns (export and import use the same headers) ----------
-
-const COLUMNS: { field: keyof MemberInput; header: string; aliases: string[] }[] = [
-  { field: 'mssv', header: 'MSSV', aliases: ['mssv', 'masosinhvien', 'masv'] },
-  { field: 'fullName', header: 'Họ và tên', aliases: ['hovaten', 'hoten', 'ten'] },
-  { field: 'gender', header: 'Giới tính', aliases: ['gioitinh'] },
-  { field: 'dateOfBirth', header: 'Ngày sinh', aliases: ['ngaysinh'] },
-  { field: 'cohort', header: 'Khóa', aliases: ['khoa', 'khoahoc', 'nienkhoa'] },
-  { field: 'classGroup', header: 'Lớp / Chi đoàn', aliases: ['lopchidoan', 'lop', 'chidoan'] },
-  { field: 'email', header: 'Email', aliases: ['email'] },
-  { field: 'phone', header: 'Số điện thoại', aliases: ['sodienthoai', 'sdt', 'dienthoai'] },
-  { field: 'isUnionMember', header: 'Đoàn viên', aliases: ['doanvien'] },
-  { field: 'unionJoinDate', header: 'Ngày vào Đoàn', aliases: ['ngayvaodoan'] },
-  { field: 'isAssociationMember', header: 'Hội viên', aliases: ['hoivien'] },
-  { field: 'status', header: 'Trạng thái', aliases: ['trangthai'] },
-  { field: 'note', header: 'Ghi chú', aliases: ['ghichu'] },
+// The list itself is kept in Google Sheet (tools/google-sheet-sync); Excel is export only,
+// with the same columns as the sheet
+const EXPORT_HEADERS = [
+  'MSSV', 'Họ và tên', 'Giới tính', 'Ngày sinh', 'Khóa', 'Lớp/Chi đoàn', 'Email', 'Số điện thoại',
+  'Đoàn viên', 'Ngày vào Đoàn', 'Hội viên', 'Trạng thái', 'Ghi chú',
 ];
-
-const DATE_FIELDS = new Set<keyof MemberInput>(['dateOfBirth', 'unionJoinDate']);
-const BOOL_FIELDS = new Set<keyof MemberInput>(['isUnionMember', 'isAssociationMember']);
-
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
-}
 
 // YYYY-MM-DD -> DD/MM/YYYY for display and export
 function displayDate(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
-}
-
-function parseDate(value: unknown, XLSX: XlsxModule): string | undefined {
-  if (typeof value === 'number') {
-    const d = XLSX.SSF.parse_date_code(value);
-    return d ? `${d.y}-${pad(d.m)}-${pad(d.d)}` : undefined;
-  }
-  const s = String(value).trim();
-  const dmy = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/.exec(s);
-  if (dmy) return `${dmy[3]}-${pad(+dmy[2])}-${pad(+dmy[1])}`;
-  const ymd = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
-  if (ymd) return `${ymd[1]}-${pad(+ymd[2])}-${pad(+ymd[3])}`;
-  return undefined;
-}
-
-function parseBool(value: unknown): boolean | undefined {
-  const s = normalizeHeader(String(value));
-  if (['x', 'co', 'yes', 'y', '1', 'true', 'doanvien', 'hoivien'].includes(s)) return true;
-  if (['khong', 'no', 'n', '0', 'false'].includes(s)) return false;
-  return undefined;
-}
-
-function parseGender(value: unknown): MemberGender | undefined {
-  const s = normalizeHeader(String(value));
-  if (s === 'nam') return 'NAM';
-  if (s === 'nu') return 'NU';
-  if (s === 'khac') return 'KHAC';
-  return undefined;
-}
-
-function parseStatus(value: unknown): MemberStatus | undefined {
-  const s = normalizeHeader(String(value));
-  if (['danghoc', 'studying'].includes(s)) return 'STUDYING';
-  if (['baoluu', 'reserved'].includes(s)) return 'RESERVED';
-  if (['totnghiep', 'datotnghiep', 'graduated'].includes(s)) return 'GRADUATED';
-  if (['thoihoc', 'dropped'].includes(s)) return 'DROPPED';
-  return undefined;
-}
-
-// Empty cells are left out so an import never wipes stored values
-function parseRow(raw: Record<string, unknown>, XLSX: XlsxModule): Partial<MemberInput> {
-  const row: Partial<Record<keyof MemberInput, unknown>> = {};
-  for (const [header, value] of Object.entries(raw)) {
-    const key = normalizeHeader(header);
-    const column = COLUMNS.find(c => c.aliases.includes(key));
-    if (!column || value === null || value === undefined || String(value).trim() === '') continue;
-    const { field } = column;
-    const parsed = DATE_FIELDS.has(field)
-      ? parseDate(value, XLSX)
-      : BOOL_FIELDS.has(field)
-        ? parseBool(value)
-        : field === 'gender'
-          ? parseGender(value)
-          : field === 'status'
-            ? parseStatus(value)
-            : String(value).trim();
-    if (parsed !== undefined) row[field] = parsed;
-  }
-  return row as Partial<MemberInput>;
 }
 
 function toSheetRow(m: MemberRecord): Record<string, string> {
@@ -153,7 +74,7 @@ function toSheetRow(m: MemberRecord): Record<string, string> {
     'Giới tính': m.gender ? GENDER_LABELS[m.gender] : '',
     'Ngày sinh': displayDate(m.dateOfBirth),
     'Khóa': m.cohort,
-    'Lớp / Chi đoàn': m.classGroup,
+    'Lớp/Chi đoàn': m.classGroup,
     'Email': m.email,
     'Số điện thoại': m.phone,
     'Đoàn viên': m.isUnionMember ? 'x' : '',
@@ -203,8 +124,6 @@ export const MemberManager: React.FC = () => {
 
   const [deleting, setDeleting] = useState<MemberRecord | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadMembers = async () => {
     setLoading(true);
@@ -334,54 +253,10 @@ export const MemberManager: React.FC = () => {
     }
   };
 
-  const headers = COLUMNS.map(c => c.header);
-
   const handleExport = async () => {
     const fileName = `Danh_Sach_Sinh_Vien_Doan_Vien_Hoi_Vien_${Date.now()}.xlsx`;
-    await writeWorkbook(headers, filtered.map(toSheetRow), fileName);
+    await writeWorkbook(EXPORT_HEADERS, filtered.map(toSheetRow), fileName);
     showNotice('success', `Đã xuất ${filtered.length} sinh viên ra file ${fileName}.`);
-  };
-
-  const handleDownloadTemplate = () => writeWorkbook(headers, [], 'Mau_Nhap_Danh_Sach_Sinh_Vien.xlsx');
-
-  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    setImporting(true);
-    try {
-      const { XLSX, rows: rawRows } = await readFirstSheet(file);
-
-      const rows: Partial<MemberInput>[] = [];
-      const errors: string[] = [];
-      rawRows.forEach((raw, index) => {
-        const row = parseRow(raw, XLSX);
-        if (!row.mssv && !row.fullName) return; // blank line
-        const line = index + 2; // header is row 1
-        if (!row.mssv) errors.push(`Dòng ${line}: thiếu MSSV.`);
-        else if (!/^[a-z0-9]{1,20}$/i.test(row.mssv)) errors.push(`Dòng ${line}: MSSV "${row.mssv}" không hợp lệ.`);
-        else if (!row.fullName && !members.some(m => m.id === row.mssv!.toLowerCase())) errors.push(`Dòng ${line}: thiếu họ tên.`);
-        else rows.push(row);
-      });
-
-      if (errors.length > 0) {
-        const more = errors.length > 5 ? ` (và ${errors.length - 5} lỗi khác)` : '';
-        showNotice('error', `Chưa nhập file vì có lỗi: ${errors.slice(0, 5).join(' ')}${more}`);
-        return;
-      }
-      if (rows.length === 0) {
-        showNotice('error', 'Không tìm thấy dòng dữ liệu nào. Hãy dùng đúng tiêu đề cột như file mẫu.');
-        return;
-      }
-
-      const { created, updated } = await api.importMembers(rows);
-      await loadMembers();
-      showNotice('success', `Đã nhập ${rows.length} dòng: thêm mới ${created}, cập nhật ${updated}.`);
-    } catch (err: any) {
-      showNotice('error', `Nhập file thất bại: ${err.message}`);
-    } finally {
-      setImporting(false);
-    }
   };
 
   const renderRow = (m: MemberRecord) => (
@@ -543,15 +418,6 @@ export const MemberManager: React.FC = () => {
             <span>Thêm sinh viên</span>
           </button>
           <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={importing}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 hover:bg-blue-50 dark:hover:bg-blue-950/40 disabled:opacity-60"
-          >
-            {importing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-            <span>{importing ? 'Đang nhập…' : 'Nhập Excel'}</span>
-          </button>
-          <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImportFile} />
-          <button
             onClick={handleExport}
             disabled={filtered.length === 0}
             className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-sm disabled:opacity-50"
@@ -559,21 +425,12 @@ export const MemberManager: React.FC = () => {
             <FileSpreadsheet className="w-4 h-4" />
             <span>Xuất Excel</span>
           </button>
-          <button
-            onClick={handleDownloadTemplate}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-            title="File Excel trống với đúng các cột để nhập danh sách"
-          >
-            <Download className="w-4 h-4" />
-            <span>File mẫu</span>
-          </button>
         </div>
       </div>
 
       <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-3">
-        Nhập Excel: mỗi dòng một sinh viên, khớp theo MSSV (đã có thì cập nhật, chưa có thì thêm mới). Ô để trống giữ nguyên dữ liệu cũ.
-        Cột Đoàn viên / Hội viên ghi "x" hoặc "Có"; ngày theo dạng dd/mm/yyyy. Chỉ cần MSSV + Họ và tên + Khóa:
-        khi sinh viên đăng nhập lần đầu bằng tài khoản @hcmut.edu.vn, họ sẽ tự điền phần còn thiếu.
+        Danh sách được đồng bộ tự động từ Google Sheet (các tab K24, K25, K26…). Thêm / sửa sinh viên nên làm trong sheet;
+        sinh viên đăng nhập lần đầu bằng tài khoản @hcmut.edu.vn sẽ tự điền phần còn thiếu và thông tin đó cũng được đưa về sheet.
       </p>
 
       {/* One collapsible block per Khóa; closed by default so the page is not one huge list */}

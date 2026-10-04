@@ -574,26 +574,6 @@ const rawFirebaseApi: Api = {
     await batch.commit();
   },
 
-  importMembers: async rows => {
-    const existing = new Map((await getDocs(collection(db, 'members'))).docs.map(d => [d.id, toMember(d)]));
-    const merged = new Map<string, MemberRecord>();
-    let created = 0;
-    rows.forEach(row => {
-      const key = memberIdOf(row.mssv || '');
-      const previous = merged.get(key) ?? existing.get(key);
-      const member = buildMember(row, previous);
-      if (!previous) created++;
-      merged.set(member.id, member);
-    });
-    const records = [...merged.values()];
-    for (let i = 0; i < records.length; i += 450) {
-      const batch = writeBatch(db);
-      records.slice(i, i + 450).forEach(({ id, ...member }) => batch.set(doc(db, 'members', id), member));
-      await batch.commit();
-    }
-    return { created, updated: rows.length - created };
-  },
-
   getMyMemberProfile: async accountEmail => {
     const snap = await getDocs(
       query(collection(db, 'members'), where('accountEmail', '==', accountEmail.toLowerCase()), limit(1))
