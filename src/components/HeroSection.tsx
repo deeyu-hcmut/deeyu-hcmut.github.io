@@ -43,7 +43,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             {/* Main Title */}
             {/* Always exactly two lines: each line is nowrap and the size scales with the viewport */}
-            <h1 className="font-title hero-title font-bold text-slate-950 dark:text-slate-100 leading-[1.15]">
+            <h1 className="font-tech hero-title font-extrabold tracking-tight text-slate-950 dark:text-slate-100 leading-[1.15]">
               <span className="block whitespace-nowrap">
                 TUỔI TRẺ <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 dark:from-blue-300 dark:via-blue-200 dark:to-indigo-300 bg-clip-text text-transparent">ĐIỆN - ĐIỆN TỬ</span>
               </span>

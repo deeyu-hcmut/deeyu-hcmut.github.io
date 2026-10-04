@@ -84,14 +84,8 @@
   }
 }
 
-/* Hero title: Source Sans 3 is the current release of Source Sans Pro (same design, full Vietnamese) */
-.font-title {
-  font-family: 'Source Sans 3', 'Source Sans Pro', 'Be Vietnam Pro', sans-serif;
-  letter-spacing: -0.01em;
-}
-
 /*
- * Hero title is always two nowrap lines; the longer one is ~16.7em wide, so size the
+ * Hero title is always two nowrap lines; the longer one is ~16.9em wide, so size the
  * font to the space left by the page gutters (px-4 / sm:px-6 / lg:px-8), up to 60px.
  */
 .hero-title {
