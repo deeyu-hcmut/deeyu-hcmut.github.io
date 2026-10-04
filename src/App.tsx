@@ -106,10 +106,12 @@ export default function App() {
     };
   }, []);
 
-  // Students signing in with @hcmut.edu.vn link their record and fill in missing details once
+  // Students signing in with @hcmut.edu.vn link their record and fill in missing details once.
+  // Staff accounts (listed in admins/) are never asked, even on an @hcmut.edu.vn address.
   const [myProfile, setMyProfile] = useState<MemberRecord | null>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const hcmutEmail = FIREBASE_ENABLED && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
+  const hcmutEmail =
+    FIREBASE_ENABLED && currentRole === 'STUDENT' && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
 
   useEffect(() => {
     setMyProfile(null);
