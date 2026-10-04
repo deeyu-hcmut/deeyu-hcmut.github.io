@@ -15,6 +15,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { NewsItem, NewsCategory, Role } from '../types';
+import { sizedImage } from '../utils/image';
 
 interface NewsFeedProps {
   newsList: NewsItem[];
@@ -212,6 +213,8 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                   src={featuredArticle.coverImage} 
                   alt={featuredArticle.title}
                   referrerPolicy="no-referrer"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent lg:hidden" />
@@ -293,9 +296,11 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                 >
                   <div className="relative h-48 overflow-hidden bg-slate-100">
                     <img 
-                      src={news.coverImage} 
+                      src={sizedImage(news.coverImage, 800)} 
                       alt={news.title}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-3 left-3">
@@ -407,6 +412,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                     src={selectedNews.coverImage} 
                     alt={selectedNews.title} 
                     referrerPolicy="no-referrer"
+                    decoding="async"
                     className="w-full max-h-80 object-cover"
                   />
                 </div>

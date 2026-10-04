@@ -15,7 +15,6 @@ import {
   MapPin,
   Clock
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { EventItem, RegistrationRecord } from '../types';
 import { api } from '../services/api';
 
@@ -65,11 +64,11 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
       });
 
       // Trigger Confetti Celebration
-      confetti({
+      import('canvas-confetti').then(({ default: confetti }) => confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 }
-      });
+      }));
 
       onSuccess(res.registration, res.eventUpdated);
     } catch (err: any) {

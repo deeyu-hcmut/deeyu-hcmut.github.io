@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import * as XLSX from 'xlsx';
 import { 
   ShieldCheck, 
   Users, 
@@ -26,6 +25,7 @@ import {
 } from 'lucide-react';
 import { EventItem, RegistrationRecord, Role, EmailDispatchLog } from '../types';
 import { api } from '../services/api';
+import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 
 interface AdminDashboardProps {
   events: EventItem[];
@@ -77,7 +77,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   // Export to Excel XLSX file
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
+    // xlsx is ~400KB: load it only when an export is actually requested
+    const XLSX = await import('xlsx');
+
     const dataToExport = registrations.map((r, index) => ({
       'STT': index + 1,
       'Mã vé': r.ticketCode,
@@ -110,13 +113,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setSendingReminder(true);
     try {
       const res = await api.sendReminder(eventId);
-      setActionNotice(`Hệ thống đã tự động gửi email nhắc nhở 24h kèm vé QR tới ${res.sentCount} sinh viên!`);
+      setActionNotice(res.message);
       loadData();
       setTimeout(() => setActionNotice(null), 5000);
     } catch (err: any) {
       setActionNotice(`Lỗi: ${err.message}`);
     } finally {
       setSendingReminder(false);
+    }
+  };
+
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeedDemoData = async () => {
+    setSeeding(true);
+    try {
+      const { seedDemoData } = await import('../services/firebaseApi');
+      setActionNotice(`${await seedDemoData()} Tải lại trang để xem dữ liệu.`);
+    } catch (err: any) {
+      setActionNotice(`Lỗi: ${err.message}`);
+    } finally {
+      setSeeding(false);
     }
   };
 
@@ -509,6 +526,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* TAB 3: ROLES & PERMISSIONS (RBAC) */}
         {activeTab === 'ROLES' && (
           <div className="mt-6 space-y-6">
+            {FIREBASE_ENABLED && (
+              <div className="p-5 rounded-3xl border border-blue-200 bg-blue-50/60 text-sm text-slate-700">
+                <p>
+                  Quyền được cấp trong Firestore: mỗi tài khoản BCH là một document <code className="font-mono text-xs">admins/&lt;email&gt;</code> với
+                  trường <code className="font-mono text-xs">role</code> là <code className="font-mono text-xs">SUPER_ADMIN</code>,{' '}
+                  <code className="font-mono text-xs">EVENT_MANAGER</code> hoặc <code className="font-mono text-xs">EDITOR</code>.
+                </p>
+                {currentRole === 'SUPER_ADMIN' && (
+                  <button
+                    onClick={handleSeedDemoData}
+                    disabled={seeding}
+                    className="mt-3 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-xs font-bold"
+                  >
+                    {seeding ? 'Đang nạp...' : 'Nạp dữ liệu mẫu (chỉ khi database còn trống)'}
+                  </button>
+                )}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {rolesList.map(item => (
                 <div 
@@ -528,7 +563,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <CheckCircle2 className="w-4 h-4 mr-1 text-blue-600" />
                         Đang kích hoạt
                       </span>
-                    ) : (
+                    ) : FIREBASE_ENABLED ? null : (
                       <button
                         onClick={() => setCurrentRole(item.role)}
                         className="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 transition-colors"

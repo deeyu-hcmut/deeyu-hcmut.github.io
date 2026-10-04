@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   Zap, 
   Calendar, 
@@ -25,21 +25,90 @@ import {
 } from 'lucide-react';
 import { Role, EventItem, NewsItem, BCHMember, FacultyStats, RegistrationRecord } from './types';
 import { api } from './services/api';
+import { FIREBASE_ENABLED } from './services/firebaseConfig';
+import type { StaffSession } from './services/auth';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { HeroSection } from './components/HeroSection';
 import { AboutOrgSection } from './components/AboutOrgSection';
 import { NewsFeed } from './components/NewsFeed';
 import { EventsHub } from './components/EventsHub';
-import { QRCheckInScanner } from './components/QRCheckInScanner';
-import { StudentPortalLookup } from './components/StudentPortalLookup';
-import { AdminDashboard } from './components/AdminDashboard';
 import { INITIAL_STATS } from './data/mockData';
 
+// Views that are not on the home page are split into their own chunks
+const QRCheckInScanner = lazy(() => import('./components/QRCheckInScanner').then(m => ({ default: m.QRCheckInScanner })));
+const StudentPortalLookup = lazy(() => import('./components/StudentPortalLookup').then(m => ({ default: m.StudentPortalLookup })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+
+// Tabs are mirrored in the URL hash (#/events, #/news, ...) so they survive a reload,
+// can be shared as links and work with the browser Back button on GitHub Pages.
+const TABS = ['home', 'events', 'news', 'about', 'lookup', 'admin'];
+
+function tabFromHash(): string {
+  const tab = window.location.hash.replace(/^#\/?/, '');
+  return TABS.includes(tab) ? tab : 'home';
+}
+
+function TabFallback() {
+  return (
+    <div className="flex justify-center py-24">
+      <div className="w-8 h-8 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
+    </div>
+  );
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('home');
-  const [currentRole, setCurrentRole] = useState<Role>('SUPER_ADMIN'); // Default to Super Admin so evaluators can test everything immediately!
-  
+  const [activeTab, setActiveTabState] = useState<string>(tabFromHash);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      setActiveTabState(tabFromHash());
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const setActiveTab = (tab: string) => {
+    window.location.hash = tab === 'home' ? '/' : `/${tab}`;
+  };
+  // Demo mode (no Firebase) starts as Super Admin so evaluators can try everything;
+  // with Firebase the role comes from the signed-in Google account.
+  const [currentRole, setCurrentRole] = useState<Role>(FIREBASE_ENABLED ? 'STUDENT' : 'SUPER_ADMIN');
+  const [session, setSession] = useState<StaffSession | null>(null);
+
+  useEffect(() => {
+    if (!FIREBASE_ENABLED) return;
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    import('./services/auth').then(({ watchSession }) => {
+      if (cancelled) return;
+      unsubscribe = watchSession(next => {
+        setSession(next);
+        setCurrentRole(next?.role ?? 'STUDENT');
+      });
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
+
+  const handleSignIn = async () => {
+    try {
+      const { signInStaff } = await import('./services/auth');
+      await signInStaff();
+    } catch (err: any) {
+      if (err?.code !== 'auth/popup-closed-by-user') showToast(`Đăng nhập thất bại: ${err.message}`);
+    }
+  };
+
+  const handleSignOut = async () => {
+    const { signOutStaff } = await import('./services/auth');
+    await signOutStaff();
+    if (activeTab === 'admin') setActiveTab('home');
+  };
+
   // Data States
   const [stats, setStats] = useState<FacultyStats>(INITIAL_STATS);
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -86,7 +155,7 @@ export default function App() {
       ...prev,
       totalRegistrations: prev.totalRegistrations + 1
     }));
-    showToast(`Đăng ký thành công vé #${record.ticketCode}! Email xác nhận đã được gửi.`);
+    showToast(`Đăng ký thành công vé #${record.ticketCode}! Hãy lưu lại mã QR để điểm danh.`);
   };
 
   const handleCheckInSuccess = (record: RegistrationRecord) => {
@@ -138,6 +207,9 @@ export default function App() {
         setActiveTab={setActiveTab}
         currentRole={currentRole}
         setCurrentRole={setCurrentRole}
+        session={session}
+        onSignIn={handleSignIn}
+        onSignOut={handleSignOut}
         onOpenQRScanner={() => setIsQRScannerOpen(true)}
         onOpenStudentLookup={() => setActiveTab('lookup')}
       />
@@ -238,29 +310,53 @@ export default function App() {
           <AboutOrgSection bchMembers={bchMembers} />
         )}
 
-        {activeTab === 'lookup' && (
-          <StudentPortalLookup events={events} />
-        )}
+        <Suspense fallback={<TabFallback />}>
+          {activeTab === 'lookup' && (
+            <StudentPortalLookup events={events} />
+          )}
 
-        {activeTab === 'admin' && (
-          <AdminDashboard
-            events={events}
-            currentRole={currentRole}
-            setCurrentRole={setCurrentRole}
-            onOpenQRScanner={() => setIsQRScannerOpen(true)}
-          />
-        )}
+          {activeTab === 'admin' && FIREBASE_ENABLED && currentRole === 'STUDENT' && (
+            <div className="max-w-md mx-auto my-20 px-4 text-center">
+              <ShieldCheck className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h2 className="font-tech text-xl font-bold text-slate-900">Khu vực dành cho BCH</h2>
+              <p className="text-sm text-slate-500 mt-2">
+                {session
+                  ? `Tài khoản ${session.email} chưa được cấp quyền quản trị. Liên hệ Super Admin để được thêm vào danh sách.`
+                  : 'Đăng nhập bằng tài khoản Google đã được cấp quyền để quản lý sự kiện, tin tức và điểm danh.'}
+              </p>
+              {!session && (
+                <button
+                  onClick={handleSignIn}
+                  className="mt-6 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-md"
+                >
+                  Đăng nhập với Google
+                </button>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'admin' && !(FIREBASE_ENABLED && currentRole === 'STUDENT') && (
+            <AdminDashboard
+              events={events}
+              currentRole={currentRole}
+              setCurrentRole={setCurrentRole}
+              onOpenQRScanner={() => setIsQRScannerOpen(true)}
+            />
+          )}
+        </Suspense>
       </main>
 
       {/* Floating QR Scanner Modal if triggered */}
       {isQRScannerOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-2xl">
-            <QRCheckInScanner
-              events={events}
-              onClose={() => setIsQRScannerOpen(false)}
-              onCheckInSuccess={handleCheckInSuccess}
-            />
+            <Suspense fallback={<TabFallback />}>
+              <QRCheckInScanner
+                events={events}
+                onClose={() => setIsQRScannerOpen(false)}
+                onCheckInSuccess={handleCheckInSuccess}
+              />
+            </Suspense>
           </div>
         </div>
       )}

@@ -16,6 +16,7 @@ import {
   Compass
 } from 'lucide-react';
 import { BCHMember } from '../types';
+import { sizedImage } from '../utils/image';
 
 interface AboutOrgSectionProps {
   bchMembers: BCHMember[];
@@ -207,9 +208,11 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
                 <div className="flex items-start space-x-4">
                   <div className="relative">
                     <img 
-                      src={member.avatarUrl} 
+                      src={sizedImage(member.avatarUrl, 160)} 
                       alt={member.name}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                       className="w-16 h-16 rounded-xl object-cover border-2 border-blue-200 group-hover:border-blue-500 transition-colors"
                     />
                     <span className="absolute -bottom-1 -right-1 p-0.5 rounded-full bg-white">

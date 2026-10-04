@@ -4,9 +4,18 @@ import {
   INITIAL_NEWS, 
   INITIAL_BCH, 
   INITIAL_REGISTRATIONS, 
-  INITIAL_NOTIFICATIONS, 
-  INITIAL_STATS 
+  INITIAL_NOTIFICATIONS
 } from '../data/mockData';
+import { FIREBASE_ENABLED } from './firebaseConfig';
+import {
+  buildEvent,
+  buildNews,
+  buildStats,
+  filterEvents,
+  filterNews,
+  filterRegistrations,
+  generateTicketCode
+} from './shared';
 
 // Storage keys for client-side persistence (GitHub Pages static mode)
 const STORAGE_KEYS = {
@@ -44,53 +53,22 @@ const clientStorage = {
     const registrations = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
     const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
     const news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
-    const totalRegs = registrations.length + 4230;
-    const totalCheckins = registrations.filter(r => r.checkedIn).length + 3890;
-
-    return {
-      ...INITIAL_STATS,
-      totalRegistrations: totalRegs,
-      totalCheckIns: totalCheckins,
-      totalEventsHeld: events.length + 43,
-      totalNewsPublished: news.length + 120,
-    };
+    return buildStats({
+      registrations: registrations.length,
+      checkIns: registrations.filter(r => r.checkedIn).length,
+      events: events.length,
+      news: news.length,
+    });
   },
 
-  getNews: (category?: string, search?: string): NewsItem[] => {
-    let news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
-    if (category && category !== 'ALL') {
-      news = news.filter(item => item.category === category);
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      news = news.filter(item => 
-        item.title.toLowerCase().includes(q) || 
-        item.summary.toLowerCase().includes(q) ||
-        item.tags.some(t => t.toLowerCase().includes(q))
-      );
-    }
-    return news;
-  },
+  getNews: (category?: string, search?: string): NewsItem[] =>
+    filterNews(getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS), category, search),
 
   createNews: (newsData: Partial<NewsItem>): NewsItem => {
     const news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
     const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 
-    const newArticle: NewsItem = {
-      id: `news-${Date.now()}`,
-      title: newsData.title || 'Tin tức mới',
-      slug: (newsData.title || 'tin-tuc-moi').toLowerCase().replace(/\s+/g, '-'),
-      summary: newsData.summary || '',
-      content: newsData.content || '',
-      category: newsData.category || 'HOAT_DONG_KHOA',
-      categoryName: newsData.categoryName || 'Hoạt động Khoa',
-      author: newsData.author || 'Ban Truyền thông FEE Media',
-      authorRole: newsData.authorRole || 'Cộng tác viên Truyền thông',
-      publishedAt: new Date().toISOString(),
-      coverImage: newsData.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-      tags: newsData.tags || ['FEE Portal', 'Đoàn - Hội'],
-      views: 1
-    };
+    const newArticle: NewsItem = { id: `news-${Date.now()}`, ...buildNews(newsData) };
     news.unshift(newArticle);
     setLocalData(STORAGE_KEYS.NEWS, news);
 
@@ -107,43 +85,14 @@ const clientStorage = {
     return newArticle;
   },
 
-  getEvents: (type?: string, status?: string): EventItem[] => {
-    let events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
-    if (type && type !== 'ALL') {
-      events = events.filter(evt => evt.type === type);
-    }
-    if (status && status !== 'ALL') {
-      events = events.filter(evt => evt.status === status);
-    }
-    return events;
-  },
+  getEvents: (type?: string, status?: string): EventItem[] =>
+    filterEvents(getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS), type, status),
 
   createEvent: (eventData: Partial<EventItem>): EventItem => {
     const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
     const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 
-    const newEvt: EventItem = {
-      id: `evt-${Date.now()}`,
-      title: eventData.title || 'Sự kiện mới',
-      slug: (eventData.title || 'su-kien-moi').toLowerCase().replace(/\s+/g, '-'),
-      description: eventData.description || '',
-      content: eventData.content || eventData.description || '',
-      type: eventData.type || 'ACADEMIC_CONTEST',
-      typeName: eventData.typeName || 'Học thuật & Triển lãm',
-      status: eventData.status || 'REGISTRATION_OPEN',
-      location: eventData.location || 'Hội trường A Khoa Điện - Điện tử',
-      eventDate: eventData.eventDate || new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
-      startTime: eventData.startTime || '08:00',
-      endTime: eventData.endTime || '11:30',
-      registrationDeadline: eventData.registrationDeadline || new Date(Date.now() + 86400000 * 6).toISOString(),
-      maxParticipants: Number(eventData.maxParticipants) || 200,
-      currentParticipants: 0,
-      bannerUrl: eventData.bannerUrl || 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
-      organizer: eventData.organizer || 'Đoàn - Hội Khoa Điện - Điện tử',
-      contactEmail: eventData.contactEmail || 'doanhoi.fee@university.edu.vn',
-      requirements: eventData.requirements || ['Thẻ sinh viên', 'Áo Đoàn / Đồng phục'],
-      isMandatoryCheckIn: true
-    };
+    const newEvt: EventItem = { id: `evt-${Date.now()}`, ...buildEvent(eventData) };
     events.unshift(newEvt);
     setLocalData(STORAGE_KEYS.EVENTS, events);
 
@@ -194,9 +143,7 @@ const clientStorage = {
       throw new Error(`MSSV ${registrationData.mssv} đã đăng ký sự kiện này trước đó với mã vé #${existing.ticketCode}`);
     }
 
-    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-    const prefix = event.type === 'ACADEMIC_CONTEST' ? 'FEE-ACAD' : event.type === 'SEMINAR_WORKSHOP' ? 'FEE-SEMI' : 'FEE-EVT';
-    const ticketCode = `${prefix}-${randomSuffix}`;
+    const ticketCode = generateTicketCode(event.type);
 
     const newRecord: RegistrationRecord = {
       id: `reg-${Date.now()}`,
@@ -269,6 +216,7 @@ const clientStorage = {
 
     if (target.checkedIn) {
       return {
+        success: false,
         warning: true,
         message: `Sinh viên ${target.fullName} (${target.mssv}) ĐÃ ĐƯỢC ĐIỂM DANH trước đó vào lúc ${new Date(target.checkedInAt!).toLocaleTimeString('vi-VN')}.`,
         record: target
@@ -313,22 +261,8 @@ const clientStorage = {
     };
   },
 
-  getRegistrations: (eventId?: string, search?: string): RegistrationRecord[] => {
-    let records = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
-    if (eventId && eventId !== 'ALL') {
-      records = records.filter(r => r.eventId === eventId);
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      records = records.filter(r => 
-        r.fullName.toLowerCase().includes(q) ||
-        r.mssv.toLowerCase().includes(q) ||
-        r.ticketCode.toLowerCase().includes(q) ||
-        r.classGroup.toLowerCase().includes(q)
-      );
-    }
-    return records;
-  },
+  getRegistrations: (eventId?: string, search?: string): RegistrationRecord[] =>
+    filterRegistrations(getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS), eventId, search),
 
   sendReminder: (eventId: string) => {
     const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
@@ -416,73 +350,56 @@ const clientStorage = {
   }
 };
 
-export const api = {
+// GitHub Pages is a static host with no /api routes: skip the network round-trip
+// (and the 404 it produces) and go straight to localStorage. `npm run dev` serves the
+// Express API, and a production server build can opt in with VITE_API_SERVER=true.
+const HAS_API_SERVER = import.meta.env.DEV || import.meta.env.VITE_API_SERVER === 'true';
+
+async function fetchApi<T>(url: string, init?: RequestInit, acceptStatus: number[] = []): Promise<T | undefined> {
+  if (!HAS_API_SERVER) return undefined;
+  try {
+    const res = await fetch(url, init);
+    if (res.ok || acceptStatus.includes(res.status)) return await res.json();
+  } catch {
+    // Fallback
+  }
+  return undefined;
+}
+
+function postJson(body: unknown): RequestInit {
+  return {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  };
+}
+
+const localApi = {
   // Stats
-  getStats: async (): Promise<FacultyStats> => {
-    try {
-      const res = await fetch('/api/stats');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getStats();
-  },
+  getStats: async (): Promise<FacultyStats> =>
+    (await fetchApi<FacultyStats>('/api/stats')) ?? clientStorage.getStats(),
 
   // News
   getNews: async (category?: string, search?: string): Promise<NewsItem[]> => {
-    try {
-      const params = new URLSearchParams();
-      if (category) params.append('category', category);
-      if (search) params.append('search', search);
-      const res = await fetch(`/api/news?${params.toString()}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getNews(category, search);
+    const params = new URLSearchParams();
+    if (category) params.append('category', category);
+    if (search) params.append('search', search);
+    return (await fetchApi<NewsItem[]>(`/api/news?${params.toString()}`)) ?? clientStorage.getNews(category, search);
   },
 
-  createNews: async (newsData: Partial<NewsItem>): Promise<NewsItem> => {
-    try {
-      const res = await fetch('/api/news', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newsData),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.createNews(newsData);
-  },
+  createNews: async (newsData: Partial<NewsItem>): Promise<NewsItem> =>
+    (await fetchApi<NewsItem>('/api/news', postJson(newsData))) ?? clientStorage.createNews(newsData),
 
   // Events
   getEvents: async (type?: string, status?: string): Promise<EventItem[]> => {
-    try {
-      const params = new URLSearchParams();
-      if (type) params.append('type', type);
-      if (status) params.append('status', status);
-      const res = await fetch(`/api/events?${params.toString()}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getEvents(type, status);
+    const params = new URLSearchParams();
+    if (type) params.append('type', type);
+    if (status) params.append('status', status);
+    return (await fetchApi<EventItem[]>(`/api/events?${params.toString()}`)) ?? clientStorage.getEvents(type, status);
   },
 
-  createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> => {
-    try {
-      const res = await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventData),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.createEvent(eventData);
-  },
+  createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> =>
+    (await fetchApi<EventItem>('/api/events', postJson(eventData))) ?? clientStorage.createEvent(eventData),
 
   registerEvent: async (eventId: string, registrationData: {
     fullName: string;
@@ -492,115 +409,71 @@ export const api = {
     classGroup: string;
     faculty: string;
     note?: string;
-  }): Promise<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }> => {
-    try {
-      const res = await fetch(`/api/events/${eventId}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registrationData),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.registerEvent(eventId, registrationData);
-  },
+  }): Promise<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }> =>
+    (await fetchApi<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }>(
+      `/api/events/${eventId}/register`,
+      postJson(registrationData)
+    )) ?? clientStorage.registerEvent(eventId, registrationData),
 
   // Attendance & Check-in
-  checkIn: async (code: string, eventId?: string): Promise<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }> => {
-    try {
-      const res = await fetch('/api/attendance/check-in', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, eventId }),
-      });
-      if (res.ok || res.status === 409) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.checkIn(code, eventId);
-  },
+  checkIn: async (code: string, eventId?: string): Promise<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }> =>
+    (await fetchApi<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }>(
+      '/api/attendance/check-in',
+      postJson({ code, eventId }),
+      [409]
+    )) ?? clientStorage.checkIn(code, eventId),
 
   // Student history lookup
-  lookupStudent: async (mssv: string) => {
-    try {
-      const res = await fetch(`/api/attendance/student/${encodeURIComponent(mssv)}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.lookupStudent(mssv);
-  },
+  lookupStudent: async (mssv: string) =>
+    (await fetchApi<ReturnType<typeof clientStorage.lookupStudent>>(`/api/attendance/student/${encodeURIComponent(mssv)}`)) ??
+    clientStorage.lookupStudent(mssv),
 
   // Registrations list for admin
   getRegistrations: async (eventId?: string, search?: string): Promise<RegistrationRecord[]> => {
-    try {
-      const params = new URLSearchParams();
-      if (eventId) params.append('eventId', eventId);
-      if (search) params.append('search', search);
-      const res = await fetch(`/api/registrations?${params.toString()}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getRegistrations(eventId, search);
+    const params = new URLSearchParams();
+    if (eventId) params.append('eventId', eventId);
+    if (search) params.append('search', search);
+    return (await fetchApi<RegistrationRecord[]>(`/api/registrations?${params.toString()}`)) ??
+      clientStorage.getRegistrations(eventId, search);
   },
 
   // Reminder trigger
-  sendReminder: async (eventId: string): Promise<{ success: boolean; message: string; sentCount: number }> => {
-    try {
-      const res = await fetch('/api/notifications/send-reminder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId }),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.sendReminder(eventId);
-  },
+  sendReminder: async (eventId: string): Promise<{ success: boolean; message: string; sentCount: number }> =>
+    (await fetchApi<{ success: boolean; message: string; sentCount: number }>(
+      '/api/notifications/send-reminder',
+      postJson({ eventId })
+    )) ?? clientStorage.sendReminder(eventId),
 
   // BCH
-  getBCH: async (): Promise<BCHMember[]> => {
-    try {
-      const res = await fetch('/api/bch');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getBCH();
-  },
+  getBCH: async (): Promise<BCHMember[]> =>
+    (await fetchApi<BCHMember[]>('/api/bch')) ?? clientStorage.getBCH(),
 
   // Notifications
-  getNotifications: async (): Promise<NotificationItem[]> => {
-    try {
-      const res = await fetch('/api/notifications');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getNotifications();
-  },
+  getNotifications: async (): Promise<NotificationItem[]> =>
+    (await fetchApi<NotificationItem[]>('/api/notifications')) ?? clientStorage.getNotifications(),
 
   markNotificationsRead: async (): Promise<void> => {
-    try {
-      await fetch('/api/notifications/mark-read', { method: 'POST' });
-    } catch {
-      // Fallback
-    }
+    await fetchApi('/api/notifications/mark-read', { method: 'POST' });
     clientStorage.markNotificationsRead();
   },
 
   // Email Logs
-  getEmailLogs: async (): Promise<EmailDispatchLog[]> => {
-    try {
-      const res = await fetch('/api/email-logs');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getEmailLogs();
-  }
+  getEmailLogs: async (): Promise<EmailDispatchLog[]> =>
+    (await fetchApi<EmailDispatchLog[]>('/api/email-logs')) ?? clientStorage.getEmailLogs()
 };
 
+export type Api = typeof localApi;
+
+// With Firebase configured every call goes to Firestore instead. The SDK sits in its
+// own chunk, so a build without Firebase config never downloads it.
+function lazyFirebaseApi(): Api {
+  const load = () => import('./firebaseApi').then(m => m.firebaseApi);
+  return new Proxy({} as Api, {
+    get: (_target, key) => async (...args: unknown[]) => {
+      const impl = await load();
+      return (impl[key as keyof Api] as (...params: unknown[]) => unknown)(...args);
+    },
+  });
+}
+
+export const api: Api = FIREBASE_ENABLED ? lazyFirebaseApi() : localApi;
