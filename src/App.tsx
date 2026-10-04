@@ -441,23 +441,51 @@ export default function App() {
               </h4>
               <ul className="space-y-3 text-xs sm:text-sm">
                 <li>
-                  <button onClick={() => setActiveTab('events')} className="hover:text-blue-400 transition-colors cursor-pointer">
-                    Sự kiện & Đăng ký trực tuyến
+                  <button 
+                    onClick={() => { setActiveTab('home'); scrollToTop(); }} 
+                    className="hover:text-blue-400 transition-colors cursor-pointer"
+                  >
+                    Trang chủ
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('news')} className="hover:text-blue-400 transition-colors cursor-pointer">
-                    Tin tức phong trào & Cuộc thi NCKH
+                  <button 
+                    onClick={() => { setActiveTab('events'); scrollToTop(); }} 
+                    className="hover:text-blue-400 transition-colors cursor-pointer"
+                  >
+                    Sự kiện & Đăng ký
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('lookup')} className="hover:text-blue-400 transition-colors cursor-pointer">
-                    Tra cứu Hoạt động & Vé QR
+                  <button 
+                    onClick={() => { setActiveTab('news'); scrollToTop(); }} 
+                    className="hover:text-blue-400 transition-colors cursor-pointer"
+                  >
+                    Bản tin & Hoạt động
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setIsQRScannerOpen(true)} className="hover:text-orange-400 transition-colors cursor-pointer">
-                    Trạm Quét QR Điểm danh
+                  <button 
+                    onClick={() => { setActiveTab('about'); scrollToTop(); }} 
+                    className="hover:text-blue-400 transition-colors cursor-pointer"
+                  >
+                    Cơ cấu Tổ chức
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => { setActiveTab('lookup'); scrollToTop(); }} 
+                    className="hover:text-blue-400 transition-colors cursor-pointer"
+                  >
+                    Tra cứu Hoạt động
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setIsQRScannerOpen(true)} 
+                    className="hover:text-orange-400 transition-colors cursor-pointer"
+                  >
+                    Quét QR Điểm danh
                   </button>
                 </li>
               </ul>
