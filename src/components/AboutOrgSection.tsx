@@ -23,10 +23,6 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-100/80 dark:bg-blue-900/40 border border-blue-200/80 dark:border-blue-400/30 text-blue-700 dark:text-blue-300 text-xs font-bold mb-4 shadow-2xs">
-            <CircuitBoard className="w-4 h-4" />
-            <span>Tổ chức & Bản sắc Đoàn - Hội</span>
-          </div>
           <h2 className="font-tech text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
             BAN CHẤP HÀNH & ĐỘI CỘNG TÁC VIÊN
           </h2>

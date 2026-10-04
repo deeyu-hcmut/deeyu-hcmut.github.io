@@ -248,10 +248,6 @@ export default function App() {
               <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
                   <div>
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold mb-2.5">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>Điểm hẹn Phong trào & Học thuật</span>
-                    </div>
                     <h3 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                       SỰ KIỆN NỔI BẬT ĐANG MỞ ĐĂNG KÝ
                     </h3>
@@ -290,10 +286,6 @@ export default function App() {
               <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
                   <div>
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold mb-2.5">
-                      <Newspaper className="w-3.5 h-3.5" />
-                      <span>Nhịp sống Tuổi trẻ & Học bổng</span>
-                    </div>
                     <h3 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                       BẢNG TIN & HOẠT ĐỘNG MỚI NHẤT
                     </h3>
