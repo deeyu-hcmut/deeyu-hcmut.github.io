@@ -1,6 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
-  Zap, 
   Calendar, 
   Newspaper, 
   Users, 
@@ -376,9 +375,14 @@ export default function App() {
             {/* Col 1: Brand & Slogan */}
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
-                  <Zap className="w-5 h-5" />
-                </div>
+                <img
+                  src={`${import.meta.env.BASE_URL}logo.png`}
+                  alt=""
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                  className="w-12 h-12 flex-shrink-0"
+                />
                 <span className="font-tech text-base font-extrabold text-white leading-tight">
                   Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
                 </span>

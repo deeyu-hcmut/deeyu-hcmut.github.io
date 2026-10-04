@@ -164,11 +164,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('home')}
             className="flex items-center space-x-3.5 cursor-pointer group select-none flex-shrink-0"
           >
-            <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-700 text-white p-0.5 shadow-md shadow-blue-500/25 group-hover:shadow-blue-500/40 group-hover:scale-105 transition-all">
-              <div className="w-full h-full bg-blue-600 rounded-[14px] flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300" />
-              </div>
-            </div>
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt="Logo Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử"
+              width={48}
+              height={48}
+              className="w-12 h-12 flex-shrink-0 group-hover:scale-105 transition-transform"
+            />
             <div className="flex items-center space-x-2">
               <span className="font-tech text-sm sm:text-base font-extrabold leading-tight tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors max-w-[190px] sm:max-w-[280px]">
                 Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
