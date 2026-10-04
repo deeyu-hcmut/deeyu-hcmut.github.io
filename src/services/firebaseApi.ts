@@ -1,4 +1,5 @@
 import {
+  arrayRemove,
   collection,
   doc,
   getDoc,
@@ -178,6 +179,27 @@ const rawFirebaseApi: Api = {
     await batch.commit();
     invalidate('events');
     return { id: ref.id, ...event };
+  },
+
+  deleteEvent: async eventId => {
+    const regSnap = await getDocs(query(collection(db, 'registrations'), where('eventId', '==', eventId)));
+    // Each registration costs 3 writes (ticket, contact info, MSSV lookup index); a batch holds 500
+    const PER_BATCH = 150;
+    for (let i = 0; i < regSnap.docs.length; i += PER_BATCH) {
+      const batch = writeBatch(db);
+      regSnap.docs.slice(i, i + PER_BATCH).forEach(reg => {
+        batch.delete(reg.ref);
+        batch.delete(doc(db, 'registrationContacts', reg.id));
+        batch.update(doc(db, 'students', reg.data().mssvKey), { eventIds: arrayRemove(eventId) });
+      });
+      await batch.commit();
+    }
+    // The event goes last, so a failure part-way leaves it visible for a retry
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'events', eventId));
+    await batch.commit();
+    invalidate('events');
+    return { deletedRegistrations: regSnap.size };
   },
 
   registerEvent: async (eventId, data) => {

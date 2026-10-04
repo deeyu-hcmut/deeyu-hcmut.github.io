@@ -109,6 +109,15 @@ const clientStorage = {
     return newEvt;
   },
 
+  deleteEvent: (eventId: string) => {
+    const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
+    const registrations = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
+    const remaining = registrations.filter(r => r.eventId !== eventId);
+    setLocalData(STORAGE_KEYS.EVENTS, events.filter(e => e.id !== eventId));
+    setLocalData(STORAGE_KEYS.REGISTRATIONS, remaining);
+    return { deletedRegistrations: registrations.length - remaining.length };
+  },
+
   registerEvent: (eventId: string, registrationData: {
     fullName: string;
     mssv: string;
@@ -400,6 +409,11 @@ const localApi = {
 
   createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> =>
     (await fetchApi<EventItem>('/api/events', postJson(eventData))) ?? clientStorage.createEvent(eventData),
+
+  // Also removes the event's registrations / check-ins
+  deleteEvent: async (eventId: string): Promise<{ deletedRegistrations: number }> =>
+    (await fetchApi<{ deletedRegistrations: number }>(`/api/events/${encodeURIComponent(eventId)}`, { method: 'DELETE' })) ??
+    clientStorage.deleteEvent(eventId),
 
   registerEvent: async (eventId: string, registrationData: {
     fullName: string;

@@ -173,6 +173,17 @@ export default function App() {
     }
   };
 
+  // Errors propagate so the confirmation dialog can show them
+  const handleDeleteEvent = async (event: EventItem) => {
+    const { deletedRegistrations } = await api.deleteEvent(event.id);
+    setEvents(prev => prev.filter(e => e.id !== event.id));
+    showToast(
+      deletedRegistrations > 0
+        ? `Đã xoá sự kiện "${event.title}" và ${deletedRegistrations} lượt đăng ký.`
+        : `Đã xoá sự kiện "${event.title}".`
+    );
+  };
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -238,6 +249,7 @@ export default function App() {
                   currentRole={currentRole}
                   onRegisterSuccess={handleRegisterSuccess}
                   onCreateEvent={handleCreateEvent}
+                  onDeleteEvent={handleDeleteEvent}
                 />
               </div>
             </div>
@@ -281,6 +293,7 @@ export default function App() {
             currentRole={currentRole}
             onRegisterSuccess={handleRegisterSuccess}
             onCreateEvent={handleCreateEvent}
+            onDeleteEvent={handleDeleteEvent}
           />
         )}
 

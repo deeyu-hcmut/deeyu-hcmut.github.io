@@ -168,6 +168,13 @@ async function startServer() {
     res.status(201).json(newEvt);
   });
 
+  app.delete('/api/events/:id', (req: Request, res: Response) => {
+    const before = registrations.length;
+    events = events.filter(e => e.id !== req.params.id);
+    registrations = registrations.filter(r => r.eventId !== req.params.id);
+    res.json({ deletedRegistrations: before - registrations.length });
+  });
+
   // 5. Event Registration & Automated Ticket generation
   app.post('/api/events/:id/register', (req: Request, res: Response) => {
     const eventId = req.params.id;

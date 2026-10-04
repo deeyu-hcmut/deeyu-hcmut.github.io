@@ -18,7 +18,9 @@ import {
   Plus,
   Ticket,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 import { EventItem, EventStatus, EventType, Role, RegistrationRecord } from '../types';
 import { EventDetailModal } from './EventDetailModal';
@@ -33,13 +35,15 @@ interface EventsHubProps {
   currentRole: Role;
   onRegisterSuccess: (record: RegistrationRecord, updatedEvent: EventItem) => void;
   onCreateEvent: (eventData: Partial<EventItem>) => void;
+  onDeleteEvent: (event: EventItem) => Promise<void>;
 }
 
 export const EventsHub: React.FC<EventsHubProps> = ({
   events,
   currentRole,
   onRegisterSuccess,
-  onCreateEvent
+  onCreateEvent,
+  onDeleteEvent
 }) => {
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -51,6 +55,31 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   const [viewingEvent, setViewingEvent] = useState<EventItem | null>(null);
   const [activeTicket, setActiveTicket] = useState<{ record: RegistrationRecord; event: EventItem } | null>(null);
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const canManageEvents = currentRole === 'SUPER_ADMIN' || currentRole === 'EVENT_MANAGER';
+
+  const closeDeleteDialog = () => {
+    if (deleteBusy) return;
+    setDeletingEvent(null);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingEvent) return;
+    setDeleteBusy(true);
+    setDeleteError(null);
+    try {
+      await onDeleteEvent(deletingEvent);
+      setDeletingEvent(null);
+    } catch (err: any) {
+      setDeleteError(err?.message || 'Không xoá được sự kiện. Vui lòng thử lại.');
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
 
   // New Event Form State
   const [newTitle, setNewTitle] = useState('');
@@ -347,6 +376,16 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     ) : (
                       <span className="text-xs text-slate-400 px-3 py-2">Đóng đăng ký</span>
                     )}
+                    {canManageEvents && (
+                      <button
+                        onClick={() => setDeletingEvent(evt)}
+                        className="p-2 rounded-xl text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-400/30 transition-colors"
+                        aria-label={`Xoá sự kiện ${evt.title}`}
+                        title="Xoá sự kiện"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -401,6 +440,16 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                         Đăng ký ngay
                       </button>
                     )}
+                    {canManageEvents && (
+                      <button
+                        onClick={() => setDeletingEvent(evt)}
+                        className="p-1.5 rounded-lg text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-400/30 transition-colors"
+                        aria-label={`Xoá sự kiện ${evt.title}`}
+                        title="Xoá sự kiện"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -433,6 +482,16 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                       {/* Top Badges */}
                       <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                         {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
+                        {canManageEvents && (
+                      <button
+                        onClick={() => setDeletingEvent(evt)}
+                        className="p-2 rounded-xl bg-slate-900/80 text-rose-300 hover:bg-rose-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
+                        aria-label={`Xoá sự kiện ${evt.title}`}
+                        title="Xoá sự kiện"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                       </div>
 
                       {/* Date & Time pill bottom */}
@@ -566,6 +625,59 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               setRegisteringEvent(target);
             }}
           />
+        )}
+
+        {/* Modal: Confirm event deletion (Admin) */}
+        {deletingEvent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={closeDeleteDialog}>
+            <div
+              role="alertdialog"
+              aria-labelledby="delete-event-title"
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl"
+            >
+              <div className="flex items-start space-x-3">
+                <div className="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 flex-shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 id="delete-event-title" className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100">
+                    Xoá sự kiện này?
+                  </h3>
+                  <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200 break-words">{deletingEvent.title}</p>
+                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                    {deletingEvent.currentParticipants > 0
+                      ? <>Toàn bộ <strong>{deletingEvent.currentParticipants} lượt đăng ký</strong> cùng vé QR và dữ liệu điểm danh của sự kiện cũng bị xoá. </>
+                      : <>Sự kiện chưa có lượt đăng ký nào. </>}
+                    Không thể hoàn tác.
+                  </p>
+                  {deleteError && (
+                    <p className="mt-3 text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 rounded-lg px-3 py-2">
+                      {deleteError}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={closeDeleteDialog}
+                  disabled={deleteBusy}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 disabled:opacity-50"
+                >
+                  Huỷ
+                </button>
+                <button
+                  id="confirm-delete-event-btn"
+                  onClick={handleConfirmDelete}
+                  disabled={deleteBusy}
+                  className="px-4 py-2 rounded-xl text-sm font-bold bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-60 flex items-center space-x-1.5"
+                >
+                  {deleteBusy ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  <span>{deleteBusy ? 'Đang xoá…' : 'Xoá sự kiện'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Modal: Create Event Form (Admin) */}
