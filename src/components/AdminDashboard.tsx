@@ -172,8 +172,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     {
       role: 'QLNS_CTSV',
       title: 'Ban QLNS-CTSV',
-      desc: 'Quản lý nhân sự: danh sách BCH & Đội CTV trên trang Cơ cấu Tổ chức, hồ sơ sinh viên, đoàn viên và hội viên của khoa.',
-      permissions: ['Cập nhật BCH & Đội CTV', 'Quản lý danh sách sinh viên', 'Quản lý đoàn viên & hội viên', 'Quét QR điểm danh']
+      desc: 'Quản lý nhân sự: danh sách BCH và Trưởng, phó ban Đội CTV trên trang Cơ cấu Tổ chức, hồ sơ sinh viên, đoàn viên và hội viên của khoa.',
+      permissions: ['Cập nhật BCH và Trưởng, phó ban Đội CTV', 'Quản lý danh sách sinh viên', 'Quản lý đoàn viên & hội viên', 'Quét QR điểm danh']
     },
     {
       role: 'STUDENT',
@@ -276,7 +276,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <UsersRound className="w-4 h-4" />
-              <span>BCH & Đội CTV</span>
+              <span>BCH và Trưởng, phó ban Đội CTV</span>
             </button>
           )}
 

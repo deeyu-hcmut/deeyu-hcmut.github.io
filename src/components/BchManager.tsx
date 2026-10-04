@@ -387,7 +387,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
           <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center space-x-2">
               {editingId ? <Pencil className="w-5 h-5 text-blue-600 dark:text-blue-300" /> : <UserPlus className="w-5 h-5 text-blue-600 dark:text-blue-300" />}
-              <span>{editingId ? 'Sửa thông tin' : 'Thêm người vào BCH / Đội CTV'}</span>
+              <span>{editingId ? 'Sửa thông tin' : 'Thêm người vào BCH / Trưởng, phó ban Đội CTV'}</span>
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
