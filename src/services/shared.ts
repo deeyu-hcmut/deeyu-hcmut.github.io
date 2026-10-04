@@ -55,6 +55,25 @@ export function buildEvent(eventData: Partial<EventItem>): Omit<EventItem, 'id'>
   };
 }
 
+// Fields staff may change after creation. Counters (participants, check-ins), ids and
+// timestamps are never taken from an edit form.
+export const EDITABLE_EVENT_FIELDS = [
+  'title', 'description', 'content', 'type', 'typeName', 'status', 'location',
+  'eventDate', 'startTime', 'endTime', 'registrationDeadline', 'maxParticipants', 'bannerUrl',
+] as const satisfies readonly (keyof EventItem)[];
+
+export const EDITABLE_NEWS_FIELDS = [
+  'title', 'summary', 'content', 'category', 'categoryName', 'tags', 'coverImage',
+] as const satisfies readonly (keyof NewsItem)[];
+
+export function pickFields<T extends object, K extends keyof T>(source: Partial<T>, keys: readonly K[]): Partial<Pick<T, K>> {
+  const out: Partial<Pick<T, K>> = {};
+  for (const key of keys) {
+    if (source[key] !== undefined) out[key] = source[key] as T[K];
+  }
+  return out;
+}
+
 // No 0/O/1/I so codes typed by hand at the door are unambiguous
 const TICKET_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 

@@ -20,7 +20,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Pencil
 } from 'lucide-react';
 import { EventItem, EventStatus, EventType, Role, RegistrationRecord } from '../types';
 import { EventDetailModal } from './EventDetailModal';
@@ -36,6 +37,7 @@ interface EventsHubProps {
   onRegisterSuccess: (record: RegistrationRecord, updatedEvent: EventItem) => void;
   onCreateEvent: (eventData: Partial<EventItem>) => void;
   onDeleteEvent: (event: EventItem) => Promise<void>;
+  onUpdateEvent: (eventId: string, patch: Partial<EventItem>) => Promise<void>;
 }
 
 export const EventsHub: React.FC<EventsHubProps> = ({
@@ -43,7 +45,8 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   currentRole,
   onRegisterSuccess,
   onCreateEvent,
-  onDeleteEvent
+  onDeleteEvent,
+  onUpdateEvent
 }) => {
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -92,6 +95,51 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   const [newDeadline, setNewDeadline] = useState('');
   const [newMax, setNewMax] = useState(300);
   const [newBanner, setNewBanner] = useState('https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80');
+  const [newStatus, setNewStatus] = useState<EventStatus>('REGISTRATION_OPEN');
+  // The create form doubles as the edit form when this is set
+  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
+  const [savingEvent, setSavingEvent] = useState(false);
+  const [eventFormError, setEventFormError] = useState<string | null>(null);
+
+  const openCreateEvent = () => {
+    setEditingEvent(null);
+    setEventFormError(null);
+    setNewTitle('');
+    setNewDesc('');
+    setNewType('ACADEMIC_CONTEST');
+    setNewLocation('Hội trường A Khoa Điện - Điện tử');
+    setNewEventDate('');
+    setNewStartTime('08:00');
+    setNewEndTime('11:30');
+    setNewDeadline('');
+    setNewMax(300);
+    setNewBanner('https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80');
+    setNewStatus('REGISTRATION_OPEN');
+    setIsCreatingEvent(true);
+  };
+
+  const openEditEvent = (evt: EventItem) => {
+    setEditingEvent(evt);
+    setEventFormError(null);
+    setNewTitle(evt.title);
+    setNewDesc(evt.description);
+    setNewType(evt.type);
+    setNewLocation(evt.location);
+    setNewEventDate(evt.eventDate);
+    setNewStartTime(evt.startTime);
+    setNewEndTime(evt.endTime);
+    setNewDeadline((evt.registrationDeadline || '').slice(0, 10));
+    setNewMax(evt.maxParticipants);
+    setNewBanner(evt.bannerUrl);
+    setNewStatus(evt.status);
+    setIsCreatingEvent(true);
+  };
+
+  const closeEventForm = () => {
+    if (savingEvent) return;
+    setIsCreatingEvent(false);
+    setEditingEvent(null);
+  };
 
   const eventTypes = [
     { id: 'ALL', label: 'Tất cả loại sự kiện' },
@@ -155,11 +203,42 @@ export const EventsHub: React.FC<EventsHubProps> = ({
     );
   };
 
-  const handleCreateEventSubmit = (e: React.FormEvent) => {
+  const handleCreateEventSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
     const typeObj = eventTypes.find(t => t.id === newType);
+
+    if (editingEvent) {
+      setSavingEvent(true);
+      setEventFormError(null);
+      try {
+        await onUpdateEvent(editingEvent.id, {
+          title: newTitle.trim(),
+          description: newDesc,
+          // Seeded events have a separate long programme in `content`; only mirror the
+          // description when the two were the same to begin with
+          ...(editingEvent.content === editingEvent.description ? { content: newDesc } : {}),
+          type: newType,
+          typeName: typeObj ? typeObj.label : editingEvent.typeName,
+          status: newStatus,
+          location: newLocation,
+          eventDate: newEventDate || editingEvent.eventDate,
+          startTime: newStartTime,
+          endTime: newEndTime,
+          registrationDeadline: newDeadline || editingEvent.registrationDeadline,
+          maxParticipants: Number(newMax) || editingEvent.maxParticipants,
+          bannerUrl: newBanner.trim() || editingEvent.bannerUrl,
+        });
+        setIsCreatingEvent(false);
+        setEditingEvent(null);
+      } catch (err: any) {
+        setEventFormError(err?.message || 'Không lưu được thay đổi. Vui lòng thử lại.');
+      } finally {
+        setSavingEvent(false);
+      }
+      return;
+    }
 
     onCreateEvent({
       title: newTitle,
@@ -172,7 +251,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
       endTime: newEndTime,
       registrationDeadline: newDeadline || new Date().toISOString(),
       maxParticipants: Number(newMax) || 200,
-      bannerUrl: newBanner,
+      bannerUrl: newBanner.trim() || undefined,
       status: 'REGISTRATION_OPEN',
       organizer: 'Đoàn - Hội Khoa Điện - Điện tử',
       contactEmail: 'doanhoi.fee@university.edu.vn',
@@ -242,7 +321,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             {(currentRole === 'SUPER_ADMIN' || currentRole === 'EVENT_MANAGER') && (
               <button
                 id="create-event-btn"
-                onClick={() => setIsCreatingEvent(true)}
+                onClick={openCreateEvent}
                 className="flex items-center space-x-2 px-4 py-3 rounded-2xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
@@ -378,6 +457,16 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     )}
                     {canManageEvents && (
                       <button
+                        onClick={() => openEditEvent(evt)}
+                        className="p-2 rounded-xl text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-400/30 transition-colors"
+                        aria-label={`Sửa sự kiện ${evt.title}`}
+                        title="Sửa sự kiện"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    )}
+                    {canManageEvents && (
+                      <button
                         onClick={() => setDeletingEvent(evt)}
                         className="p-2 rounded-xl text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-400/30 transition-colors"
                         aria-label={`Xoá sự kiện ${evt.title}`}
@@ -442,6 +531,16 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     )}
                     {canManageEvents && (
                       <button
+                        onClick={() => openEditEvent(evt)}
+                        className="p-1.5 rounded-lg text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-400/30 transition-colors"
+                        aria-label={`Sửa sự kiện ${evt.title}`}
+                        title="Sửa sự kiện"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    )}
+                    {canManageEvents && (
+                      <button
                         onClick={() => setDeletingEvent(evt)}
                         className="p-1.5 rounded-lg text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-400/30 transition-colors"
                         aria-label={`Xoá sự kiện ${evt.title}`}
@@ -483,6 +582,16 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                       <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                         {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
                         {canManageEvents && (
+                      <button
+                        onClick={() => openEditEvent(evt)}
+                        className="p-2 rounded-xl bg-slate-900/80 text-blue-300 hover:bg-blue-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
+                        aria-label={`Sửa sự kiện ${evt.title}`}
+                        title="Sửa sự kiện"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    )}
+                    {canManageEvents && (
                       <button
                         onClick={() => setDeletingEvent(evt)}
                         className="p-2 rounded-xl bg-slate-900/80 text-rose-300 hover:bg-rose-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
@@ -685,8 +794,8 @@ export const EventsHub: React.FC<EventsHubProps> = ({
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
               <h3 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center space-x-2">
-                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />
-                <span>Tạo Sự kiện Mới (Ban CTXH & Quản trị)</span>
+                {editingEvent ? <Pencil className="w-5 h-5 text-blue-600 dark:text-blue-300" /> : <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />}
+                <span>{editingEvent ? 'Sửa sự kiện' : 'Tạo Sự kiện Mới (Ban CTXH & Quản trị)'}</span>
               </h3>
 
               <form onSubmit={handleCreateEventSubmit} className="space-y-4">
@@ -715,6 +824,23 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     <option value="VOLUNTEER">Tình nguyện & Xã hội</option>
                   </select>
                 </div>
+
+                {editingEvent && (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Trạng thái</label>
+                    <select value={newStatus} onChange={(e) => setNewStatus(e.target.value as EventStatus)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                      <option value="REGISTRATION_OPEN">Đang mở đăng ký</option>
+                      <option value="UPCOMING">Sắp diễn ra (chưa mở đăng ký)</option>
+                      <option value="REGISTRATION_CLOSED">Đã đóng đăng ký</option>
+                      <option value="COMPLETED">Đã kết thúc</option>
+                    </select>
+                    {newStatus === 'REGISTRATION_OPEN' && editingEvent.currentParticipants >= Number(newMax) && (
+                      <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-300">
+                        Đã có {editingEvent.currentParticipants} người đăng ký — tăng số lượng tối đa để mở thêm chỗ.
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
@@ -762,7 +888,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Số lượng tối đa (Slot)</label>
                     <input
                       type="number"
-                      min={10}
+                      min={editingEvent ? Math.max(1, editingEvent.currentParticipants) : 10}
                       max={2000}
                       value={newMax}
                       onChange={(e) => setNewMax(Number(e.target.value))}
@@ -794,19 +920,35 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                   />
                 </div>
 
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Ảnh bìa (link ảnh)</label>
+                  <input
+                    type="url"
+                    value={newBanner}
+                    onChange={(e) => setNewBanner(e.target.value)}
+                    placeholder="https://..."
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+
+                {eventFormError && (
+                  <p className="text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 rounded-lg px-3 py-2">{eventFormError}</p>
+                )}
+
                 <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                   <button
                     type="button"
-                    onClick={() => setIsCreatingEvent(false)}
+                    onClick={closeEventForm}
                     className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                    disabled={savingEvent}
+                    className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm disabled:opacity-60"
                   >
-                    Đăng sự kiện
+                    {editingEvent ? (savingEvent ? 'Đang lưu…' : 'Lưu thay đổi') : 'Đăng sự kiện'}
                   </button>
                 </div>
               </form>

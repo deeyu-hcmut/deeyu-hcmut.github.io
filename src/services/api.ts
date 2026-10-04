@@ -8,6 +8,9 @@ import {
 } from '../data/mockData';
 import { FIREBASE_ENABLED } from './firebaseConfig';
 import {
+  EDITABLE_EVENT_FIELDS,
+  EDITABLE_NEWS_FIELDS,
+  pickFields,
   buildEvent,
   buildNews,
   buildStats,
@@ -85,6 +88,20 @@ const clientStorage = {
     return newArticle;
   },
 
+  updateNews: (newsId: string, patch: Partial<NewsItem>): NewsItem => {
+    const news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
+    const article = news.find(n => n.id === newsId);
+    if (!article) throw new Error('Bài viết không tồn tại');
+    Object.assign(article, pickFields(patch, EDITABLE_NEWS_FIELDS));
+    setLocalData(STORAGE_KEYS.NEWS, news);
+    return article;
+  },
+
+  deleteNews: (newsId: string) => {
+    const news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
+    setLocalData(STORAGE_KEYS.NEWS, news.filter(n => n.id !== newsId));
+  },
+
   getEvents: (type?: string, status?: string): EventItem[] =>
     filterEvents(getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS), type, status),
 
@@ -107,6 +124,19 @@ const clientStorage = {
     setLocalData(STORAGE_KEYS.NOTIFICATIONS, notifications);
 
     return newEvt;
+  },
+
+  updateEvent: (eventId: string, patch: Partial<EventItem>): EventItem => {
+    const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
+    const event = events.find(e => e.id === eventId);
+    if (!event) throw new Error('Sự kiện không tồn tại');
+    Object.assign(event, pickFields(patch, EDITABLE_EVENT_FIELDS));
+    setLocalData(STORAGE_KEYS.EVENTS, events);
+    // Tickets keep a copy of the title
+    const registrations = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
+    registrations.forEach(r => { if (r.eventId === eventId) r.eventTitle = event.title; });
+    setLocalData(STORAGE_KEYS.REGISTRATIONS, registrations);
+    return event;
   },
 
   deleteEvent: (eventId: string) => {
@@ -409,6 +439,19 @@ const localApi = {
 
   createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> =>
     (await fetchApi<EventItem>('/api/events', postJson(eventData))) ?? clientStorage.createEvent(eventData),
+
+  updateNews: async (newsId: string, patch: Partial<NewsItem>): Promise<NewsItem> =>
+    (await fetchApi<NewsItem>(`/api/news/${encodeURIComponent(newsId)}`, { ...postJson(patch), method: 'PATCH' })) ??
+    clientStorage.updateNews(newsId, patch),
+
+  deleteNews: async (newsId: string): Promise<void> => {
+    if (await fetchApi(`/api/news/${encodeURIComponent(newsId)}`, { method: 'DELETE' })) return;
+    clientStorage.deleteNews(newsId);
+  },
+
+  updateEvent: async (eventId: string, patch: Partial<EventItem>): Promise<EventItem> =>
+    (await fetchApi<EventItem>(`/api/events/${encodeURIComponent(eventId)}`, { ...postJson(patch), method: 'PATCH' })) ??
+    clientStorage.updateEvent(eventId, patch),
 
   // Also removes the event's registrations / check-ins
   deleteEvent: async (eventId: string): Promise<{ deletedRegistrations: number }> =>

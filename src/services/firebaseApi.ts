@@ -27,6 +27,9 @@ import {
 } from '../types';
 import { INITIAL_BCH, INITIAL_EVENTS, INITIAL_NEWS } from '../data/mockData';
 import {
+  EDITABLE_EVENT_FIELDS,
+  EDITABLE_NEWS_FIELDS,
+  pickFields,
   buildEvent,
   buildNews,
   buildStats,
@@ -164,6 +167,25 @@ const rawFirebaseApi: Api = {
     return { id: ref.id, ...article };
   },
 
+  updateNews: async (newsId, patch) => {
+    const ref = doc(db, 'news', newsId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new Error('Bài viết không tồn tại');
+    const changes = pickFields(patch, EDITABLE_NEWS_FIELDS);
+    const batch = writeBatch(db);
+    batch.update(ref, changes);
+    await batch.commit();
+    invalidate('news');
+    return { ...withId<NewsItem>(snap), ...changes };
+  },
+
+  deleteNews: async newsId => {
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'news', newsId));
+    await batch.commit();
+    invalidate('news');
+  },
+
   getEvents: async (type, status) => filterEvents(await loadEvents(), type, status),
 
   createEvent: async eventData => {
@@ -179,6 +201,34 @@ const rawFirebaseApi: Api = {
     await batch.commit();
     invalidate('events');
     return { id: ref.id, ...event };
+  },
+
+  updateEvent: async (eventId, patch) => {
+    const ref = doc(db, 'events', eventId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new Error('Sự kiện không tồn tại');
+    const before = withId<StoredEvent>(snap);
+    const changes = pickFields(patch, EDITABLE_EVENT_FIELDS);
+
+    let batch = writeBatch(db);
+    batch.update(ref, changes);
+    // Tickets keep a copy of the title (shown in lookups, admin lists and Excel exports)
+    if (changes.title && changes.title !== before.title) {
+      const regSnap = await getDocs(query(collection(db, 'registrations'), where('eventId', '==', eventId)));
+      let writes = 1;
+      for (const reg of regSnap.docs) {
+        if (writes === 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          writes = 0;
+        }
+        batch.update(reg.ref, { eventTitle: changes.title });
+        writes++;
+      }
+    }
+    await batch.commit();
+    invalidate('events');
+    return { ...before, ...changes };
   },
 
   deleteEvent: async eventId => {

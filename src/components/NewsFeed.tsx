@@ -12,7 +12,10 @@ import {
   Check, 
   X,
   Sparkles,
-  BookOpen
+  BookOpen,
+  Pencil,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 import { NewsItem, NewsCategory, Role } from '../types';
 import { sizedImage } from '../utils/image';
@@ -21,9 +24,11 @@ interface NewsFeedProps {
   newsList: NewsItem[];
   currentRole: Role;
   onCreateNews: (item: Partial<NewsItem>) => void;
+  onUpdateNews: (newsId: string, patch: Partial<NewsItem>) => Promise<void>;
+  onDeleteNews: (item: NewsItem) => Promise<void>;
 }
 
-export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCreateNews }) => {
+export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCreateNews, onUpdateNews, onDeleteNews }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -38,6 +43,66 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
   const [newCategory, setNewCategory] = useState<NewsCategory>('HOAT_DONG_KHOA');
   const [newTags, setNewTags] = useState('FEE, Tuổi trẻ');
   const [newCover, setNewCover] = useState('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80');
+
+  const canEditNews = currentRole === 'SUPER_ADMIN' || currentRole === 'EDITOR';
+  // The create form doubles as the edit form when this is set
+  const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
+  const [savingNews, setSavingNews] = useState(false);
+  const [newsFormError, setNewsFormError] = useState<string | null>(null);
+  const [deletingNews, setDeletingNews] = useState<NewsItem | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const openCreateNews = () => {
+    setEditingNews(null);
+    setNewsFormError(null);
+    setNewTitle('');
+    setNewSummary('');
+    setNewContent('');
+    setNewCategory('HOAT_DONG_KHOA');
+    setNewTags('FEE, Tuổi trẻ');
+    setNewCover('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80');
+    setIsCreatingModal(true);
+  };
+
+  const openEditNews = (item: NewsItem) => {
+    setSelectedNews(null);
+    setEditingNews(item);
+    setNewsFormError(null);
+    setNewTitle(item.title);
+    setNewSummary(item.summary);
+    setNewContent(item.content);
+    setNewCategory(item.category);
+    setNewTags(item.tags.join(', '));
+    setNewCover(item.coverImage);
+    setIsCreatingModal(true);
+  };
+
+  const closeNewsForm = () => {
+    if (savingNews) return;
+    setIsCreatingModal(false);
+    setEditingNews(null);
+  };
+
+  const askDeleteNews = (item: NewsItem) => {
+    setSelectedNews(null);
+    setDeleteError(null);
+    setDeletingNews(item);
+  };
+
+  const handleConfirmDeleteNews = async () => {
+    if (!deletingNews) return;
+    setDeleteBusy(true);
+    setDeleteError(null);
+    try {
+      await onDeleteNews(deletingNews);
+      setDeletingNews(null);
+    } catch (err: any) {
+      setDeleteError(err?.message || 'Không xoá được bài viết. Vui lòng thử lại.');
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
 
   const categories = [
     { id: 'ALL', label: 'Tất cả Bản tin' },
@@ -65,11 +130,34 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
 
   const featuredArticle = newsList.find(n => n.featured) || newsList[0];
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
     const catObj = categories.find(c => c.id === newCategory);
+
+    if (editingNews) {
+      setSavingNews(true);
+      setNewsFormError(null);
+      try {
+        await onUpdateNews(editingNews.id, {
+          title: newTitle.trim(),
+          summary: newSummary,
+          content: newContent,
+          category: newCategory,
+          categoryName: catObj ? catObj.label : editingNews.categoryName,
+          tags: newTags.split(',').map(t => t.trim()).filter(Boolean),
+          coverImage: newCover.trim() || editingNews.coverImage,
+        });
+        setIsCreatingModal(false);
+        setEditingNews(null);
+      } catch (err: any) {
+        setNewsFormError(err?.message || 'Không lưu được thay đổi. Vui lòng thử lại.');
+      } finally {
+        setSavingNews(false);
+      }
+      return;
+    }
     onCreateNews({
       title: newTitle,
       summary: newSummary,
@@ -77,7 +165,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
       category: newCategory,
       categoryName: catObj ? catObj.label : 'Hoạt động',
       tags: newTags.split(',').map(t => t.trim()).filter(Boolean),
-      coverImage: newCover,
+      coverImage: newCover.trim() || undefined,
       author: 'Ban Truyền thông Đoàn - Hội Khoa',
       authorRole: 'Ban Truyền thông'
     });
@@ -140,7 +228,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
             {(currentRole === 'SUPER_ADMIN' || currentRole === 'EDITOR') && (
               <button
                 id="create-news-btn"
-                onClick={() => setIsCreatingModal(true)}
+                onClick={openCreateNews}
                 className="flex items-center space-x-2 px-4 py-3 rounded-2xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
@@ -221,6 +309,26 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                 <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-extrabold tracking-wider uppercase shadow-md">
                   Tiêu điểm Tuần
                 </span>
+                {canEditNews && (
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); openEditNews(featuredArticle); }}
+                      className="p-2 rounded-xl bg-slate-900/80 text-white hover:bg-blue-600 border border-white/20 backdrop-blur-md transition-colors"
+                      aria-label="Sửa bài viết"
+                      title="Sửa bài viết"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); askDeleteNews(featuredArticle); }}
+                      className="p-2 rounded-xl bg-slate-900/80 text-rose-300 hover:bg-rose-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
+                      aria-label="Xoá bài viết"
+                      title="Xoá bài viết"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between">
@@ -303,6 +411,26 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                       decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
+                    {canEditNews && (
+                      <div className="absolute top-3 right-3 flex gap-2">
+                        <button
+                      onClick={(e) => { e.stopPropagation(); openEditNews(news); }}
+                      className="p-2 rounded-xl bg-slate-900/80 text-white hover:bg-blue-600 border border-white/20 backdrop-blur-md transition-colors"
+                      aria-label="Sửa bài viết"
+                      title="Sửa bài viết"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                        <button
+                      onClick={(e) => { e.stopPropagation(); askDeleteNews(news); }}
+                      className="p-2 rounded-xl bg-slate-900/80 text-rose-300 hover:bg-rose-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
+                      aria-label="Xoá bài viết"
+                      title="Xoá bài viết"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                      </div>
+                    )}
                     <div className="absolute top-3 left-3">
                       <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/90 dark:bg-slate-900/90 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 backdrop-blur-sm shadow-xs">
                         {news.categoryName}
@@ -374,6 +502,26 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                 </div>
 
                 <div className="flex items-center space-x-2">
+                  {canEditNews && (
+                    <>
+                      <button
+                      onClick={(e) => { e.stopPropagation(); openEditNews(selectedNews); }}
+                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700"
+                      aria-label="Sửa bài viết"
+                      title="Sửa bài viết"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                      <button
+                      onClick={(e) => { e.stopPropagation(); askDeleteNews(selectedNews); }}
+                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700"
+                      aria-label="Xoá bài viết"
+                      title="Xoá bài viết"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    </>
+                  )}
                   <button
                     onClick={() => handleShare(selectedNews)}
                     className="flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs"
@@ -444,16 +592,60 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
           </div>
         )}
 
+        {/* Modal: Confirm news deletion */}
+        {deletingNews && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => !deleteBusy && setDeletingNews(null)}>
+            <div
+              role="alertdialog"
+              aria-labelledby="delete-news-title"
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl"
+            >
+              <div className="flex items-start space-x-3">
+                <div className="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 flex-shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 id="delete-news-title" className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100">Xoá bài viết này?</h3>
+                  <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200 break-words">{deletingNews.title}</p>
+                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Bài viết sẽ bị gỡ khỏi trang. Không thể hoàn tác.</p>
+                  {deleteError && (
+                    <p className="mt-3 text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 rounded-lg px-3 py-2">{deleteError}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setDeletingNews(null)}
+                  disabled={deleteBusy}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 disabled:opacity-50"
+                >
+                  Huỷ
+                </button>
+                <button
+                  id="confirm-delete-news-btn"
+                  onClick={handleConfirmDeleteNews}
+                  disabled={deleteBusy}
+                  className="px-4 py-2 rounded-xl text-sm font-bold bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-60 flex items-center space-x-1.5"
+                >
+                  {deleteBusy ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  <span>{deleteBusy ? 'Đang xoá…' : 'Xoá bài viết'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Modal: Create News Article */}
         {isCreatingModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl">
+            <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700 mb-4">
                 <h3 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />
-                  <span>Đăng Tin tức Mới (Ban Truyền thông)</span>
+                  {editingNews ? <Pencil className="w-5 h-5 text-blue-600 dark:text-blue-300" /> : <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />}
+                  <span>{editingNews ? 'Sửa bài viết' : 'Đăng Tin tức Mới (Ban Truyền thông)'}</span>
                 </h3>
-                <button onClick={() => setIsCreatingModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                <button onClick={closeNewsForm} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -522,20 +714,36 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                     className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Ảnh bìa (link ảnh)</label>
+                  <input
+                    type="url"
+                    value={newCover}
+                    onChange={(e) => setNewCover(e.target.value)}
+                    placeholder="https://..."
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+
+                {newsFormError && (
+                  <p className="text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 rounded-lg px-3 py-2">{newsFormError}</p>
+                )}
+
 
                 <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                   <button
                     type="button"
-                    onClick={() => setIsCreatingModal(false)}
+                    onClick={closeNewsForm}
                     className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                   >
                     Hủy bỏ
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                    disabled={savingNews}
+                    className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm disabled:opacity-60"
                   >
-                    Đăng bản tin
+                    {editingNews ? (savingNews ? 'Đang lưu…' : 'Lưu thay đổi') : 'Đăng bản tin'}
                   </button>
                 </div>
               </form>

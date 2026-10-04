@@ -173,7 +173,25 @@ export default function App() {
     }
   };
 
-  // Errors propagate so the confirmation dialog can show them
+  // Errors from these handlers propagate so the open form / dialog can show them
+  const handleUpdateEvent = async (eventId: string, patch: Partial<EventItem>) => {
+    const updated = await api.updateEvent(eventId, patch);
+    setEvents(prev => prev.map(e => e.id === eventId ? updated : e));
+    showToast('Đã lưu thay đổi sự kiện.');
+  };
+
+  const handleUpdateNews = async (newsId: string, patch: Partial<NewsItem>) => {
+    const updated = await api.updateNews(newsId, patch);
+    setNews(prev => prev.map(n => n.id === newsId ? updated : n));
+    showToast('Đã lưu thay đổi bài viết.');
+  };
+
+  const handleDeleteNews = async (item: NewsItem) => {
+    await api.deleteNews(item.id);
+    setNews(prev => prev.filter(n => n.id !== item.id));
+    showToast(`Đã xoá bài viết "${item.title}".`);
+  };
+
   const handleDeleteEvent = async (event: EventItem) => {
     const { deletedRegistrations } = await api.deleteEvent(event.id);
     setEvents(prev => prev.filter(e => e.id !== event.id));
@@ -250,6 +268,7 @@ export default function App() {
                   onRegisterSuccess={handleRegisterSuccess}
                   onCreateEvent={handleCreateEvent}
                   onDeleteEvent={handleDeleteEvent}
+                  onUpdateEvent={handleUpdateEvent}
                 />
               </div>
             </div>
@@ -278,6 +297,8 @@ export default function App() {
                   newsList={news.slice(0, 3)}
                   currentRole={currentRole}
                   onCreateNews={handleCreateNews}
+                  onUpdateNews={handleUpdateNews}
+                  onDeleteNews={handleDeleteNews}
                 />
               </div>
             </div>
@@ -294,6 +315,7 @@ export default function App() {
             onRegisterSuccess={handleRegisterSuccess}
             onCreateEvent={handleCreateEvent}
             onDeleteEvent={handleDeleteEvent}
+            onUpdateEvent={handleUpdateEvent}
           />
         )}
 
@@ -302,6 +324,8 @@ export default function App() {
             newsList={news}
             currentRole={currentRole}
             onCreateNews={handleCreateNews}
+            onUpdateNews={handleUpdateNews}
+            onDeleteNews={handleDeleteNews}
           />
         )}
 

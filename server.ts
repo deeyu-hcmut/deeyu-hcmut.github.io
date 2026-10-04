@@ -9,6 +9,7 @@ import {
   INITIAL_NOTIFICATIONS, 
   INITIAL_STATS 
 } from './src/data/mockData.ts';
+import { EDITABLE_EVENT_FIELDS, EDITABLE_NEWS_FIELDS, pickFields } from './src/services/shared.ts';
 import { EventItem, NewsItem, RegistrationRecord, NotificationItem, EmailDispatchLog } from './src/types/index.ts';
 
 async function startServer() {
@@ -166,6 +167,26 @@ async function startServer() {
     });
 
     res.status(201).json(newEvt);
+  });
+
+  app.patch('/api/events/:id', (req: Request, res: Response) => {
+    const event = events.find(e => e.id === req.params.id);
+    if (!event) return res.status(404).json({ error: 'Sự kiện không tồn tại' });
+    Object.assign(event, pickFields<EventItem, typeof EDITABLE_EVENT_FIELDS[number]>(req.body, EDITABLE_EVENT_FIELDS));
+    registrations.forEach(r => { if (r.eventId === event.id) r.eventTitle = event.title; });
+    res.json(event);
+  });
+
+  app.patch('/api/news/:id', (req: Request, res: Response) => {
+    const article = news.find(n => n.id === req.params.id);
+    if (!article) return res.status(404).json({ error: 'Bài viết không tồn tại' });
+    Object.assign(article, pickFields<NewsItem, typeof EDITABLE_NEWS_FIELDS[number]>(req.body, EDITABLE_NEWS_FIELDS));
+    res.json(article);
+  });
+
+  app.delete('/api/news/:id', (req: Request, res: Response) => {
+    news = news.filter(n => n.id !== req.params.id);
+    res.json({ success: true });
   });
 
   app.delete('/api/events/:id', (req: Request, res: Response) => {
