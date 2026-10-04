@@ -412,7 +412,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                Cổng thông tin điện tử, quản lý phong trào sinh viên và tự động hóa điểm danh Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Khoa Điện - Điện tử (FEE - HCMUT).
+                Cổng thông tin điện tử, quản lý phong trào sinh viên và tự động hóa điểm danh Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Khoa Điện - Điện tử (HCMUT).
               </p>
               <div className="text-xs text-blue-400 font-semibold flex items-center space-x-1.5 pt-1">
                 <CircuitBoard className="w-4 h-4" />
@@ -484,7 +484,7 @@ export default function App() {
 
           {/* Bottom Copyright */}
           <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-            <p className="text-slate-400">© 2026 Đoàn - Hội Khoa Điện - Điện tử (FEE - HCMUT). All rights reserved.</p>
+            <p className="text-slate-400">© 2026 Đoàn - Hội Khoa Điện - Điện tử (HCMUT). All rights reserved.</p>
             <div className="flex items-center space-x-4">
               <button onClick={scrollToTop} className="text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer">
                 <span>Về đầu trang</span>

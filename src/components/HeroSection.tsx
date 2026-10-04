@@ -37,7 +37,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               <div className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold">
                 <Cpu className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
-                <span>Khoa Điện - Điện tử (FEE - HCMUT)</span>
+                <span>Khoa Điện - Điện tử (HCMUT)</span>
               </div>
             </div>
 

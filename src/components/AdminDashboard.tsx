@@ -98,10 +98,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh_Sach_Dang_Ky_FEE');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh_Sach_Dang_Ky');
     
     // Generate file download
-    const fileName = `Danh_Sach_Sinh_Vien_FEE_${selectedEventId !== 'ALL' ? selectedEventId : 'All'}_${Date.now()}.xlsx`;
+    const fileName = `Danh_Sach_Sinh_Vien_${selectedEventId !== 'ALL' ? selectedEventId : 'All'}_${Date.now()}.xlsx`;
     XLSX.writeFile(workbook, fileName);
 
     setActionNotice(`Đã xuất thành công file ${fileName}!`);
@@ -152,7 +152,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     },
     {
       role: 'EDITOR',
-      title: 'Ban Truyền thông (FEE Media)',
+      title: 'Ban Truyền thông',
       desc: 'Phụ trách truyền thông, soạn thảo, đăng tải các bài viết hoạt động Đoàn - Hội, thông báo học vụ, cuộc thi NCKH và quản lý banner.',
       permissions: ['Đăng bài viết mới', 'Quản lý danh mục & Tags', 'Duyệt bài cộng tác viên']
     },
@@ -176,7 +176,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div>
               <h2 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-                TRUNG TÂM QUẢN TRỊ & TỰ ĐỘNG HÓA (FEE ADMIN)
+                TRUNG TÂM QUẢN TRỊ & TỰ ĐỘNG HÓA
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                 Quản lý người tham gia, xuất file Excel, tự động hóa Email/Push 24h và kiểm soát phân quyền RBAC
@@ -486,7 +486,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       
                       <div className="my-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-center">
                         <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">MÃ VÉ ĐIỆN TỬ CỦA BẠN</p>
-                        <p className="text-2xl font-mono font-extrabold text-blue-700 dark:text-blue-300 my-1">#FEE-TECH-88392</p>
+                        <p className="text-2xl font-mono font-extrabold text-blue-700 dark:text-blue-300 my-1">#TECH-88392</p>
                         <p className="text-xs text-slate-600 dark:text-slate-300">Thời gian: 08:00 Ngày 28/08/2026 • Hội trường A</p>
                       </div>
 
@@ -498,7 +498,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <>
                       <p>Sự kiện <strong>EE TECH DAY 2026</strong> bạn đã đăng ký sẽ chính thức khai mạc vào <strong>08:00 sáng mai</strong> tại Hội trường A.</p>
                       <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-400/30 rounded-lg text-xs text-amber-900 dark:text-amber-200">
-                        ⚡ <strong>Lưu ý:</strong> Vui lòng mặc trang phục lịch sự / Áo Đoàn và mang theo thẻ sinh viên kèm vé QR (#FEE-TECH-88392).
+                        ⚡ <strong>Lưu ý:</strong> Vui lòng mặc trang phục lịch sự / Áo Đoàn và mang theo thẻ sinh viên kèm vé QR (#TECH-88392).
                       </div>
                     </>
                   )}

@@ -41,7 +41,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
   const [newSummary, setNewSummary] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newCategory, setNewCategory] = useState<NewsCategory>('HOAT_DONG_KHOA');
-  const [newTags, setNewTags] = useState('FEE, Tuổi trẻ');
+  const [newTags, setNewTags] = useState('Đoàn - Hội, Tuổi trẻ');
   const [newCover, setNewCover] = useState('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80');
 
   const canEditNews = currentRole === 'SUPER_ADMIN' || currentRole === 'EDITOR';
@@ -60,7 +60,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
     setNewSummary('');
     setNewContent('');
     setNewCategory('HOAT_DONG_KHOA');
-    setNewTags('FEE, Tuổi trẻ');
+    setNewTags('Đoàn - Hội, Tuổi trẻ');
     setNewCover('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80');
     setIsCreatingModal(true);
   };
@@ -658,7 +658,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                     required
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="VD: Khởi động Cuộc thi Robot Tự hành FEE Robocon 2026..."
+                    placeholder="VD: Khởi động Cuộc thi Robot Tự hành Robocon 2026..."
                     className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>

@@ -13,10 +13,10 @@ export const INITIAL_STATS: FacultyStats = {
 export const INITIAL_NEWS: NewsItem[] = [
   {
     id: 'news-1',
-    title: 'Phát động Cuộc thi Thiết kế Vi mạch & Hệ thống Nhúng FEE IC-Design Contest 2026',
+    title: 'Phát động Cuộc thi Thiết kế Vi mạch & Hệ thống Nhúng IC-Design Contest 2026',
     slug: 'cuoc-thi-thiet-ke-vi-mach-he-thong-nhung-2026',
     summary: 'Sân chơi học thuật đỉnh cao dành cho sinh viên Khoa Điện - Điện tử với tổng giá trị giải thưởng lên đến 150 triệu đồng cùng cơ hội thực tập tại các tập đoàn bán dẫn hàng đầu.',
-    content: `Cuộc thi **FEE IC-Design & Embedded Challenge 2026** do Đoàn - Hội Khoa Điện - Điện tử phối hợp cùng Hội Vi mạch Bán dẫn TP.HCM tổ chức chính thức khởi động.
+    content: `Cuộc thi **IC-Design & Embedded Challenge 2026** do Đoàn - Hội Khoa Điện - Điện tử phối hợp cùng Hội Vi mạch Bán dẫn TP.HCM tổ chức chính thức khởi động.
 
 ### 1. Đối tượng tham gia
 - Toàn thể sinh viên chuyên ngành Điện tử Viễn thông, Kỹ thuật Điều khiển & Tự động hóa, Kỹ thuật Điện, Kỹ thuật Y sinh và các ngành kỹ thuật liên quan.
@@ -35,7 +35,7 @@ export const INITIAL_NEWS: NewsItem[] = [
     authorRole: 'Trưởng Ban Học thuật',
     publishedAt: '2026-08-12T08:30:00Z',
     coverImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-    tags: ['Vi mạch', 'Bán dẫn', 'Embedded', 'FEE Contest'],
+    tags: ['Vi mạch', 'Bán dẫn', 'Embedded', 'IC-Design Contest'],
     views: 1840,
     featured: true,
   },
@@ -54,11 +54,11 @@ Hội nghị vinh dự đón tiếp đại diện Đảng ủy - Ban Chủ nhi�
 3. Đồng hành cùng sinh viên trong nghiên cứu khoa học, khởi nghiệp sáng tạo và việc làm công nghệ cao.`,
     category: 'HOAT_DONG_KHOA',
     categoryName: 'Hoạt động Đoàn - Hội',
-    author: 'Ban Thông tin & Truyền thông FEE Media',
+    author: 'Ban Thông tin & Truyền thông',
     authorRole: 'Phó Bí thư Đoàn Thanh niên',
     publishedAt: '2026-08-08T14:15:00Z',
     coverImage: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80',
-    tags: ['Đại hội', 'BCH Đoàn Thanh niên', 'Tuổi trẻ FEE', 'Tiên phong'],
+    tags: ['Đại hội', 'BCH Đoàn Thanh niên', 'Tuổi trẻ Điện - Điện tử', 'Tiên phong'],
     views: 2420,
     featured: true,
   },
@@ -66,7 +66,7 @@ Hội nghị vinh dự đón tiếp đại diện Đảng ủy - Ban Chủ nhi�
     id: 'news-3',
     title: 'Chiến dịch Tình nguyện Mùa Hè Xanh 2026: Đội hình Chuyên Điện mang nguồn sáng về vùng cao',
     slug: 'mua-he-xanh-2026-doi-hinh-chuyen-dien-thap-sang-duong-que',
-    summary: 'Hơn 60 chiến sĩ Mùa Hè Xanh FEE đã hoàn thành xuất sắc công trình thanh niên "Thắp sáng đường quê bằng năng lượng mặt trời" với hơn 5km đèn chiếu sáng tại Huyện miền núi.',
+    summary: 'Hơn 60 chiến sĩ Mùa Hè Xanh đã hoàn thành xuất sắc công trình thanh niên "Thắp sáng đường quê bằng năng lượng mặt trời" với hơn 5km đèn chiếu sáng tại Huyện miền núi.',
     content: `Chiến dịch tình nguyện Mùa Hè Xanh năm 2026 của Đoàn Thanh niên Khoa Điện - Điện tử đã khép lại với những dấu ấn đậm nét của sức trẻ và chuyên môn kỹ thuật.
 
 ### Các công trình tiêu biểu đã hoàn thành:
@@ -127,9 +127,9 @@ export const INITIAL_EVENTS: EventItem[] = [
     id: 'evt-1',
     title: 'EE TECH DAY 2026: Triển lãm Đồ án Tốt nghiệp & Ngày hội Tuyển dụng Kỹ thuật Điện - Điện tử',
     slug: 'ee-tech-day-2026-trien-lam-do-an-ngay-hoi-tuyen-dung',
-    description: 'Sự kiện lớn nhất trong năm quy tụ hơn 50 doanh nghiệp công nghệ hàng đầu, trưng bày hơn 100 sản phẩm robot, IoT, vi mạch và tự động hóa do sinh viên FEE chế tạo.',
+    description: 'Sự kiện lớn nhất trong năm quy tụ hơn 50 doanh nghiệp công nghệ hàng đầu, trưng bày hơn 100 sản phẩm robot, IoT, vi mạch và tự động hóa do sinh viên Khoa Điện - Điện tử chế tạo.',
     content: `### Nội dung chương trình EE TECH DAY 2026
-1. **08:00 - 11:30**: Lễ khai mạc & Chung kết Robocon Khoa Điện - Điện tử (FEE Arena).
+1. **08:00 - 11:30**: Lễ khai mạc & Chung kết Robocon Khoa Điện - Điện tử.
 2. **13:00 - 16:30**: Phỏng vấn tuyển dụng trực tiếp tại gian hàng của các tập đoàn (Intel, Bosch, Renesas, Schneider Electric, ABB).
 3. **17:00 - 19:30**: Talkshow công nghệ: "Kỷ nguyên Bán dẫn & AI Edge trong công nghiệp 4.0".
 
@@ -184,7 +184,7 @@ export const INITIAL_EVENTS: EventItem[] = [
   },
   {
     id: 'evt-3',
-    title: 'Hội thao Truyền thống "FEE Olympic Cup 2026" - Chào đón Tân sinh viên Khóa mới',
+    title: 'Hội thao Truyền thống "Olympic Cup 2026" - Chào đón Tân sinh viên Khóa mới',
     slug: 'hoi-thao-truyen-thong-fee-olympic-cup-2026',
     description: 'Giải thể thao thường niên tranh cúp Vô địch giữa các Chi đoàn với các bộ môn: Bóng đá nam/nữ, Bóng rổ, Cầu lông, Kéo co và E-Sports.',
     content: `Giải đấu quy tụ hơn 30 Chi đoàn toàn khoa tham gia tranh tài trong 2 tuần liên tục.
@@ -234,7 +234,7 @@ Mỗi học viên được cấp kit thực hành cảm biến dòng PZEM-004T +
   },
   {
     id: 'evt-5',
-    title: 'Hành trình Tình nguyện "Áo xanh FEE thắp sáng ước mơ em" tại Mái ấm Khuyết tật',
+    title: 'Hành trình Tình nguyện "Áo xanh thắp sáng ước mơ em" tại Mái ấm Khuyết tật',
     slug: 'tinh-nguyen-ao-xanh-thap-sang-uoc-mo-2026',
     description: 'Chương trình thăm hỏi, sửa chữa hệ thống chiếu sáng, trao học bổng và tổ chức vui Tết Trung thu cho các em nhỏ có hoàn cảnh khó khăn.',
     content: `Chương trình tình nguyện thiện nguyện thường niên do Liên chi hội Sinh viên Khoa tổ chức.`,
@@ -302,8 +302,8 @@ export const INITIAL_BCH: BCHMember[] = [
     phone: '0977 112 233',
     classGroup: 'D23_KTDT03',
     avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-    bio: 'Trưởng Ban Kỹ thuật Cổng thông tin Đoàn - Hội FEE Portal, Đội trưởng FEE Media Production.',
-    department: 'Ban Thông tin & Truyền thông (FEE Media)',
+    bio: 'Trưởng Ban Kỹ thuật Cổng thông tin Đoàn - Hội, Đội trưởng Đội Truyền thông.',
+    department: 'Ban Thông tin & Truyền thông',
   },
   {
     id: 'bch-5',
@@ -343,7 +343,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     classGroup: 'D22_DKTD01',
     faculty: 'Khoa Điện - Điện tử',
     registeredAt: '2026-08-14T10:15:00Z',
-    ticketCode: 'FEE-TECH-88392',
+    ticketCode: 'TECH-88392',
     checkedIn: true,
     checkedInAt: '2026-08-15T08:10:00Z',
     note: 'Đã nhận quà tặng đại biểu',
@@ -359,7 +359,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     classGroup: 'D22_DTVT02',
     faculty: 'Khoa Điện - Điện tử',
     registeredAt: '2026-08-14T11:45:00Z',
-    ticketCode: 'FEE-TECH-91204',
+    ticketCode: 'TECH-91204',
     checkedIn: false,
   },
   {
@@ -373,7 +373,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     classGroup: 'D21_DTVT01',
     faculty: 'Khoa Điện - Điện tử',
     registeredAt: '2026-08-13T09:20:00Z',
-    ticketCode: 'FEE-VLSI-44211',
+    ticketCode: 'VLSI-44211',
     checkedIn: true,
     checkedInAt: '2026-08-15T09:05:00Z',
   }
@@ -383,7 +383,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'notif-1',
     title: 'Xác nhận đăng ký EE TECH DAY 2026 thành công',
-    message: 'Vé điện tử mã #FEE-TECH-88392 đã sẵn sàng. Hãy xuất trình mã QR tại cổng Hội trường để điểm danh tham dự.',
+    message: 'Vé điện tử mã #TECH-88392 đã sẵn sàng. Hãy xuất trình mã QR tại cổng Hội trường để điểm danh tham dự.',
     type: 'EVENT',
     timestamp: '10 phút trước',
     read: false,
@@ -398,7 +398,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: 'notif-3',
-    title: 'Tin mới: Phát động Cuộc thi Vi mạch FEE IC-Design 2026',
+    title: 'Tin mới: Phát động Cuộc thi Vi mạch IC-Design 2026',
     message: 'Tổng giải thưởng 150 triệu đồng và cơ hội thực tập tại các tập đoàn vi mạch hàng đầu.',
     type: 'NEWS',
     timestamp: '1 ngày trước',

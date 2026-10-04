@@ -28,21 +28,21 @@ async function startServer() {
       id: 'email-001',
       recipientEmail: '2211001@student.university.edu.vn',
       recipientName: 'Nguyễn Văn An',
-      subject: '[FEE Portal] Xác nhận đăng ký EE TECH DAY 2026 kèm Vé Điện Tử QR',
+      subject: '[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký EE TECH DAY 2026 kèm Vé Điện Tử QR',
       type: 'REGISTRATION_CONFIRMATION',
       sentAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
       status: 'DELIVERED',
-      ticketCode: 'FEE-TECH-88392'
+      ticketCode: 'TECH-88392'
     },
     {
       id: 'email-002',
       recipientEmail: '2111054@student.university.edu.vn',
       recipientName: 'Lê Quang Minh',
-      subject: '[FEE Portal] Nhắc nhở: Hội thảo Thiết kế Vi mạch Bán dẫn VLSI diễn ra ngày mai',
+      subject: '[Đoàn - Hội Khoa Điện - Điện tử] Nhắc nhở: Hội thảo Thiết kế Vi mạch Bán dẫn VLSI diễn ra ngày mai',
       type: 'REMINDER_24H',
       sentAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
       status: 'DELIVERED',
-      ticketCode: 'FEE-VLSI-44211'
+      ticketCode: 'VLSI-44211'
     }
   ];
 
@@ -95,11 +95,11 @@ async function startServer() {
       content: req.body.content || '',
       category: req.body.category || 'HOAT_DONG_KHOA',
       categoryName: req.body.categoryName || 'Hoạt động Khoa',
-      author: req.body.author || 'Ban Truyền thông FEE Media',
+      author: req.body.author || 'Ban Truyền thông',
       authorRole: req.body.authorRole || 'Cộng tác viên Truyền thông',
       publishedAt: new Date().toISOString(),
       coverImage: req.body.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-      tags: req.body.tags || ['FEE Portal', 'Đoàn - Hội'],
+      tags: req.body.tags || ['Đoàn - Hội', 'Tuổi trẻ'],
       views: 1
     };
     news.unshift(newArticle);
@@ -228,7 +228,7 @@ async function startServer() {
 
     // Generate unique Ticket Code
     const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-    const prefix = event.type === 'ACADEMIC_CONTEST' ? 'FEE-ACAD' : event.type === 'SEMINAR_WORKSHOP' ? 'FEE-SEMI' : 'FEE-EVT';
+    const prefix = event.type === 'ACADEMIC_CONTEST' ? 'ACAD' : event.type === 'SEMINAR_WORKSHOP' ? 'SEMI' : 'EVT';
     const ticketCode = `${prefix}-${randomSuffix}`;
 
     const newRecord: RegistrationRecord = {
@@ -239,7 +239,7 @@ async function startServer() {
       mssv: mssv.trim(),
       email: email.trim(),
       phone: phone.trim(),
-      classGroup: classGroup ? classGroup.trim() : 'FEE',
+      classGroup: classGroup ? classGroup.trim() : 'Khoa Điện - Điện tử',
       faculty: faculty || 'Khoa Điện - Điện tử',
       registeredAt: new Date().toISOString(),
       ticketCode,
@@ -260,7 +260,7 @@ async function startServer() {
       id: `email-${Date.now()}`,
       recipientEmail: newRecord.email,
       recipientName: newRecord.fullName,
-      subject: `[FEE Portal] Xác nhận đăng ký "${event.title}" - Mã vé QR: ${ticketCode}`,
+      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký "${event.title}" - Mã vé QR: ${ticketCode}`,
       type: 'REGISTRATION_CONFIRMATION',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',
@@ -324,7 +324,7 @@ async function startServer() {
       id: `email-${Date.now()}`,
       recipientEmail: target.email,
       recipientName: target.fullName,
-      subject: `[FEE Portal] Ghi nhận Điểm danh tham dự thành công`,
+      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Ghi nhận Điểm danh tham dự thành công`,
       type: 'ATTENDANCE_SUCCESS',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',
@@ -346,7 +346,7 @@ async function startServer() {
     res.json({
       mssv: req.params.mssv,
       studentName: records[0]?.fullName || 'Sinh viên Khoa Điện - Điện tử',
-      classGroup: records[0]?.classGroup || 'FEE',
+      classGroup: records[0]?.classGroup || 'Khoa Điện - Điện tử',
       totalRegistered: records.length,
       totalCheckedIn: records.filter(r => r.checkedIn).length,
       history: records
@@ -451,7 +451,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`FEE Portal Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Portal server running on http://0.0.0.0:${PORT}`);
   });
 }
 

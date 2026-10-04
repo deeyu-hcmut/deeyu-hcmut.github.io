@@ -279,7 +279,7 @@ const rawFirebaseApi: Api = {
         fullName: data.fullName.trim(),
         mssv,
         mssvKey,
-        classGroup: data.classGroup ? data.classGroup.trim() : 'FEE',
+        classGroup: data.classGroup ? data.classGroup.trim() : 'Khoa Điện - Điện tử',
         faculty: data.faculty || 'Khoa Điện - Điện tử',
         registeredAt: new Date().toISOString(),
         ticketCode: generateTicketCode(event.type),
@@ -337,7 +337,7 @@ const rawFirebaseApi: Api = {
       batch.set(doc(collection(db, 'emailLogs')), {
         recipientEmail: contact.email,
         recipientName: data.fullName,
-        subject: '[FEE Portal] Ghi nhận Điểm danh tham dự thành công',
+        subject: '[Đoàn - Hội Khoa Điện - Điện tử] Ghi nhận Điểm danh tham dự thành công',
         type: 'ATTENDANCE_SUCCESS',
         sentAt: checkedInAt,
         status: 'QUEUED',
@@ -365,7 +365,7 @@ const rawFirebaseApi: Api = {
     return {
       mssv,
       studentName: history[0]?.fullName || 'Sinh viên Khoa Điện - Điện tử',
-      classGroup: history[0]?.classGroup || 'FEE',
+      classGroup: history[0]?.classGroup || 'Khoa Điện - Điện tử',
       totalRegistered: history.length,
       totalCheckedIn: history.filter(r => r.checkedIn).length,
       history,

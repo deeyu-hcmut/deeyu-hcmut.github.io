@@ -359,16 +359,16 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
                     <div className="mt-4 flex flex-wrap gap-2 justify-center">
                       <span className="text-[10px] text-slate-400 block w-full">Thử nhanh với vé mẫu (bản demo):</span>
                       <button
-                        onClick={() => handleSimulateScan('FEE-TECH-88392')}
+                        onClick={() => handleSimulateScan('TECH-88392')}
                         className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-blue-950/90 text-blue-200 border border-blue-500/40 hover:bg-blue-900 transition-colors"
                       >
-                        #FEE-TECH-88392
+                        #TECH-88392
                       </button>
                       <button
-                        onClick={() => handleSimulateScan('FEE-TECH-91204')}
+                        onClick={() => handleSimulateScan('TECH-91204')}
                         className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-blue-950/90 text-blue-200 border border-blue-500/40 hover:bg-blue-900 transition-colors"
                       >
-                        #FEE-TECH-91204
+                        #TECH-91204
                       </button>
                       <button
                         onClick={() => handleSimulateScan('2211001')}
@@ -394,7 +394,7 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
                   value={ticketInput}
                   onChange={(e) => setTicketInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handlePerformCheckIn(ticketInput)}
-                  placeholder="VD: FEE-TECH-88392 hoặc 2211001..."
+                  placeholder="VD: TECH-88392 hoặc 2211001..."
                   className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-slate-100 uppercase font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
                 <button

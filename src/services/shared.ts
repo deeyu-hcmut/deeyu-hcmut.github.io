@@ -22,11 +22,11 @@ export function buildNews(newsData: Partial<NewsItem>): Omit<NewsItem, 'id'> {
     content: newsData.content || '',
     category: newsData.category || 'HOAT_DONG_KHOA',
     categoryName: newsData.categoryName || 'Hoạt động Khoa',
-    author: newsData.author || 'Ban Truyền thông FEE Media',
+    author: newsData.author || 'Ban Truyền thông',
     authorRole: newsData.authorRole || 'Cộng tác viên Truyền thông',
     publishedAt: new Date().toISOString(),
     coverImage: newsData.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-    tags: newsData.tags || ['FEE Portal', 'Đoàn - Hội'],
+    tags: newsData.tags || ['Đoàn - Hội', 'Tuổi trẻ'],
     views: 1
   };
 }
@@ -78,7 +78,7 @@ export function pickFields<T extends object, K extends keyof T>(source: Partial<
 const TICKET_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 export function generateTicketCode(type: EventType): string {
-  const prefix = type === 'ACADEMIC_CONTEST' ? 'FEE-ACAD' : type === 'SEMINAR_WORKSHOP' ? 'FEE-SEMI' : 'FEE-EVT';
+  const prefix = type === 'ACADEMIC_CONTEST' ? 'ACAD' : type === 'SEMINAR_WORKSHOP' ? 'SEMI' : 'EVT';
   const bytes = crypto.getRandomValues(new Uint8Array(6));
   const suffix = Array.from(bytes, b => TICKET_ALPHABET[b % TICKET_ALPHABET.length]).join('');
   return `${prefix}-${suffix}`;

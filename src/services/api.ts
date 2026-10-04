@@ -192,7 +192,7 @@ const clientStorage = {
       mssv: registrationData.mssv.trim(),
       email: registrationData.email.trim(),
       phone: registrationData.phone.trim(),
-      classGroup: registrationData.classGroup ? registrationData.classGroup.trim() : 'FEE',
+      classGroup: registrationData.classGroup ? registrationData.classGroup.trim() : 'Khoa Điện - Điện tử',
       faculty: registrationData.faculty || 'Khoa Điện - Điện tử',
       registeredAt: new Date().toISOString(),
       ticketCode,
@@ -213,7 +213,7 @@ const clientStorage = {
       id: `email-${Date.now()}`,
       recipientEmail: newRecord.email,
       recipientName: newRecord.fullName,
-      subject: `[FEE Portal] Xác nhận đăng ký "${event.title}" - Mã vé QR: ${ticketCode}`,
+      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký "${event.title}" - Mã vé QR: ${ticketCode}`,
       type: 'REGISTRATION_CONFIRMATION',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',
@@ -270,7 +270,7 @@ const clientStorage = {
       id: `email-${Date.now()}`,
       recipientEmail: target.email,
       recipientName: target.fullName,
-      subject: `[FEE Portal] Ghi nhận Điểm danh tham dự thành công`,
+      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Ghi nhận Điểm danh tham dự thành công`,
       type: 'ATTENDANCE_SUCCESS',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',
@@ -293,7 +293,7 @@ const clientStorage = {
     return {
       mssv,
       studentName: records[0]?.fullName || 'Sinh viên Khoa Điện - Điện tử',
-      classGroup: records[0]?.classGroup || 'FEE',
+      classGroup: records[0]?.classGroup || 'Khoa Điện - Điện tử',
       totalRegistered: records.length,
       totalCheckedIn: records.filter(r => r.checkedIn).length,
       history: records
@@ -369,21 +369,21 @@ const clientStorage = {
         id: 'email-001',
         recipientEmail: '2211001@student.university.edu.vn',
         recipientName: 'Nguyễn Văn An',
-        subject: '[FEE Portal] Xác nhận đăng ký EE TECH DAY 2026 kèm Vé Điện Tử QR',
+        subject: '[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký EE TECH DAY 2026 kèm Vé Điện Tử QR',
         type: 'REGISTRATION_CONFIRMATION',
         sentAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
         status: 'DELIVERED',
-        ticketCode: 'FEE-TECH-88392'
+        ticketCode: 'TECH-88392'
       },
       {
         id: 'email-002',
         recipientEmail: '2111054@student.university.edu.vn',
         recipientName: 'Lê Quang Minh',
-        subject: '[FEE Portal] Nhắc nhở: Hội thảo Thiết kế Vi mạch Bán dẫn VLSI diễn ra ngày mai',
+        subject: '[Đoàn - Hội Khoa Điện - Điện tử] Nhắc nhở: Hội thảo Thiết kế Vi mạch Bán dẫn VLSI diễn ra ngày mai',
         type: 'REMINDER_24H',
         sentAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
         status: 'DELIVERED',
-        ticketCode: 'FEE-VLSI-44211'
+        ticketCode: 'VLSI-44211'
       }
     ]);
   }
