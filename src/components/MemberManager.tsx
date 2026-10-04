@@ -15,6 +15,7 @@ import {
   X,
   BadgeCheck,
   GraduationCap,
+  ChevronDown,
 } from 'lucide-react';
 import { MemberGender, MemberRecord, MemberStatus } from '../types';
 import { api } from '../services/api';
@@ -163,6 +164,16 @@ function toSheetRow(m: MemberRecord): Record<string, string> {
   };
 }
 
+function cohortOf(m: MemberRecord): string {
+  return m.cohort.trim();
+}
+
+// "K26" before "K25"; numbers compared as numbers; empty Khóa last
+function compareCohorts(a: string, b: string): number {
+  if (!a || !b) return a ? -1 : b ? 1 : 0;
+  return b.localeCompare(a, 'vi', { numeric: true });
+}
+
 const inputClass =
   'w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500';
 const labelClass = 'block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1';
@@ -176,6 +187,11 @@ export const MemberManager: React.FC = () => {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('ALL');
   const [statusFilter, setStatusFilter] = useState<MemberStatus | 'ALL'>('ALL');
+  // null = every Khóa; '' = records without a Khóa
+  const [cohortFilter, setCohortFilter] = useState<string | null>(null);
+  // Blocks the admin opened, and auto-opened blocks they closed again
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   // Form: editingId undefined = closed, null = adding, string = editing that record
   const [editingId, setEditingId] = useState<string | null | undefined>(undefined);
@@ -216,11 +232,40 @@ export const MemberManager: React.FC = () => {
       if (typeFilter === 'PROFILE_DONE' && !m.profileCompletedAt) return false;
       if (typeFilter === 'PROFILE_MISSING' && m.profileCompletedAt) return false;
       if (statusFilter !== 'ALL' && m.status !== statusFilter) return false;
+      if (cohortFilter !== null && cohortOf(m) !== cohortFilter) return false;
       if (!q) return true;
       return [m.mssv, m.fullName, m.classGroup, m.cohort, m.email, m.phone, m.accountEmail || '']
         .some(v => v.toLowerCase().includes(q));
     });
-  }, [members, search, typeFilter, statusFilter]);
+  }, [members, search, typeFilter, statusFilter, cohortFilter]);
+
+  // Every Khóa in the list, newest first (K26, K25, K24 ...); records without one last
+  const cohorts = useMemo(() => {
+    const counts = new Map<string, number>();
+    members.forEach(m => counts.set(cohortOf(m), (counts.get(cohortOf(m)) ?? 0) + 1));
+    return [...counts.entries()].sort(([a], [b]) => compareCohorts(a, b)).map(([cohort, count]) => ({ cohort, count }));
+  }, [members]);
+
+  const groups = useMemo(() => {
+    const byCohort = new Map<string, MemberRecord[]>();
+    filtered.forEach(m => {
+      const key = cohortOf(m);
+      if (!byCohort.has(key)) byCohort.set(key, []);
+      byCohort.get(key)!.push(m);
+    });
+    return [...byCohort.entries()].sort(([a], [b]) => compareCohorts(a, b)).map(([cohort, items]) => ({ cohort, items }));
+  }, [filtered]);
+
+  // Searching or picking one Khóa opens the matching blocks; otherwise they stay closed until clicked
+  const autoOpen = search.trim() !== '' || cohortFilter !== null;
+  const isGroupOpen = (cohort: string) => expanded.has(cohort) || (autoOpen && !collapsed.has(cohort));
+
+  const toggleGroup = (cohort: string) => {
+    const open = isGroupOpen(cohort);
+    const without = (set: Set<string>) => new Set([...set].filter(c => c !== cohort));
+    setExpanded(prev => (open ? without(prev) : new Set(prev).add(cohort)));
+    setCollapsed(prev => (open ? new Set(prev).add(cohort) : without(prev)));
+  };
 
   const stats = useMemo(() => ({
     total: members.length,
@@ -339,6 +384,68 @@ export const MemberManager: React.FC = () => {
     }
   };
 
+  const renderRow = (m: MemberRecord) => (
+    <tr key={m.id} className="hover:bg-blue-50/40 dark:hover:bg-blue-950/40 transition-colors">
+      <td className="px-4 py-3 font-mono font-bold text-slate-900 dark:text-slate-100">{m.mssv}</td>
+      <td className="px-4 py-3">
+        <p className="font-bold text-slate-900 dark:text-slate-100">{m.fullName}</p>
+        <p className="text-[10px] text-slate-400 font-mono">{m.email || m.phone}</p>
+        {m.profileCompletedAt ? (
+          <span className="mt-0.5 inline-block text-[10px] font-semibold text-emerald-700 dark:text-emerald-300" title={m.accountEmail}>
+            ✓ Đã tự bổ sung hồ sơ
+          </span>
+        ) : (
+          <span className="mt-0.5 inline-block text-[10px] text-slate-400">Chưa đăng nhập bổ sung</span>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <span className="block font-medium">{m.classGroup || '—'}</span>
+        <span className="text-[10px] text-slate-500 dark:text-slate-400">{m.cohort}</span>
+      </td>
+      <td className="px-4 py-3">
+        {m.isUnionMember ? (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-400/30">
+            <Check className="w-3 h-3 mr-1" />
+            Đoàn viên
+          </span>
+        ) : (
+          <span className="text-slate-400">—</span>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        {m.isAssociationMember ? (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-400/30">
+            <Check className="w-3 h-3 mr-1" />
+            Hội viên
+          </span>
+        ) : (
+          <span className="text-slate-400">—</span>
+        )}
+      </td>
+      <td className="px-4 py-3 text-[11px]">{STATUS_LABELS[m.status]}</td>
+      <td className="px-4 py-3">
+        <div className="flex justify-end gap-1.5">
+          <button
+            onClick={() => openForm(m)}
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            aria-label={`Sửa ${m.fullName}`}
+            title="Sửa"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setDeleting(m)}
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+            aria-label={`Xoá ${m.fullName}`}
+            title="Xoá"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+
   const statCards = [
     { label: 'Tổng sinh viên', value: stats.total, icon: Users, tone: 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/40' },
     { label: 'Đoàn viên', value: stats.union, icon: BadgeCheck, tone: 'text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/40' },
@@ -406,6 +513,19 @@ export const MemberManager: React.FC = () => {
             <option value="PROFILE_DONE">Đã tự bổ sung hồ sơ</option>
             <option value="PROFILE_MISSING">Chưa bổ sung hồ sơ</option>
           </select>
+          <select
+            value={cohortFilter ?? '__all__'}
+            onChange={e => setCohortFilter(e.target.value === '__all__' ? null : e.target.value)}
+            className={`${inputClass} sm:w-40`}
+            aria-label="Lọc theo khóa"
+          >
+            <option value="__all__">Mọi khóa</option>
+            {cohorts.map(({ cohort, count }) => (
+              <option key={cohort || '__none__'} value={cohort}>
+                {cohort ? `Khóa ${cohort}` : 'Chưa có khóa'} ({count})
+              </option>
+            ))}
+          </select>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as MemberStatus | 'ALL')} className={`${inputClass} sm:w-40`}>
             <option value="ALL">Mọi trạng thái</option>
             {(Object.keys(STATUS_LABELS) as MemberStatus[]).map(s => (
@@ -456,113 +576,74 @@ export const MemberManager: React.FC = () => {
         khi sinh viên đăng nhập lần đầu bằng tài khoản @hcmut.edu.vn, họ sẽ tự điền phần còn thiếu.
       </p>
 
-      {/* Table */}
-      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-700 dark:text-slate-200">
-            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200 dark:border-slate-700">
-              <tr>
-                <th className="px-4 py-3">MSSV</th>
-                <th className="px-4 py-3">Họ và tên</th>
-                <th className="px-4 py-3">Lớp / Khóa</th>
-                <th className="px-4 py-3">Đoàn viên</th>
-                <th className="px-4 py-3">Hội viên</th>
-                <th className="px-4 py-3">Trạng thái</th>
-                <th className="px-4 py-3 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">Đang tải danh sách…</td>
-                </tr>
-              ) : loadError ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-rose-600 dark:text-rose-300">
-                    {loadError}{' '}
-                    <button onClick={loadMembers} className="underline font-semibold">Thử lại</button>
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
-                    {members.length === 0
-                      ? 'Chưa có sinh viên nào. Bấm "Thêm sinh viên" hoặc "Nhập Excel" để bắt đầu.'
-                      : 'Không có sinh viên nào phù hợp với bộ lọc.'}
-                  </td>
-                </tr>
-              ) : (
-                filtered.slice(0, MAX_ROWS).map(m => (
-                  <tr key={m.id} className="hover:bg-blue-50/40 dark:hover:bg-blue-950/40 transition-colors">
-                    <td className="px-4 py-3 font-mono font-bold text-slate-900 dark:text-slate-100">{m.mssv}</td>
-                    <td className="px-4 py-3">
-                      <p className="font-bold text-slate-900 dark:text-slate-100">{m.fullName}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">{m.email || m.phone}</p>
-                      {m.profileCompletedAt ? (
-                        <span className="mt-0.5 inline-block text-[10px] font-semibold text-emerald-700 dark:text-emerald-300" title={m.accountEmail}>
-                          ✓ Đã tự bổ sung hồ sơ
-                        </span>
-                      ) : (
-                        <span className="mt-0.5 inline-block text-[10px] text-slate-400">Chưa đăng nhập bổ sung</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="block font-medium">{m.classGroup || '—'}</span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400">{m.cohort}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {m.isUnionMember ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-400/30">
-                          <Check className="w-3 h-3 mr-1" />
-                          Đoàn viên
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {m.isAssociationMember ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-400/30">
-                          <Check className="w-3 h-3 mr-1" />
-                          Hội viên
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-[11px]">{STATUS_LABELS[m.status]}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-1.5">
-                        <button
-                          onClick={() => openForm(m)}
-                          className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40"
-                          aria-label={`Sửa ${m.fullName}`}
-                          title="Sửa"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleting(m)}
-                          className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
-                          aria-label={`Xoá ${m.fullName}`}
-                          title="Xoá"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* One collapsible block per Khóa; closed by default so the page is not one huge list */}
+      {loading ? (
+        <p className="px-4 py-8 text-center text-xs text-slate-500 dark:text-slate-400 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">Đang tải danh sách…</p>
+      ) : loadError ? (
+        <p className="px-4 py-8 text-center text-xs text-rose-600 dark:text-rose-300 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+          {loadError}{' '}
+          <button onClick={loadMembers} className="underline font-semibold">Thử lại</button>
+        </p>
+      ) : groups.length === 0 ? (
+        <p className="px-4 py-8 text-center text-xs text-slate-500 dark:text-slate-400 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+          {members.length === 0
+            ? 'Chưa có sinh viên nào. Bấm "Thêm sinh viên" hoặc "Nhập Excel" để bắt đầu.'
+            : 'Không có sinh viên nào phù hợp với bộ lọc.'}
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {groups.map(group => {
+            const open = isGroupOpen(group.cohort);
+            return (
+              <div key={group.cohort || '__none__'} className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+                <button
+                  onClick={() => toggleGroup(group.cohort)}
+                  aria-expanded={open}
+                  className="w-full px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                >
+                  <ChevronDown className={`w-4 h-4 text-slate-500 dark:text-slate-400 transition-transform ${open ? '' : '-rotate-90'}`} />
+                  <span className="font-tech text-sm font-bold text-slate-900 dark:text-slate-100">
+                    {group.cohort ? `Khóa ${group.cohort}` : 'Chưa có khóa'}
+                  </span>
+                  <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">{group.items.length} sinh viên</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Đoàn viên {group.items.filter(m => m.isUnionMember).length} • Hội viên {group.items.filter(m => m.isAssociationMember).length} •
+                    Đã bổ sung hồ sơ {group.items.filter(m => m.profileCompletedAt).length}
+                  </span>
+                </button>
+
+                {open && (
+                  <div className="border-t border-slate-200 dark:border-slate-700">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs text-slate-700 dark:text-slate-200">
+                        <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200 dark:border-slate-700">
+                          <tr>
+                            <th className="px-4 py-3">MSSV</th>
+                            <th className="px-4 py-3">Họ và tên</th>
+                            <th className="px-4 py-3">Lớp / Khóa</th>
+                            <th className="px-4 py-3">Đoàn viên</th>
+                            <th className="px-4 py-3">Hội viên</th>
+                            <th className="px-4 py-3">Trạng thái</th>
+                            <th className="px-4 py-3 text-right">Thao tác</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                          {group.items.slice(0, MAX_ROWS).map(renderRow)}
+                        </tbody>
+                      </table>
+                    </div>
+                    {group.items.length > MAX_ROWS && (
+                      <p className="px-4 py-3 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
+                        Đang hiển thị {MAX_ROWS}/{group.items.length} sinh viên của khóa này. Dùng ô tìm kiếm hoặc bộ lọc để thu hẹp; nút Xuất Excel vẫn xuất đủ.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-        {filtered.length > MAX_ROWS && (
-          <p className="px-4 py-3 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
-            Đang hiển thị {MAX_ROWS}/{filtered.length} sinh viên. Dùng ô tìm kiếm hoặc bộ lọc để thu hẹp; nút Xuất Excel vẫn xuất đủ {filtered.length} dòng.
-          </p>
-        )}
-      </div>
+      )}
 
       {/* Modal: add / edit */}
       {editingId !== undefined && (

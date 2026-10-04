@@ -7,7 +7,8 @@
  *   Ngày vào Đoàn, Hội viên, Trạng thái):
  *     chưa tự bổ sung hồ sơ trên web → Sheet → Web (BCH điền trước được);
  *     đã tự bổ sung                 → Web → Sheet (sheet hiện thông tin sinh viên khai).
- * - Sinh viên chỉ có trên web được thêm dòng vào cuối sheet. Xoá dòng trong sheet KHÔNG xoá trên web.
+ * - Đồng bộ mọi tab có cột MSSV (K24, K25, K26...); tab đặt tên theo khóa thì ô Khóa trống lấy tên tab.
+ * - Sinh viên chỉ có trên web được thêm dòng vào cuối tab cùng khóa. Xoá dòng trong sheet KHÔNG xoá trên web.
  *
  * Script chạy bằng tài khoản Google của người cài đặt; tài khoản đó phải là Owner/Editor
  * của project Firebase. Firestore Security Rules không áp dụng cho truy cập này.
@@ -15,8 +16,9 @@
 
 const PROJECT_ID = 'deeyu-hcmut';
 const COLLECTION = 'members';
-// Tên tab chứa danh sách; để trống ('') thì dùng tab đầu tiên
-const SHEET_NAME = '';
+// Các tab cần đồng bộ, ví dụ ['K24', 'K25', 'K26']. Để trống [] thì đồng bộ mọi tab có cột MSSV ở dòng 1.
+// Tab đặt tên theo khóa (K24, K25...) thì ô Khóa để trống sẽ tự lấy tên tab.
+const SHEET_NAMES = [];
 const SYNC_EVERY_MINUTES = 10;
 
 const DOCS_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
@@ -83,18 +85,8 @@ function dongBo() {
 }
 
 function syncOnce() {
-  const sheet = SHEET_NAME ? SpreadsheetApp.getActive().getSheetByName(SHEET_NAME) : SpreadsheetApp.getActive().getSheets()[0];
-  if (!sheet) throw new Error(`Không tìm thấy tab "${SHEET_NAME}".`);
-
-  const range = sheet.getDataRange();
-  const values = range.getValues();
-  const headers = values[0].map(h => normalizeKey(String(h)));
-  const colOf = {};
-  COLUMNS.forEach(c => {
-    const index = headers.findIndex(h => c.aliases.includes(h));
-    if (index >= 0) colOf[c.field] = index;
-  });
-  if (colOf.mssv === undefined) throw new Error('Sheet thiếu cột MSSV ở dòng tiêu đề.');
+  const tabs = loadTabs();
+  if (tabs.length === 0) throw new Error('Không tab nào có cột MSSV ở dòng tiêu đề.');
 
   const remote = loadMembers();
   const writes = [];
@@ -105,76 +97,142 @@ function syncOnce() {
   let created = 0;
   let updated = 0;
 
-  for (let r = 1; r < values.length; r++) {
-    const row = values[r];
-    const mssv = String(row[colOf.mssv]).trim();
-    if (!mssv) continue;
-    const id = mssv.toLowerCase();
-    if (!/^[a-z0-9]{1,20}$/.test(id)) {
-      skipped.push(`dòng ${r + 1} (MSSV "${mssv}")`);
-      continue;
-    }
-    if (seen[id]) {
-      skipped.push(`dòng ${r + 1} (trùng MSSV ${mssv})`);
-      continue;
-    }
-    seen[id] = true;
-
-    const existing = remote[id];
-    const studentOwned = Boolean(existing && existing.profileCompletedAt);
-    const changes = {};
-
-    COLUMNS.forEach(c => {
-      const col = colOf[c.field];
-      if (col === undefined || c.field === 'mssv') return;
-      const cell = row[col];
-      if (c.owner === 'student' && studentOwned) {
-        // Web → Sheet: what the student declared replaces the cell
-        const display = toCell(c, existing[c.field], cell);
-        if (!sameCell(cell, display)) cellUpdates.push({ row: r + 1, col: col + 1, value: display });
-        return;
-      }
-      const value = fromCell(c, cell);
-      if (value === undefined) return; // empty cell keeps the web value
-      if (!existing || existing[c.field] !== value) changes[c.field] = value;
-    });
-
-    if (!existing) {
-      if (!changes.fullName) {
-        skipped.push(`dòng ${r + 1} (MSSV ${mssv} thiếu họ tên)`);
+  tabs.forEach(tab => {
+    const { values, colOf, name } = tab;
+    for (let r = 1; r < values.length; r++) {
+      const row = values[r];
+      const where = `${name} dòng ${r + 1}`;
+      const mssv = String(row[colOf.mssv]).trim();
+      if (!mssv) continue;
+      const id = mssv.toLowerCase();
+      if (!/^[a-z0-9]{1,20}$/.test(id)) {
+        skipped.push(`${where} (MSSV "${mssv}")`);
         continue;
       }
-      writes.push(createWrite(id, Object.assign({ mssv: mssv }, changes)));
-      created++;
-    } else if (Object.keys(changes).length > 0) {
-      if (changes.isUnionMember === false) changes.unionJoinDate = '';
-      writes.push(updateWrite(id, changes));
-      updated++;
-    }
-  }
+      if (seen[id]) {
+        skipped.push(`${where} (MSSV ${mssv} trùng với ${seen[id]})`);
+        continue;
+      }
+      seen[id] = where;
 
-  // Students added on the website but missing from the sheet
-  const appended = Object.keys(remote)
+      const existing = remote[id];
+      const studentOwned = Boolean(existing && existing.profileCompletedAt);
+      const changes = {};
+
+      COLUMNS.forEach(c => {
+        const col = colOf[c.field];
+        if (c.field === 'mssv') return;
+        if (col === undefined) {
+          // Tabs named after a Khóa (K24, K25 ...) without a Khóa column
+          if (c.field === 'cohort' && tab.cohort && (!existing || !existing.cohort)) changes.cohort = tab.cohort;
+          return;
+        }
+        const cell = row[col];
+        if (c.owner === 'student' && studentOwned) {
+          // Web → Sheet: what the student declared replaces the cell
+          const display = toCell(c, existing[c.field], cell);
+          if (!sameCell(cell, display)) cellUpdates.push({ sheet: tab.sheet, row: r + 1, col: col + 1, value: display });
+          return;
+        }
+        let value = fromCell(c, cell);
+        if (value === undefined && c.field === 'cohort' && tab.cohort && (!existing || !existing.cohort)) value = tab.cohort;
+        if (value === undefined) return; // empty cell keeps the web value
+        if (!existing || existing[c.field] !== value) changes[c.field] = value;
+      });
+
+      if (!existing) {
+        if (!changes.fullName) {
+          skipped.push(`${where} (MSSV ${mssv} thiếu họ tên)`);
+          continue;
+        }
+        writes.push(createWrite(id, Object.assign({ mssv: mssv }, changes)));
+        created++;
+      } else if (Object.keys(changes).length > 0) {
+        if (changes.isUnionMember === false) changes.unionJoinDate = '';
+        writes.push(updateWrite(id, changes));
+        updated++;
+      }
+    }
+  });
+
+  // Students added on the website but missing from every tab: appended to the tab of their Khóa
+  // (tab named like the Khóa, e.g. "K24"). With no Khóa-named tabs at all they go to the first tab.
+  const byCohortTabs = tabs.some(t => t.cohort);
+  const appendTo = new Map();
+  const noTab = {};
+  Object.keys(remote)
     .filter(id => !seen[id])
     .sort()
-    .map(id => {
+    .forEach(id => {
       const member = remote[id];
-      const row = new Array(values[0].length).fill('');
+      const tab = byCohortTabs
+        ? tabs.find(t => t.cohort && normalizeKey(t.cohort) === normalizeKey(member.cohort || ''))
+        : tabs[0];
+      if (!tab) {
+        const key = member.cohort || 'chưa có khóa';
+        noTab[key] = (noTab[key] || 0) + 1;
+        return;
+      }
+      const row = new Array(tab.values[0].length).fill('');
       COLUMNS.forEach(c => {
-        if (colOf[c.field] !== undefined) row[colOf[c.field]] = toCell(c, member[c.field], '');
+        if (tab.colOf[c.field] !== undefined) row[tab.colOf[c.field]] = toCell(c, member[c.field], '');
       });
-      return row;
+      if (!appendTo.has(tab)) appendTo.set(tab, []);
+      appendTo.get(tab).push(row);
     });
 
   commitAll(writes);
-  cellUpdates.forEach(u => sheet.getRange(u.row, u.col).setValue(u.value));
-  if (appended.length > 0) sheet.getRange(sheet.getLastRow() + 1, 1, appended.length, values[0].length).setValues(appended);
+  cellUpdates.forEach(u => u.sheet.getRange(u.row, u.col).setValue(u.value));
+  let appended = 0;
+  appendTo.forEach((rows, tab) => {
+    tab.sheet.getRange(tab.sheet.getLastRow() + 1, 1, rows.length, tab.values[0].length).setValues(rows);
+    appended += rows.length;
+  });
 
-  const parts = [`Web: thêm ${created}, cập nhật ${updated}.`, `Sheet: thêm ${appended.length} dòng, cập nhật ${cellUpdates.length} ô từ thông tin sinh viên tự khai.`];
+  const parts = [
+    `Tab: ${tabs.map(t => t.name).join(', ')}.`,
+    `Web: thêm ${created}, cập nhật ${updated}.`,
+    `Sheet: thêm ${appended} dòng, cập nhật ${cellUpdates.length} ô từ thông tin sinh viên tự khai.`,
+  ];
   if (skipped.length > 0) parts.push(`Bỏ qua: ${skipped.slice(0, 5).join(', ')}${skipped.length > 5 ? '…' : ''}.`);
+  const missingTabs = Object.keys(noTab).map(c => `${c} (${noTab[c]} SV)`);
+  if (missingTabs.length > 0) parts.push(`Chưa có tab cho khóa: ${missingTabs.join(', ')} — tạo tab cùng tên để đưa các sinh viên này vào sheet.`);
   const summary = parts.join(' ');
   console.log(summary);
   return summary;
+}
+
+// Tabs to sync: SHEET_NAMES if set, otherwise every tab whose first row has an MSSV column
+function loadTabs() {
+  const spreadsheet = SpreadsheetApp.getActive();
+  const sheets = SHEET_NAMES.length > 0
+    ? SHEET_NAMES.map(name => {
+        const sheet = spreadsheet.getSheetByName(name);
+        if (!sheet) throw new Error(`Không tìm thấy tab "${name}".`);
+        return sheet;
+      })
+    : spreadsheet.getSheets();
+
+  const tabs = [];
+  sheets.forEach(sheet => {
+    if (sheet.getLastRow() === 0) return;
+    const values = sheet.getDataRange().getValues();
+    const headers = values[0].map(h => normalizeKey(String(h)));
+    const colOf = {};
+    COLUMNS.forEach(c => {
+      const index = headers.findIndex(h => c.aliases.includes(h));
+      if (index >= 0) colOf[c.field] = index;
+    });
+    if (colOf.mssv === undefined) {
+      if (SHEET_NAMES.length > 0) throw new Error(`Tab "${sheet.getName()}" thiếu cột MSSV ở dòng tiêu đề.`);
+      return;
+    }
+    const name = sheet.getName().trim();
+    // "K24" / "K2024": the tab name is used as Khóa when the Khóa cell is empty
+    const cohort = /^k\d{2,4}$/i.test(name) ? name.toUpperCase() : '';
+    tabs.push({ sheet, name, values, colOf, cohort });
+  });
+  return tabs;
 }
 
 // ---------------------------------------------------------------- cell <-> web values

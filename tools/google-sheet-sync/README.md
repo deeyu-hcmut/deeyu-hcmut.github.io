@@ -10,7 +10,11 @@ Script Apps Script gắn vào Google Sheet danh sách sinh viên, tự đồng b
 | MSSV, Họ và tên, Khóa, Ghi chú | Sheet → Web. Ô trống giữ nguyên dữ liệu trên web. |
 | Giới tính, Ngày sinh, Lớp/Chi đoàn, Email, Số điện thoại, Đoàn viên, Ngày vào Đoàn, Hội viên, Trạng thái | Sinh viên **chưa** tự bổ sung hồ sơ: Sheet → Web. Sinh viên **đã** tự bổ sung (đăng nhập @hcmut.edu.vn): Web → Sheet. |
 
-- Sinh viên có trên web nhưng không có trong sheet (ví dụ thêm từ trang Quản trị) được **thêm dòng** vào cuối sheet.
+- **Nhiều tab:** mọi tab có cột `MSSV` ở dòng 1 đều được đồng bộ (ví dụ tab `K24`, `K25`, `K26`). Tab đặt tên theo khóa
+  thì ô Khóa để trống (hoặc không có cột Khóa) sẽ lấy tên tab làm khóa. Muốn chỉ đồng bộ một số tab, sửa
+  `const SHEET_NAMES = [];` thành ví dụ `['K24', 'K25', 'K26']`. Một MSSV xuất hiện ở hai tab thì chỉ lấy lần đầu và báo trùng.
+- Sinh viên có trên web nhưng không có trong sheet (ví dụ thêm từ trang Quản trị) được **thêm dòng** vào cuối tab cùng khóa.
+  Chưa có tab cho khóa đó thì không thêm, chỉ báo trong thông báo kết quả.
 - **Xoá dòng trong sheet không xoá trên web.** Muốn xoá hẳn, xoá trên trang Quản trị rồi xoá dòng trong sheet.
 - MSSV trùng hoặc sai định dạng (không phải chữ/số) bị bỏ qua và được báo trong thông báo sau khi chạy.
 - Chỉ ghi lại đúng những ô thay đổi, công thức ở chỗ khác trong sheet không bị ảnh hưởng.
@@ -35,7 +39,6 @@ Script Apps Script gắn vào Google Sheet danh sách sinh viên, tự đồng b
 3. Quay lại **Trình chỉnh sửa**:
    - Mở `Code.gs`, xoá hết, dán toàn bộ nội dung file [`Code.gs`](Code.gs).
    - Mở `appsscript.json`, xoá hết, dán nội dung file [`appsscript.json`](appsscript.json).
-   - Nếu danh sách không nằm ở tab đầu tiên, sửa dòng `const SHEET_NAME = '';` thành tên tab, ví dụ `'Sinh viên'`.
    - Bấm 💾 Lưu.
 4. Tải lại trang Google Sheet. Trên thanh menu xuất hiện **Đồng bộ web**.
 5. **Đồng bộ web → Đồng bộ ngay**. Lần đầu Google hỏi quyền:
@@ -52,5 +55,5 @@ Tắt: **Đồng bộ web → Tắt tự động**.
 - Xem nhật ký: Apps Script → **Lần thực thi** (Executions).
 - `Firestore trả lỗi 403 … PERMISSION_DENIED`: tài khoản chạy script chưa có quyền trên project `deeyu-hcmut`
   (xem mục Yêu cầu), hoặc thiếu quyền `serviceusage.services.use` (vai trò Owner/Editor đều có).
-- `Sheet thiếu cột MSSV ở dòng tiêu đề.`: dòng 1 không có cột tên `MSSV`, hoặc sai tab (sửa `SHEET_NAME`).
+- `Không tab nào có cột MSSV ở dòng tiêu đề.`: dòng 1 của các tab không có cột tên `MSSV`.
 - Đổi người quản lý sheet: người mới làm lại bước 5–6 bằng tài khoản của họ (và người cũ bấm Tắt tự động).
