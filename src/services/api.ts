@@ -21,7 +21,6 @@ import {
   buildMember,
   memberIdOf,
   buildBch,
-  bchKeyOf,
   normalizeStaffEmail,
   buildStudentProfile,
   type MemberInput,
@@ -391,26 +390,7 @@ const clientStorage = {
     setLocalData(STORAGE_KEYS.BCH, clientStorage.getBCH().filter(m => m.id !== id));
   },
 
-  reorderBch: (ids: string[]): void => {
-    const byId = new Map(clientStorage.getBCH().map(m => [m.id, m]));
-    setLocalData(STORAGE_KEYS.BCH, ids.map(id => byId.get(id)).filter((m): m is BCHMember => Boolean(m)));
-  },
 
-  importBch: (rows: Partial<BchInput>[]): { created: number; updated: number } => {
-    const list = clientStorage.getBCH();
-    let created = 0;
-    rows.forEach((row, i) => {
-      const index = list.findIndex(m => bchKeyOf(m) === bchKeyOf({ organization: row.organization || 'DOAN_KHOA', name: row.name || '' }));
-      if (index >= 0) {
-        list[index] = { id: list[index].id, ...buildBch(row, list[index]) };
-      } else {
-        list.push({ id: `bch-${Date.now()}-${i}`, ...buildBch(row) });
-        created++;
-      }
-    });
-    setLocalData(STORAGE_KEYS.BCH, list);
-    return { created, updated: rows.length - created };
-  },
 
   getNotifications: (): NotificationItem[] => {
     return getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
@@ -593,12 +573,7 @@ const localApi = {
 
   deleteBchMember: async (id: string): Promise<void> => clientStorage.deleteBchMember(id),
 
-  // ids in the new display order
-  reorderBch: async (ids: string[]): Promise<void> => clientStorage.reorderBch(ids),
 
-  // Upsert by organization + name; cells left out keep the stored value
-  importBch: async (rows: Partial<BchInput>[]): Promise<{ created: number; updated: number }> =>
-    clientStorage.importBch(rows),
 
   // Notifications
   getNotifications: async (): Promise<NotificationItem[]> =>

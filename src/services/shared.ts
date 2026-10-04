@@ -233,10 +233,6 @@ export function buildBch(input: Partial<BchInput>, previous?: BCHMember): BchInp
   };
 }
 
-// Excel rows are matched to existing cards by organization + name
-export function bchKeyOf(m: { organization: string; name: string }): string {
-  return `${m.organization}|${m.name.trim().toLowerCase().replace(/\s+/g, ' ')}`;
-}
 
 export function filterRegistrations(records: RegistrationRecord[], eventId?: string, search?: string): RegistrationRecord[] {
   let result = records;

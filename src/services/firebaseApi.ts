@@ -42,10 +42,8 @@ import {
   buildMember,
   memberIdOf,
   buildBch,
-  bchKeyOf,
   normalizeStaffEmail,
   buildStudentProfile,
-  type BchInput,
 } from './shared';
 import { normalizeKey } from '../utils/excel';
 import { STAFF_ROLES, normalizeRole } from '../utils/roles';
@@ -498,35 +496,7 @@ const rawFirebaseApi: Api = {
     await batch.commit();
   },
 
-  reorderBch: async ids => {
-    const batch = writeBatch(db);
-    ids.forEach((id, order) => batch.update(doc(db, 'bch', id), { order }));
-    await batch.commit();
-  },
 
-  importBch: async rows => {
-    const existing = await loadBch();
-    const byKey = new Map(existing.map(m => [bchKeyOf(m), m]));
-    let order = nextOrder(existing);
-    let created = 0;
-    const writes: { id: string; data: BchInput & { order: number } }[] = [];
-    rows.forEach(row => {
-      const key = bchKeyOf({ organization: row.organization || 'DOAN_KHOA', name: row.name || '' });
-      const previous = byKey.get(key);
-      const id = previous?.id ?? doc(collection(db, 'bch')).id;
-      const data = { ...buildBch(row, previous), order: previous?.order ?? order++ };
-      if (!previous) created++;
-      const stored = { id, ...data };
-      byKey.set(key, stored);
-      writes.push({ id, data });
-    });
-    for (let i = 0; i < writes.length; i += 450) {
-      const batch = writeBatch(db);
-      writes.slice(i, i + 450).forEach(w => batch.set(doc(db, 'bch', w.id), w.data));
-      await batch.commit();
-    }
-    return { created, updated: rows.length - created };
-  },
 
   getNotifications: async () => {
     const readAt = readNotificationsReadAt();

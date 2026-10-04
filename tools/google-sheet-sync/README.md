@@ -57,3 +57,29 @@ Tắt: **Đồng bộ web → Tắt tự động**.
   (xem mục Yêu cầu), hoặc thiếu quyền `serviceusage.services.use` (vai trò Owner/Editor đều có).
 - `Không tab nào có cột MSSV ở dòng tiêu đề.`: dòng 1 của các tab không có cột tên `MSSV`.
 - Đổi người quản lý sheet: người mới làm lại bước 5–6 bằng tài khoản của họ (và người cũ bấm Tắt tự động).
+
+---
+
+# Danh sách BCH (trang Cơ cấu Tổ chức)
+
+Script riêng [`bch/Code.gs`](bch/Code.gs), gắn vào **file Google Sheet BCH** (khác file sinh viên), đồng bộ với
+collection `bch` (tab **BCH và Trưởng, phó ban Đội CTV** trong trang Quản trị và trang công khai Cơ cấu Tổ chức).
+
+## Cách đồng bộ
+
+- Cột `Tổ chức, Họ và tên, Chức vụ, Ban/Bộ phận, Email, Giới thiệu`: **Sheet → Web**. Ô trống giữ nguyên dữ liệu trên web.
+- Mỗi người được ghép theo **Tổ chức + Họ và tên** (không phân biệt hoa thường). Đổi tên trong sheet = người mới trên web
+  (người cũ vẫn còn, xoá trên web hoặc bật chế độ xoá bên dưới).
+- **Ảnh đại diện và Chi đoàn** không có trong sheet: sửa trên web (nút Sửa), đồng bộ không đụng tới.
+- **Thứ tự hiển thị trên web = thứ tự tab, rồi thứ tự dòng** trong sheet. Muốn Bí thư đứng đầu thì để ở dòng 2 của tab đầu.
+- Đọc mọi tab có cột `Họ và tên` ở dòng 1 (ví dụ 3 tab BCH Đoàn / BCH Hội / Trưởng, phó ban CTV).
+  Ô **Tổ chức** ghi `Đoàn Thanh niên`, `Hội Sinh viên` hoặc `Đội CTV`; để trống thì lấy theo tên tab
+  (tên tab có chữ "Đoàn", "Hội" hoặc "CTV" / "Trưởng, phó ban").
+- Người chỉ có trên web được thêm dòng vào tab cùng tổ chức. Xoá dòng trong sheet **không** xoá trên web, trừ khi sửa
+  `const XOA_NGUOI_KHONG_CO_TRONG_SHEET = false;` thành `true` (dùng khi đổi nhiệm kỳ: web khớp đúng sheet,
+  ai không còn trong sheet bị xoá khỏi web).
+
+## Cài đặt
+
+Giống mục [Cài đặt](#cài-đặt-một-lần) ở trên, nhưng làm trong **file Google Sheet BCH** và dán nội dung
+[`bch/Code.gs`](bch/Code.gs) (file `appsscript.json` dùng chung bản ở thư mục này).

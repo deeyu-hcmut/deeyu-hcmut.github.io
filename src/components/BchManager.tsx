@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   UserPlus,
-  Upload,
-  Download,
   FileSpreadsheet,
   Pencil,
   Trash2,
@@ -10,8 +8,6 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
-  ArrowUp,
-  ArrowDown,
   ImagePlus,
   UserRound,
 } from 'lucide-react';
@@ -19,7 +15,7 @@ import { BCHMember, BchOrganization } from '../types';
 import { api } from '../services/api';
 import type { BchInput } from '../services/shared';
 import { imageFileToDataUrl } from '../utils/image';
-import { normalizeKey, readFirstSheet, writeWorkbook } from '../utils/excel';
+import { writeWorkbook } from '../utils/excel';
 
 export const ORGANIZATION_LABELS: Record<BchOrganization, string> = {
   DOAN_KHOA: 'Đoàn Thanh niên',
@@ -40,28 +36,9 @@ const EMPTY_FORM: BchInput = {
   department: '',
 };
 
-// ---------- Excel columns (export and import use the same headers) ----------
-
-const COLUMNS: { field: keyof BchInput; header: string; aliases: string[] }[] = [
-  { field: 'organization', header: 'Tổ chức', aliases: ['tochuc', 'donvi'] },
-  { field: 'name', header: 'Họ và tên', aliases: ['hovaten', 'hoten', 'ten'] },
-  { field: 'position', header: 'Chức vụ', aliases: ['chucvu'] },
-  { field: 'department', header: 'Ban / Bộ phận', aliases: ['banbophan', 'ban', 'bophan'] },
-  { field: 'classGroup', header: 'Chi đoàn', aliases: ['chidoan', 'lop', 'lopchidoan'] },
-  { field: 'email', header: 'Email', aliases: ['email'] },
-  { field: 'bio', header: 'Giới thiệu', aliases: ['gioithieu', 'mota'] },
-  { field: 'avatarUrl', header: 'Ảnh (link)', aliases: ['anhlink', 'anh', 'avatar', 'linkanh'] },
-];
-const HEADERS = COLUMNS.map(c => c.header);
-
-function parseOrganization(value: unknown): BchOrganization | undefined {
-  const s = normalizeKey(String(value));
-  if (!s) return undefined;
-  if (s === 'doictv' || s.includes('ctv') || s.includes('congtacvien')) return 'DOI_CTV';
-  if (s === 'hoisinhvien' || s.startsWith('hoi') || s.includes('hsv')) return 'HOI_SINH_VIEN';
-  if (s === 'doankhoa' || s.startsWith('doan')) return 'DOAN_KHOA';
-  return undefined;
-}
+// The list itself is kept in Google Sheet (tools/google-sheet-sync/bch); Excel is export only,
+// with the sheet's columns plus the two that only live on the website
+const EXPORT_HEADERS = ['Tổ chức', 'Họ và tên', 'Chức vụ', 'Ban/Bộ phận', 'Email', 'Giới thiệu', 'Chi đoàn', 'Ảnh (link)'];
 
 const inputClass =
   'w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500';
@@ -85,7 +62,6 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<BCHMember | null>(null);
   const [busy, setBusy] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
   const load = async () => {
@@ -172,87 +148,21 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
     }
   };
 
-  // Swaps with the nearest card of the same organization, the order the public page shows
-  const move = async (member: BCHMember, direction: -1 | 1) => {
-    const index = members.findIndex(m => m.id === member.id);
-    let target = index + direction;
-    while (target >= 0 && target < members.length && members[target].organization !== member.organization) target += direction;
-    if (target < 0 || target >= members.length) return;
-    const next = [...members];
-    [next[index], next[target]] = [next[target], next[index]];
-    setMembers(next);
-    setBusy(true);
-    try {
-      await api.reorderBch(next.map(m => m.id));
-      onChange();
-    } catch (err: any) {
-      showNotice('error', err.message);
-      await load();
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const handleExport = async () => {
     const rows = visible.map(m => ({
       'Tổ chức': ORGANIZATION_LABELS[m.organization],
       'Họ và tên': m.name,
       'Chức vụ': m.position,
-      'Ban / Bộ phận': m.department,
-      'Chi đoàn': m.classGroup,
+      'Ban/Bộ phận': m.department,
       'Email': m.email,
       'Giới thiệu': m.bio,
+      'Chi đoàn': m.classGroup,
       // Uploaded photos are too long for an Excel cell; only links are exported
       'Ảnh (link)': m.avatarUrl.startsWith('https://') ? m.avatarUrl : '',
     }));
     const fileName = `Danh_Sach_BCH_${Date.now()}.xlsx`;
-    await writeWorkbook(HEADERS, rows, fileName);
+    await writeWorkbook(EXPORT_HEADERS, rows, fileName);
     showNotice('success', `Đã xuất ${rows.length} người ra file ${fileName}.`);
-  };
-
-  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    setBusy(true);
-    try {
-      const { rows: rawRows } = await readFirstSheet(file);
-      const rows: Partial<BchInput>[] = [];
-      const errors: string[] = [];
-      rawRows.forEach((raw, index) => {
-        const row: Partial<Record<keyof BchInput, string>> = {};
-        let organization: BchOrganization | undefined;
-        for (const [header, value] of Object.entries(raw)) {
-          const column = COLUMNS.find(c => c.aliases.includes(normalizeKey(header)));
-          const cell = String(value ?? '').trim();
-          if (!column || !cell) continue;
-          if (column.field === 'organization') organization = parseOrganization(cell);
-          else row[column.field] = cell;
-        }
-        if (!row.name && !organization) return; // blank line
-        const line = index + 2;
-        if (!row.name) errors.push(`Dòng ${line}: thiếu họ tên.`);
-        else if (!organization) errors.push(`Dòng ${line}: cột Tổ chức phải là Đoàn Thanh niên, Hội Sinh viên hoặc Đội CTV.`);
-        else if (row.avatarUrl && !row.avatarUrl.startsWith('https://')) errors.push(`Dòng ${line}: link ảnh phải bắt đầu bằng https://.`);
-        else rows.push({ ...row, organization });
-      });
-
-      if (errors.length > 0) {
-        const more = errors.length > 5 ? ` (và ${errors.length - 5} lỗi khác)` : '';
-        showNotice('error', `Chưa nhập file vì có lỗi: ${errors.slice(0, 5).join(' ')}${more}`);
-        return;
-      }
-      if (rows.length === 0) {
-        showNotice('error', 'Không tìm thấy dòng dữ liệu nào. Hãy dùng đúng tiêu đề cột như file mẫu.');
-        return;
-      }
-      const { created, updated } = await api.importBch(rows);
-      await afterChange(`Đã nhập ${rows.length} dòng: thêm mới ${created}, cập nhật ${updated}.`);
-    } catch (err: any) {
-      showNotice('error', `Nhập file thất bại: ${err.message}`);
-    } finally {
-      setBusy(false);
-    }
   };
 
   return (
@@ -302,15 +212,6 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
             <span>Thêm người</span>
           </button>
           <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={busy}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 hover:bg-blue-50 dark:hover:bg-blue-950/40 disabled:opacity-60"
-          >
-            {busy ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-            <span>Nhập Excel</span>
-          </button>
-          <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImportFile} />
-          <button
             onClick={handleExport}
             disabled={visible.length === 0}
             className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-sm disabled:opacity-50"
@@ -318,21 +219,12 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
             <FileSpreadsheet className="w-4 h-4" />
             <span>Xuất Excel</span>
           </button>
-          <button
-            onClick={() => writeWorkbook(HEADERS, [], 'Mau_Nhap_BCH_Doi_CTV.xlsx')}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-            title="File Excel trống với đúng các cột để nhập danh sách"
-          >
-            <Download className="w-4 h-4" />
-            <span>File mẫu</span>
-          </button>
         </div>
       </div>
 
       <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-3">
-        Danh sách này hiện công khai ở trang Cơ cấu Tổ chức theo đúng thứ tự bên dưới (dùng mũi tên để đổi thứ tự).
-        Nhập Excel: cột Tổ chức ghi "Đoàn Thanh niên", "Hội Sinh viên" hoặc "Đội CTV"; người trùng tổ chức + họ tên sẽ được cập nhật,
-        ô để trống giữ nguyên. Ảnh đại diện nên tải lên trong nút Sửa.
+        Danh sách hiện công khai ở trang Cơ cấu Tổ chức, đồng bộ tự động từ Google Sheet BCH (thứ tự hiển thị = thứ tự dòng trong sheet).
+        Sửa tên, chức vụ, ban, email, giới thiệu trong sheet; ảnh đại diện và chi đoàn thì sửa ở đây (nút Sửa).
       </p>
 
       {/* List */}
@@ -363,12 +255,6 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
                 </p>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
-                <button onClick={() => move(m, -1)} disabled={busy} className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40" aria-label="Lên trên" title="Lên trên">
-                  <ArrowUp className="w-4 h-4" />
-                </button>
-                <button onClick={() => move(m, 1)} disabled={busy} className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40" aria-label="Xuống dưới" title="Xuống dưới">
-                  <ArrowDown className="w-4 h-4" />
-                </button>
                 <button onClick={() => openForm(m)} className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40" aria-label={`Sửa ${m.name}`} title="Sửa">
                   <Pencil className="w-4 h-4" />
                 </button>

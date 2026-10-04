@@ -23,10 +23,3 @@ export async function writeWorkbook(headers: string[], rows: Record<string, stri
   XLSX.writeFile(workbook, fileName);
 }
 
-// Rows of the first sheet keyed by header; the header row is spreadsheet row 1
-export async function readFirstSheet(file: File): Promise<{ XLSX: XlsxModule; rows: Record<string, unknown>[] }> {
-  const XLSX = await loadXlsx();
-  const workbook = XLSX.read(await file.arrayBuffer());
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  return { XLSX, rows: XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' }) };
-}
