@@ -239,84 +239,84 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         )}
 
         {/* Nav Tabs */}
-        <div className="mt-8 flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200 dark:border-slate-700">
+        <div className="mt-8 flex flex-wrap items-center gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
           {eventAccess && (<>
           <button
             onClick={() => setActiveTab('REGISTRATIONS')}
-            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'REGISTRATIONS'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Quản lý Đăng ký & Xuất Excel</span>
+            <span>Đăng ký sự kiện</span>
           </button>
 
           <button
             onClick={() => setActiveTab('AUTOMATION')}
-            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'AUTOMATION'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <Mail className="w-4 h-4" />
-            <span>Tự động hóa Email & Push 24h</span>
+            <span>Nhắc nhở 24h</span>
           </button>
           </>)}
 
           {memberAccess && (
             <button
               onClick={() => setActiveTab('BCH')}
-              className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
                 activeTab === 'BCH'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                   : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <UsersRound className="w-4 h-4" />
-              <span>BCH và Trưởng, phó ban Đội CTV</span>
+              <span>BCH & Trưởng, phó ban CTV</span>
             </button>
           )}
 
           {memberAccess && (
             <button
               onClick={() => setActiveTab('MEMBERS')}
-              className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
                 activeTab === 'MEMBERS'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                   : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Contact className="w-4 h-4" />
-              <span>Sinh viên - Đoàn viên - Hội viên</span>
+              <span>Sinh viên</span>
             </button>
           )}
 
           <button
             onClick={() => setActiveTab('ROLES')}
-            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'ROLES'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>Phân quyền Người dùng (RBAC)</span>
+            <span>Phân quyền</span>
           </button>
 
           {eventAccess && (
           <button
             onClick={() => setActiveTab('EMAIL_LOGS')}
-            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'EMAIL_LOGS'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <Clock className="w-4 h-4" />
-            <span>Nhật ký Gửi thư ({emailLogs.length})</span>
+            <span>Nhật ký thư ({emailLogs.length})</span>
           </button>
           )}
         </div>

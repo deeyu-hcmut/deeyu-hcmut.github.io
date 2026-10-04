@@ -1,7 +1,7 @@
 # Đồng bộ danh sách sinh viên Google Sheet ↔ cổng thông tin
 
 Script Apps Script gắn vào Google Sheet danh sách sinh viên, tự đồng bộ với collection `members` trên Firestore
-(tab **Sinh viên - Đoàn viên - Hội viên** trong trang Quản trị).
+(tab **Sinh viên** trong trang Quản trị).
 
 ## Cách đồng bộ
 
@@ -45,7 +45,7 @@ Script Apps Script gắn vào Google Sheet danh sách sinh viên, tự đồng b
    - Chọn tài khoản → nếu hiện "Google chưa xác minh ứng dụng này" thì bấm **Nâng cao → Đi tới … (không an toàn)**
      (đây là script của chính bạn) → **Cho phép**.
    - Bấm **Đồng bộ ngay** lần nữa. Góc dưới phải hiện kết quả, ví dụ `Web: thêm 120, cập nhật 0…`.
-6. Kiểm tra trên web (Quản trị → Sinh viên - Đoàn viên - Hội viên) thấy dữ liệu đúng thì bấm
+6. Kiểm tra trên web (Quản trị → Sinh viên) thấy dữ liệu đúng thì bấm
    **Đồng bộ web → Bật tự động (mỗi 10 phút)**.
 
 Tắt: **Đồng bộ web → Tắt tự động**.
@@ -63,7 +63,7 @@ Tắt: **Đồng bộ web → Tắt tự động**.
 # Danh sách BCH (trang Cơ cấu Tổ chức)
 
 Script riêng [`bch/Code.gs`](bch/Code.gs), gắn vào **file Google Sheet BCH** (khác file sinh viên), đồng bộ với
-collection `bch` (tab **BCH và Trưởng, phó ban Đội CTV** trong trang Quản trị và trang công khai Cơ cấu Tổ chức).
+collection `bch` (tab **BCH & Trưởng, phó ban CTV** trong trang Quản trị và trang công khai Cơ cấu Tổ chức).
 
 ## Cách đồng bộ
 
