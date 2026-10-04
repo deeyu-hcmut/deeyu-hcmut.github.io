@@ -408,10 +408,10 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-slate-900 dark:bg-slate-950 text-slate-300 text-sm border-t border-slate-800/80">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 mb-12">
             
             {/* Col 1: Brand & Slogan */}
-            <div className="space-y-4">
+            <div className="lg:col-span-4 space-y-4">
               <div className="flex flex-col items-start space-y-3">
                 <img
                   src={`${import.meta.env.BASE_URL}logo.png`}
@@ -425,13 +425,13 @@ export default function App() {
                   Đoàn Thanh niên - Hội sinh viên<br />khoa Điện - Điện tử
                 </span>
               </div>
-              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-sm">
                 Cổng thông tin điện tử, quản lý phong trào sinh viên và tự động hóa điểm danh Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Khoa Điện - Điện tử (HCMUT).
               </p>
             </div>
 
             {/* Col 2: Quick Links */}
-            <div>
+            <div className="lg:col-span-2">
               <h4 className="font-tech text-xs font-bold uppercase tracking-wider text-white mb-4">
                 Chuyên mục
               </h4>
@@ -488,9 +488,9 @@ export default function App() {
             </div>
 
             {/* Col 3: Đội Cộng tác viên */}
-            <div>
-              <h4 className="font-tech text-xs font-bold uppercase tracking-wider text-white mb-4">
-                Đội Cộng tác viên Đoàn - Hội khoa Điện - Điện tử
+            <div className="lg:col-span-3">
+              <h4 className="font-tech text-xs font-bold uppercase tracking-wider text-white mb-4 leading-relaxed">
+                Đội Cộng tác viên Đoàn - Hội<br className="hidden sm:inline" /> khoa Điện - Điện tử
               </h4>
               <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                 Đồng hành cùng Ban Chấp hành Đoàn - Hội tổ chức sự kiện, làm truyền thông và hỗ trợ sinh viên toàn khoa.
@@ -498,7 +498,7 @@ export default function App() {
             </div>
 
             {/* Col 4: Contact */}
-            <div>
+            <div className="lg:col-span-3">
               <h4 className="font-tech text-xs font-bold uppercase tracking-wider text-white mb-4">
                 Liên hệ Đoàn - Hội Khoa
               </h4>
