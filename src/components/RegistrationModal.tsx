@@ -36,7 +36,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   onSuccess
 }) => {
   const { session, role, myProfile, signIn, openProfile } = useSessionInfo();
-  // A student's own profile fills the form; name and MSSV then cannot be changed (no registering for others)
+  // The account's own student record fills the form. Name, MSSV, class and phone then come only
+  // from that record (edited through "Hồ sơ sinh viên"), so nobody registers someone else.
   const profile = myProfile?.profileCompletedAt ? myProfile : null;
 
   const [fullName, setFullName] = useState(profile?.fullName ?? '');
@@ -52,9 +53,9 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     setFullName(profile.fullName);
     setMssv(profile.mssv);
     setClassGroup(profile.classGroup);
-    setPhone(prev => prev || profile.phone);
+    setPhone(profile.phone);
     setEmail(prev => prev || profile.email || session?.email || '');
-  }, [profile?.id, profile?.profileCompletedAt]);
+  }, [profile?.id, profile?.updatedAt]);
 
   // Registration needs a signed-in account; an @hcmut.edu.vn student must finish their profile first
   const isStudentAccount = role === 'STUDENT';
@@ -204,11 +205,26 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         /* Form Body Scrollable */
         <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4">
           
-          {profile && (
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+          {profile ? (
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5 gap-y-1">
               <Lock className="w-3.5 h-3.5" />
-              Thông tin lấy từ hồ sơ sinh viên của bạn. Họ tên và MSSV không sửa được ở đây.
-            </p>
+              <span>Họ tên, MSSV, lớp và số điện thoại lấy từ hồ sơ sinh viên của bạn.</span>
+              {openProfile && (
+                <button type="button" onClick={openProfile} className="font-semibold text-blue-600 dark:text-blue-300 hover:underline">
+                  Sửa hồ sơ
+                </button>
+              )}
+            </div>
+          ) : (
+            openProfile && (
+              /* BCH account on @hcmut.edu.vn without a linked record: may link it to get autofill */
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                <span>Liên kết hồ sơ sinh viên để thông tin được điền sẵn.</span>
+                <button type="button" onClick={openProfile} className="font-semibold text-blue-600 dark:text-blue-300 hover:underline">
+                  Liên kết hồ sơ
+                </button>
+              </div>
+            )
           )}
 
           {errorMessage && (
@@ -268,11 +284,12 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   value={classGroup}
                   onChange={(e) => setClassGroup(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                  readOnly={Boolean(profile)}
                   maxLength={8}
                   pattern={CLASS_GROUP_PATTERN.source}
                   title="Đúng 8 ký tự chữ hoặc số, ví dụ DD23KSTN"
                   placeholder="VD: DD23KSTN"
-                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono uppercase"
+                  className="w-full read-only:bg-slate-50 dark:read-only:bg-slate-950 read-only:text-slate-500 dark:read-only:text-slate-400 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono uppercase"
                 />
               </div>
             </div>
@@ -308,8 +325,9 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  readOnly={Boolean(profile)}
                   placeholder="VD: 0912345678"
-                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
+                  className="w-full read-only:bg-slate-50 dark:read-only:bg-slate-950 read-only:text-slate-500 dark:read-only:text-slate-400 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
                 />
               </div>
             </div>

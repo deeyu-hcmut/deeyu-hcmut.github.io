@@ -107,12 +107,12 @@ export default function App() {
     };
   }, []);
 
-  // Students signing in with @hcmut.edu.vn link their record and fill in missing details once.
-  // Staff accounts (listed in admins/) are never asked, even on an @hcmut.edu.vn address.
+  // Every @hcmut.edu.vn account (BCH members are students too) loads its linked student record,
+  // which fills in event registrations. Only plain student accounts get the form pushed on sign-in.
   const [myProfile, setMyProfile] = useState<MemberRecord | null>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const hcmutEmail =
-    FIREBASE_ENABLED && currentRole === 'STUDENT' && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
+  const hcmutEmail = FIREBASE_ENABLED && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
+  const isStudentRole = currentRole === 'STUDENT';
 
   useEffect(() => {
     setMyProfile(null);
@@ -123,13 +123,13 @@ export default function App() {
       .then(record => {
         if (cancelled) return;
         setMyProfile(record);
-        if (!record?.profileCompletedAt && !profileDeferred(hcmutEmail)) setProfileModalOpen(true);
+        if (isStudentRole && !record?.profileCompletedAt && !profileDeferred(hcmutEmail)) setProfileModalOpen(true);
       })
       .catch(err => console.error('Failed to load student profile', err));
     return () => {
       cancelled = true;
     };
-  }, [hcmutEmail]);
+  }, [hcmutEmail, isStudentRole]);
 
   const closeProfileModal = () => {
     setProfileModalOpen(false);
