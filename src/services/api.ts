@@ -269,6 +269,7 @@ const clientStorage = {
 
     if (target.checkedIn) {
       return {
+        success: false,
         warning: true,
         message: `Sinh viên ${target.fullName} (${target.mssv}) ĐÃ ĐƯỢC ĐIỂM DANH trước đó vào lúc ${new Date(target.checkedInAt!).toLocaleTimeString('vi-VN')}.`,
         record: target
@@ -416,73 +417,56 @@ const clientStorage = {
   }
 };
 
+// GitHub Pages is a static host with no /api routes: skip the network round-trip
+// (and the 404 it produces) and go straight to localStorage. `npm run dev` serves the
+// Express API, and a production server build can opt in with VITE_API_SERVER=true.
+const HAS_API_SERVER = import.meta.env.DEV || import.meta.env.VITE_API_SERVER === 'true';
+
+async function fetchApi<T>(url: string, init?: RequestInit, acceptStatus: number[] = []): Promise<T | undefined> {
+  if (!HAS_API_SERVER) return undefined;
+  try {
+    const res = await fetch(url, init);
+    if (res.ok || acceptStatus.includes(res.status)) return await res.json();
+  } catch {
+    // Fallback
+  }
+  return undefined;
+}
+
+function postJson(body: unknown): RequestInit {
+  return {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  };
+}
+
 export const api = {
   // Stats
-  getStats: async (): Promise<FacultyStats> => {
-    try {
-      const res = await fetch('/api/stats');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getStats();
-  },
+  getStats: async (): Promise<FacultyStats> =>
+    (await fetchApi<FacultyStats>('/api/stats')) ?? clientStorage.getStats(),
 
   // News
   getNews: async (category?: string, search?: string): Promise<NewsItem[]> => {
-    try {
-      const params = new URLSearchParams();
-      if (category) params.append('category', category);
-      if (search) params.append('search', search);
-      const res = await fetch(`/api/news?${params.toString()}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getNews(category, search);
+    const params = new URLSearchParams();
+    if (category) params.append('category', category);
+    if (search) params.append('search', search);
+    return (await fetchApi<NewsItem[]>(`/api/news?${params.toString()}`)) ?? clientStorage.getNews(category, search);
   },
 
-  createNews: async (newsData: Partial<NewsItem>): Promise<NewsItem> => {
-    try {
-      const res = await fetch('/api/news', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newsData),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.createNews(newsData);
-  },
+  createNews: async (newsData: Partial<NewsItem>): Promise<NewsItem> =>
+    (await fetchApi<NewsItem>('/api/news', postJson(newsData))) ?? clientStorage.createNews(newsData),
 
   // Events
   getEvents: async (type?: string, status?: string): Promise<EventItem[]> => {
-    try {
-      const params = new URLSearchParams();
-      if (type) params.append('type', type);
-      if (status) params.append('status', status);
-      const res = await fetch(`/api/events?${params.toString()}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getEvents(type, status);
+    const params = new URLSearchParams();
+    if (type) params.append('type', type);
+    if (status) params.append('status', status);
+    return (await fetchApi<EventItem[]>(`/api/events?${params.toString()}`)) ?? clientStorage.getEvents(type, status);
   },
 
-  createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> => {
-    try {
-      const res = await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventData),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.createEvent(eventData);
-  },
+  createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> =>
+    (await fetchApi<EventItem>('/api/events', postJson(eventData))) ?? clientStorage.createEvent(eventData),
 
   registerEvent: async (eventId: string, registrationData: {
     fullName: string;
@@ -492,115 +476,55 @@ export const api = {
     classGroup: string;
     faculty: string;
     note?: string;
-  }): Promise<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }> => {
-    try {
-      const res = await fetch(`/api/events/${eventId}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registrationData),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.registerEvent(eventId, registrationData);
-  },
+  }): Promise<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }> =>
+    (await fetchApi<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }>(
+      `/api/events/${eventId}/register`,
+      postJson(registrationData)
+    )) ?? clientStorage.registerEvent(eventId, registrationData),
 
   // Attendance & Check-in
-  checkIn: async (code: string, eventId?: string): Promise<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }> => {
-    try {
-      const res = await fetch('/api/attendance/check-in', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, eventId }),
-      });
-      if (res.ok || res.status === 409) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.checkIn(code, eventId);
-  },
+  checkIn: async (code: string, eventId?: string): Promise<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }> =>
+    (await fetchApi<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }>(
+      '/api/attendance/check-in',
+      postJson({ code, eventId }),
+      [409]
+    )) ?? clientStorage.checkIn(code, eventId),
 
   // Student history lookup
-  lookupStudent: async (mssv: string) => {
-    try {
-      const res = await fetch(`/api/attendance/student/${encodeURIComponent(mssv)}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.lookupStudent(mssv);
-  },
+  lookupStudent: async (mssv: string) =>
+    (await fetchApi<ReturnType<typeof clientStorage.lookupStudent>>(`/api/attendance/student/${encodeURIComponent(mssv)}`)) ??
+    clientStorage.lookupStudent(mssv),
 
   // Registrations list for admin
   getRegistrations: async (eventId?: string, search?: string): Promise<RegistrationRecord[]> => {
-    try {
-      const params = new URLSearchParams();
-      if (eventId) params.append('eventId', eventId);
-      if (search) params.append('search', search);
-      const res = await fetch(`/api/registrations?${params.toString()}`);
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getRegistrations(eventId, search);
+    const params = new URLSearchParams();
+    if (eventId) params.append('eventId', eventId);
+    if (search) params.append('search', search);
+    return (await fetchApi<RegistrationRecord[]>(`/api/registrations?${params.toString()}`)) ??
+      clientStorage.getRegistrations(eventId, search);
   },
 
   // Reminder trigger
-  sendReminder: async (eventId: string): Promise<{ success: boolean; message: string; sentCount: number }> => {
-    try {
-      const res = await fetch('/api/notifications/send-reminder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId }),
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.sendReminder(eventId);
-  },
+  sendReminder: async (eventId: string): Promise<{ success: boolean; message: string; sentCount: number }> =>
+    (await fetchApi<{ success: boolean; message: string; sentCount: number }>(
+      '/api/notifications/send-reminder',
+      postJson({ eventId })
+    )) ?? clientStorage.sendReminder(eventId),
 
   // BCH
-  getBCH: async (): Promise<BCHMember[]> => {
-    try {
-      const res = await fetch('/api/bch');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getBCH();
-  },
+  getBCH: async (): Promise<BCHMember[]> =>
+    (await fetchApi<BCHMember[]>('/api/bch')) ?? clientStorage.getBCH(),
 
   // Notifications
-  getNotifications: async (): Promise<NotificationItem[]> => {
-    try {
-      const res = await fetch('/api/notifications');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getNotifications();
-  },
+  getNotifications: async (): Promise<NotificationItem[]> =>
+    (await fetchApi<NotificationItem[]>('/api/notifications')) ?? clientStorage.getNotifications(),
 
   markNotificationsRead: async (): Promise<void> => {
-    try {
-      await fetch('/api/notifications/mark-read', { method: 'POST' });
-    } catch {
-      // Fallback
-    }
+    await fetchApi('/api/notifications/mark-read', { method: 'POST' });
     clientStorage.markNotificationsRead();
   },
 
   // Email Logs
-  getEmailLogs: async (): Promise<EmailDispatchLog[]> => {
-    try {
-      const res = await fetch('/api/email-logs');
-      if (res.ok) return await res.json();
-    } catch {
-      // Fallback
-    }
-    return clientStorage.getEmailLogs();
-  }
+  getEmailLogs: async (): Promise<EmailDispatchLog[]> =>
+    (await fetchApi<EmailDispatchLog[]>('/api/email-logs')) ?? clientStorage.getEmailLogs()
 };
-

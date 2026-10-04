@@ -40,6 +40,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             src={event.bannerUrl} 
             alt={event.title}
             referrerPolicy="no-referrer"
+            decoding="async"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import * as XLSX from 'xlsx';
 import { 
   ShieldCheck, 
   Users, 
@@ -77,7 +76,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   // Export to Excel XLSX file
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
+    // xlsx is ~400KB: load it only when an export is actually requested
+    const XLSX = await import('xlsx');
+
     const dataToExport = registrations.map((r, index) => ({
       'STT': index + 1,
       'Mã vé': r.ticketCode,

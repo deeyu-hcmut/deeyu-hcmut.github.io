@@ -17,7 +17,6 @@ import {
   RefreshCw,
   X
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { RegistrationRecord, EventItem } from '../types';
 import { api } from '../services/api';
 
@@ -81,11 +80,11 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
         });
 
         // Confetti celebration
-        confetti({
+        import('canvas-confetti').then(({ default: confetti }) => confetti({
           particleCount: 70,
           spread: 60,
           origin: { y: 0.7 }
-        });
+        }));
 
         // Add to recent feed
         if (data.record) {

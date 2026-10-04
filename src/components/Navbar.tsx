@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -61,7 +61,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   useEffect(() => {
     loadNotifications();
-    const interval = setInterval(loadNotifications, 8000);
+    const interval = setInterval(() => {
+      if (!document.hidden) loadNotifications();
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   Zap, 
   Calendar, 
@@ -31,13 +31,45 @@ import { HeroSection } from './components/HeroSection';
 import { AboutOrgSection } from './components/AboutOrgSection';
 import { NewsFeed } from './components/NewsFeed';
 import { EventsHub } from './components/EventsHub';
-import { QRCheckInScanner } from './components/QRCheckInScanner';
-import { StudentPortalLookup } from './components/StudentPortalLookup';
-import { AdminDashboard } from './components/AdminDashboard';
 import { INITIAL_STATS } from './data/mockData';
 
+// Views that are not on the home page are split into their own chunks
+const QRCheckInScanner = lazy(() => import('./components/QRCheckInScanner').then(m => ({ default: m.QRCheckInScanner })));
+const StudentPortalLookup = lazy(() => import('./components/StudentPortalLookup').then(m => ({ default: m.StudentPortalLookup })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+
+// Tabs are mirrored in the URL hash (#/events, #/news, ...) so they survive a reload,
+// can be shared as links and work with the browser Back button on GitHub Pages.
+const TABS = ['home', 'events', 'news', 'about', 'lookup', 'admin'];
+
+function tabFromHash(): string {
+  const tab = window.location.hash.replace(/^#\/?/, '');
+  return TABS.includes(tab) ? tab : 'home';
+}
+
+function TabFallback() {
+  return (
+    <div className="flex justify-center py-24">
+      <div className="w-8 h-8 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
+    </div>
+  );
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTabState] = useState<string>(tabFromHash);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      setActiveTabState(tabFromHash());
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const setActiveTab = (tab: string) => {
+    window.location.hash = tab === 'home' ? '/' : `/${tab}`;
+  };
   const [currentRole, setCurrentRole] = useState<Role>('SUPER_ADMIN'); // Default to Super Admin so evaluators can test everything immediately!
   
   // Data States
@@ -238,29 +270,33 @@ export default function App() {
           <AboutOrgSection bchMembers={bchMembers} />
         )}
 
-        {activeTab === 'lookup' && (
-          <StudentPortalLookup events={events} />
-        )}
+        <Suspense fallback={<TabFallback />}>
+          {activeTab === 'lookup' && (
+            <StudentPortalLookup events={events} />
+          )}
 
-        {activeTab === 'admin' && (
-          <AdminDashboard
-            events={events}
-            currentRole={currentRole}
-            setCurrentRole={setCurrentRole}
-            onOpenQRScanner={() => setIsQRScannerOpen(true)}
-          />
-        )}
+          {activeTab === 'admin' && (
+            <AdminDashboard
+              events={events}
+              currentRole={currentRole}
+              setCurrentRole={setCurrentRole}
+              onOpenQRScanner={() => setIsQRScannerOpen(true)}
+            />
+          )}
+        </Suspense>
       </main>
 
       {/* Floating QR Scanner Modal if triggered */}
       {isQRScannerOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-2xl">
-            <QRCheckInScanner
-              events={events}
-              onClose={() => setIsQRScannerOpen(false)}
-              onCheckInSuccess={handleCheckInSuccess}
-            />
+            <Suspense fallback={<TabFallback />}>
+              <QRCheckInScanner
+                events={events}
+                onClose={() => setIsQRScannerOpen(false)}
+                onCheckInSuccess={handleCheckInSuccess}
+              />
+            </Suspense>
           </div>
         </div>
       )}

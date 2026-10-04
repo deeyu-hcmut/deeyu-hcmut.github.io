@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { 
   Calendar, 
   Clock, 
@@ -21,9 +21,12 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { EventItem, EventStatus, EventType, Role, RegistrationRecord } from '../types';
-import { RegistrationModal } from './RegistrationModal';
-import { TicketModal } from './TicketModal';
 import { EventDetailModal } from './EventDetailModal';
+import { sizedImage } from '../utils/image';
+
+// Modals load on first open, keeping qrcode out of the initial bundle
+const RegistrationModal = lazy(() => import('./RegistrationModal').then(m => ({ default: m.RegistrationModal })));
+const TicketModal = lazy(() => import('./TicketModal').then(m => ({ default: m.TicketModal })));
 
 interface EventsHubProps {
   events: EventItem[];
@@ -358,9 +361,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                 >
                   <div className="flex items-center space-x-4 min-w-0">
                     <img 
-                      src={evt.bannerUrl} 
+                      src={sizedImage(evt.bannerUrl, 160)} 
                       alt={evt.title}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                       className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-slate-200"
                     />
                     <div className="min-w-0">
@@ -416,9 +421,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     {/* Banner Image with Overlays */}
                     <div className="relative h-56 overflow-hidden bg-slate-100">
                       <img 
-                        src={evt.bannerUrl} 
+                        src={sizedImage(evt.bannerUrl, 800)} 
                         alt={evt.title}
                         referrerPolicy="no-referrer"
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-black/20 to-transparent" />
@@ -524,27 +531,29 @@ export const EventsHub: React.FC<EventsHubProps> = ({
           )}
         </div>
 
-        {/* Modal: Registration Form */}
-        {registeringEvent && (
-          <RegistrationModal
-            event={registeringEvent}
-            onClose={() => setRegisteringEvent(null)}
-            onSuccess={(record, updatedEvt) => {
-              setRegisteringEvent(null);
-              onRegisterSuccess(record, updatedEvt);
-              setActiveTicket({ record, event: updatedEvt });
-            }}
-          />
-        )}
+        <Suspense fallback={null}>
+          {/* Modal: Registration Form */}
+          {registeringEvent && (
+            <RegistrationModal
+              event={registeringEvent}
+              onClose={() => setRegisteringEvent(null)}
+              onSuccess={(record, updatedEvt) => {
+                setRegisteringEvent(null);
+                onRegisterSuccess(record, updatedEvt);
+                setActiveTicket({ record, event: updatedEvt });
+              }}
+            />
+          )}
 
-        {/* Modal: Ticket QR Display */}
-        {activeTicket && (
-          <TicketModal
-            record={activeTicket.record}
-            event={activeTicket.event}
-            onClose={() => setActiveTicket(null)}
-          />
-        )}
+          {/* Modal: Ticket QR Display */}
+          {activeTicket && (
+            <TicketModal
+              record={activeTicket.record}
+              event={activeTicket.event}
+              onClose={() => setActiveTicket(null)}
+            />
+          )}
+        </Suspense>
 
         {/* Modal: Event Detail Overview */}
         {viewingEvent && (
