@@ -17,6 +17,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { RegistrationRecord, EventItem } from '../types';
+import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 
 interface TicketModalProps {
   record: RegistrationRecord;
@@ -187,7 +188,12 @@ export const TicketModal: React.FC<TicketModalProps> = ({
           </div>
 
           <p className="text-[11px] text-slate-500 text-center font-medium">
-            Một bản sao vé và mã QR đã được gửi tự động tới hòm thư <strong>{record.email}</strong>.
+            {FIREBASE_ENABLED || !record.email ? (
+              // No mail service is wired to Firebase yet, so don't claim a copy was sent
+              <>Hãy chụp màn hình hoặc in vé để xuất trình mã QR khi điểm danh. Có thể tra cứu lại vé bằng MSSV.</>
+            ) : (
+              <>Một bản sao vé và mã QR đã được gửi tự động tới hòm thư <strong>{record.email}</strong>.</>
+            )}
           </p>
 
         </div>

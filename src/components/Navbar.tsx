@@ -15,16 +15,26 @@ import {
   GraduationCap,
   Menu,
   X,
-  Radio
+  Radio,
+  LogIn,
+  LogOut
 } from 'lucide-react';
 import { Role, NotificationItem } from '../types';
 import { api } from '../services/api';
+import { FIREBASE_ENABLED } from '../services/firebaseConfig';
+import type { StaffSession } from '../services/auth';
+
+// Every Firestore poll is billed as reads, so poll far less often than the local demo
+const NOTIFICATION_POLL_MS = FIREBASE_ENABLED ? 120_000 : 8000;
 
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   currentRole: Role;
   setCurrentRole: (role: Role) => void;
+  session: StaffSession | null;
+  onSignIn: () => void;
+  onSignOut: () => void;
   onOpenQRScanner: () => void;
   onOpenStudentLookup: () => void;
 }
@@ -34,6 +44,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   currentRole,
   setCurrentRole,
+  session,
+  onSignIn,
+  onSignOut,
   onOpenQRScanner,
   onOpenStudentLookup
 }) => {
@@ -63,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     loadNotifications();
     const interval = setInterval(() => {
       if (!document.hidden) loadNotifications();
-    }, 8000);
+    }, NOTIFICATION_POLL_MS);
     return () => clearInterval(interval);
   }, []);
 
@@ -102,7 +115,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="flex items-center space-x-3 text-[11px]">
-            {/* Quick Role Switcher */}
+            {FIREBASE_ENABLED ? (
+              /* Staff sign-in: role comes from admins/{email} in Firestore */
+              session ? (
+                <div className="flex items-center space-x-1.5 bg-blue-800/80 px-2.5 py-0.5 rounded-full border border-blue-400/40 text-white">
+                  <span className="hidden md:inline font-medium text-blue-100 max-w-[180px] truncate">{session.email}</span>
+                  <span className="font-semibold">{currentRole === 'STUDENT' ? 'Chưa cấp quyền' : currentRole}</span>
+                  <button onClick={onSignOut} className="flex items-center font-semibold hover:text-blue-200 cursor-pointer" aria-label="Đăng xuất">
+                    <LogOut className="w-3 h-3 ml-1" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={onSignIn}
+                  className="flex items-center space-x-1.5 bg-blue-800/80 hover:bg-blue-900 px-2.5 py-0.5 rounded-full border border-blue-400/40 text-white font-semibold cursor-pointer"
+                >
+                  <LogIn className="w-3 h-3" />
+                  <span>Đăng nhập BCH</span>
+                </button>
+              )
+            ) : (
+            /* Quick Role Switcher (demo mode) */
             <div className="flex items-center space-x-1.5 bg-blue-800/80 px-2.5 py-0.5 rounded-full border border-blue-400/40 text-white">
               <span className="text-blue-100 hidden md:inline font-medium">Vai trò:</span>
               <select 
@@ -116,6 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <option value="SUPER_ADMIN" className="bg-white text-slate-800">Super Admin (BCH Khoa)</option>
               </select>
             </div>
+            )}
           </div>
         </div>
       </div>

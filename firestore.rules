@@ -1,0 +1,151 @@
+rules_version = '2';
+
+// Data layout and the client code that writes it: src/services/firebaseApi.ts
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Staff roles: admins/{email} = { role: 'SUPER_ADMIN' | 'EVENT_MANAGER' | 'EDITOR' } ----------
+
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function adminPath() {
+      return /databases/$(database)/documents/admins/$(request.auth.token.email);
+    }
+
+    function hasRole(roles) {
+      return signedIn() && exists(adminPath()) && get(adminPath()).data.role in roles;
+    }
+
+    function isStaff() { return hasRole(['SUPER_ADMIN', 'EVENT_MANAGER', 'EDITOR']); }
+    function canManageEvents() { return hasRole(['SUPER_ADMIN', 'EVENT_MANAGER']); }
+    function canEditNews() { return hasRole(['SUPER_ADMIN', 'EDITOR']); }
+    function isSuperAdmin() { return hasRole(['SUPER_ADMIN']); }
+
+    function registrationPath(regId) {
+      return /databases/$(database)/documents/registrations/$(regId);
+    }
+
+    // True when this request is the write that creates registrations/{regId}
+    function createsRegistration(regId) {
+      return !exists(registrationPath(regId)) && existsAfter(registrationPath(regId));
+    }
+
+    match /admins/{email} {
+      allow get: if signedIn() && request.auth.token.email == email;
+      allow read, write: if isSuperAdmin();
+    }
+
+    // ---------- Public content ----------
+
+    match /news/{newsId} {
+      allow read: if true;
+      allow write: if canEditNews();
+    }
+
+    match /bch/{memberId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /emailLogs/{logId} {
+      allow read, write: if canManageEvents();
+    }
+
+    // ---------- Events & public self-registration ----------
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, delete: if canManageEvents();
+      allow update: if canManageEvents() || isRegistrationCounterBump(eventId);
+    }
+
+    // Anonymous visitors may only add one participant, in the same transaction that
+    // creates the matching registration, and may only close a full event.
+    function isRegistrationCounterBump(eventId) {
+      let before = resource.data;
+      let after = request.resource.data;
+      let regId = after.lastRegistrationId;
+      return after.diff(before).affectedKeys().hasOnly(['currentParticipants', 'status', 'lastRegistrationId'])
+        && regId is string
+        && after.currentParticipants == before.currentParticipants + 1
+        && (after.status == before.status
+            || (after.status == 'REGISTRATION_CLOSED' && after.currentParticipants >= before.maxParticipants))
+        && createsRegistration(regId)
+        && getAfter(registrationPath(regId)).data.eventId == eventId;
+    }
+
+    // registrations/{eventId}_{mssvKey}: the ticket, without contact details.
+    // `get` is public (duplicate check, MSSV lookup); listing everything is staff only.
+    match /registrations/{regId} {
+      allow get: if true;
+      allow list, update, delete: if canManageEvents();
+      allow create: if isValidRegistration(regId);
+    }
+
+    function isValidRegistration(regId) {
+      let r = request.resource.data;
+      let eventPath = /databases/$(database)/documents/events/$(r.eventId);
+      let event = get(eventPath).data;
+      return r.keys().hasOnly(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
+                               'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])
+        && r.keys().hasAll(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
+                            'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])
+        && r.mssvKey is string && r.mssvKey.matches('^[a-z0-9]{1,20}$')
+        && r.mssv is string && r.mssv.lower() == r.mssvKey
+        && regId == r.eventId + '_' + r.mssvKey
+        && r.fullName is string && r.fullName.size() > 0 && r.fullName.size() <= 100
+        && r.classGroup is string && r.classGroup.size() <= 50
+        && r.faculty is string && r.faculty.size() <= 100
+        && r.registeredAt is string && r.registeredAt.size() <= 40
+        && r.ticketCode is string && r.ticketCode.size() <= 32
+        && r.checkedIn == false
+        && r.eventTitle == event.title
+        && event.status == 'REGISTRATION_OPEN'
+        && event.currentParticipants < event.maxParticipants
+        && getAfter(eventPath).data.currentParticipants == event.currentParticipants + 1
+        && existsAfter(/databases/$(database)/documents/registrationContacts/$(regId))
+        && getAfter(/databases/$(database)/documents/students/$(r.mssvKey)).data.lastEventId == r.eventId;
+    }
+
+    // Email / phone / note of a registration: written once with it, readable by staff only.
+    match /registrationContacts/{regId} {
+      allow read, update, delete: if canManageEvents();
+      allow create: if request.resource.data.keys().hasOnly(['email', 'phone', 'note'])
+        && request.resource.data.keys().hasAll(['email', 'phone', 'note'])
+        && request.resource.data.email is string && request.resource.data.email.size() <= 100
+        && request.resource.data.phone is string && request.resource.data.phone.size() <= 20
+        && request.resource.data.note is string && request.resource.data.note.size() <= 500
+        && createsRegistration(regId);
+    }
+
+    // students/{mssvKey}: which events an MSSV registered for, used by the public lookup.
+    match /students/{mssvKey} {
+      allow get: if true;
+      allow list, delete: if canManageEvents();
+      allow create: if isStudentIndexWrite(mssvKey, []);
+      allow update: if canManageEvents() || isStudentIndexWrite(mssvKey, resource.data.eventIds);
+    }
+
+    function isStudentIndexWrite(mssvKey, previousEventIds) {
+      let s = request.resource.data;
+      return s.keys().hasOnly(['mssv', 'fullName', 'classGroup', 'eventIds', 'lastEventId'])
+        && s.mssv is string && s.mssv.lower() == mssvKey
+        && s.fullName is string && s.fullName.size() <= 100
+        && s.classGroup is string && s.classGroup.size() <= 50
+        && s.eventIds is list
+        && s.eventIds.size() == previousEventIds.size() + 1
+        && s.eventIds.hasAll(previousEventIds)
+        && s.lastEventId is string
+        && s.lastEventId in s.eventIds
+        && !(s.lastEventId in previousEventIds)
+        && createsRegistration(s.lastEventId + '_' + mssvKey);
+    }
+  }
+}

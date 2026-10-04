@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { Role, EventItem, NewsItem, BCHMember, FacultyStats, RegistrationRecord } from './types';
 import { api } from './services/api';
+import { FIREBASE_ENABLED } from './services/firebaseConfig';
+import type { StaffSession } from './services/auth';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { HeroSection } from './components/HeroSection';
@@ -70,8 +72,43 @@ export default function App() {
   const setActiveTab = (tab: string) => {
     window.location.hash = tab === 'home' ? '/' : `/${tab}`;
   };
-  const [currentRole, setCurrentRole] = useState<Role>('SUPER_ADMIN'); // Default to Super Admin so evaluators can test everything immediately!
-  
+  // Demo mode (no Firebase) starts as Super Admin so evaluators can try everything;
+  // with Firebase the role comes from the signed-in Google account.
+  const [currentRole, setCurrentRole] = useState<Role>(FIREBASE_ENABLED ? 'STUDENT' : 'SUPER_ADMIN');
+  const [session, setSession] = useState<StaffSession | null>(null);
+
+  useEffect(() => {
+    if (!FIREBASE_ENABLED) return;
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    import('./services/auth').then(({ watchSession }) => {
+      if (cancelled) return;
+      unsubscribe = watchSession(next => {
+        setSession(next);
+        setCurrentRole(next?.role ?? 'STUDENT');
+      });
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
+
+  const handleSignIn = async () => {
+    try {
+      const { signInStaff } = await import('./services/auth');
+      await signInStaff();
+    } catch (err: any) {
+      if (err?.code !== 'auth/popup-closed-by-user') showToast(`Đăng nhập thất bại: ${err.message}`);
+    }
+  };
+
+  const handleSignOut = async () => {
+    const { signOutStaff } = await import('./services/auth');
+    await signOutStaff();
+    if (activeTab === 'admin') setActiveTab('home');
+  };
+
   // Data States
   const [stats, setStats] = useState<FacultyStats>(INITIAL_STATS);
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -118,7 +155,7 @@ export default function App() {
       ...prev,
       totalRegistrations: prev.totalRegistrations + 1
     }));
-    showToast(`Đăng ký thành công vé #${record.ticketCode}! Email xác nhận đã được gửi.`);
+    showToast(`Đăng ký thành công vé #${record.ticketCode}! Hãy lưu lại mã QR để điểm danh.`);
   };
 
   const handleCheckInSuccess = (record: RegistrationRecord) => {
@@ -170,6 +207,9 @@ export default function App() {
         setActiveTab={setActiveTab}
         currentRole={currentRole}
         setCurrentRole={setCurrentRole}
+        session={session}
+        onSignIn={handleSignIn}
+        onSignOut={handleSignOut}
         onOpenQRScanner={() => setIsQRScannerOpen(true)}
         onOpenStudentLookup={() => setActiveTab('lookup')}
       />
@@ -275,7 +315,27 @@ export default function App() {
             <StudentPortalLookup events={events} />
           )}
 
-          {activeTab === 'admin' && (
+          {activeTab === 'admin' && FIREBASE_ENABLED && currentRole === 'STUDENT' && (
+            <div className="max-w-md mx-auto my-20 px-4 text-center">
+              <ShieldCheck className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h2 className="font-tech text-xl font-bold text-slate-900">Khu vực dành cho BCH</h2>
+              <p className="text-sm text-slate-500 mt-2">
+                {session
+                  ? `Tài khoản ${session.email} chưa được cấp quyền quản trị. Liên hệ Super Admin để được thêm vào danh sách.`
+                  : 'Đăng nhập bằng tài khoản Google đã được cấp quyền để quản lý sự kiện, tin tức và điểm danh.'}
+              </p>
+              {!session && (
+                <button
+                  onClick={handleSignIn}
+                  className="mt-6 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-md"
+                >
+                  Đăng nhập với Google
+                </button>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'admin' && !(FIREBASE_ENABLED && currentRole === 'STUDENT') && (
             <AdminDashboard
               events={events}
               currentRole={currentRole}

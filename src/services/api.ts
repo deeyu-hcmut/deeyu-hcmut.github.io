@@ -4,9 +4,18 @@ import {
   INITIAL_NEWS, 
   INITIAL_BCH, 
   INITIAL_REGISTRATIONS, 
-  INITIAL_NOTIFICATIONS, 
-  INITIAL_STATS 
+  INITIAL_NOTIFICATIONS
 } from '../data/mockData';
+import { FIREBASE_ENABLED } from './firebaseConfig';
+import {
+  buildEvent,
+  buildNews,
+  buildStats,
+  filterEvents,
+  filterNews,
+  filterRegistrations,
+  generateTicketCode
+} from './shared';
 
 // Storage keys for client-side persistence (GitHub Pages static mode)
 const STORAGE_KEYS = {
@@ -44,53 +53,22 @@ const clientStorage = {
     const registrations = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
     const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
     const news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
-    const totalRegs = registrations.length + 4230;
-    const totalCheckins = registrations.filter(r => r.checkedIn).length + 3890;
-
-    return {
-      ...INITIAL_STATS,
-      totalRegistrations: totalRegs,
-      totalCheckIns: totalCheckins,
-      totalEventsHeld: events.length + 43,
-      totalNewsPublished: news.length + 120,
-    };
+    return buildStats({
+      registrations: registrations.length,
+      checkIns: registrations.filter(r => r.checkedIn).length,
+      events: events.length,
+      news: news.length,
+    });
   },
 
-  getNews: (category?: string, search?: string): NewsItem[] => {
-    let news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
-    if (category && category !== 'ALL') {
-      news = news.filter(item => item.category === category);
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      news = news.filter(item => 
-        item.title.toLowerCase().includes(q) || 
-        item.summary.toLowerCase().includes(q) ||
-        item.tags.some(t => t.toLowerCase().includes(q))
-      );
-    }
-    return news;
-  },
+  getNews: (category?: string, search?: string): NewsItem[] =>
+    filterNews(getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS), category, search),
 
   createNews: (newsData: Partial<NewsItem>): NewsItem => {
     const news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
     const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 
-    const newArticle: NewsItem = {
-      id: `news-${Date.now()}`,
-      title: newsData.title || 'Tin tức mới',
-      slug: (newsData.title || 'tin-tuc-moi').toLowerCase().replace(/\s+/g, '-'),
-      summary: newsData.summary || '',
-      content: newsData.content || '',
-      category: newsData.category || 'HOAT_DONG_KHOA',
-      categoryName: newsData.categoryName || 'Hoạt động Khoa',
-      author: newsData.author || 'Ban Truyền thông FEE Media',
-      authorRole: newsData.authorRole || 'Cộng tác viên Truyền thông',
-      publishedAt: new Date().toISOString(),
-      coverImage: newsData.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-      tags: newsData.tags || ['FEE Portal', 'Đoàn - Hội'],
-      views: 1
-    };
+    const newArticle: NewsItem = { id: `news-${Date.now()}`, ...buildNews(newsData) };
     news.unshift(newArticle);
     setLocalData(STORAGE_KEYS.NEWS, news);
 
@@ -107,43 +85,14 @@ const clientStorage = {
     return newArticle;
   },
 
-  getEvents: (type?: string, status?: string): EventItem[] => {
-    let events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
-    if (type && type !== 'ALL') {
-      events = events.filter(evt => evt.type === type);
-    }
-    if (status && status !== 'ALL') {
-      events = events.filter(evt => evt.status === status);
-    }
-    return events;
-  },
+  getEvents: (type?: string, status?: string): EventItem[] =>
+    filterEvents(getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS), type, status),
 
   createEvent: (eventData: Partial<EventItem>): EventItem => {
     const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
     const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 
-    const newEvt: EventItem = {
-      id: `evt-${Date.now()}`,
-      title: eventData.title || 'Sự kiện mới',
-      slug: (eventData.title || 'su-kien-moi').toLowerCase().replace(/\s+/g, '-'),
-      description: eventData.description || '',
-      content: eventData.content || eventData.description || '',
-      type: eventData.type || 'ACADEMIC_CONTEST',
-      typeName: eventData.typeName || 'Học thuật & Triển lãm',
-      status: eventData.status || 'REGISTRATION_OPEN',
-      location: eventData.location || 'Hội trường A Khoa Điện - Điện tử',
-      eventDate: eventData.eventDate || new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
-      startTime: eventData.startTime || '08:00',
-      endTime: eventData.endTime || '11:30',
-      registrationDeadline: eventData.registrationDeadline || new Date(Date.now() + 86400000 * 6).toISOString(),
-      maxParticipants: Number(eventData.maxParticipants) || 200,
-      currentParticipants: 0,
-      bannerUrl: eventData.bannerUrl || 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
-      organizer: eventData.organizer || 'Đoàn - Hội Khoa Điện - Điện tử',
-      contactEmail: eventData.contactEmail || 'doanhoi.fee@university.edu.vn',
-      requirements: eventData.requirements || ['Thẻ sinh viên', 'Áo Đoàn / Đồng phục'],
-      isMandatoryCheckIn: true
-    };
+    const newEvt: EventItem = { id: `evt-${Date.now()}`, ...buildEvent(eventData) };
     events.unshift(newEvt);
     setLocalData(STORAGE_KEYS.EVENTS, events);
 
@@ -194,9 +143,7 @@ const clientStorage = {
       throw new Error(`MSSV ${registrationData.mssv} đã đăng ký sự kiện này trước đó với mã vé #${existing.ticketCode}`);
     }
 
-    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-    const prefix = event.type === 'ACADEMIC_CONTEST' ? 'FEE-ACAD' : event.type === 'SEMINAR_WORKSHOP' ? 'FEE-SEMI' : 'FEE-EVT';
-    const ticketCode = `${prefix}-${randomSuffix}`;
+    const ticketCode = generateTicketCode(event.type);
 
     const newRecord: RegistrationRecord = {
       id: `reg-${Date.now()}`,
@@ -314,22 +261,8 @@ const clientStorage = {
     };
   },
 
-  getRegistrations: (eventId?: string, search?: string): RegistrationRecord[] => {
-    let records = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
-    if (eventId && eventId !== 'ALL') {
-      records = records.filter(r => r.eventId === eventId);
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      records = records.filter(r => 
-        r.fullName.toLowerCase().includes(q) ||
-        r.mssv.toLowerCase().includes(q) ||
-        r.ticketCode.toLowerCase().includes(q) ||
-        r.classGroup.toLowerCase().includes(q)
-      );
-    }
-    return records;
-  },
+  getRegistrations: (eventId?: string, search?: string): RegistrationRecord[] =>
+    filterRegistrations(getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS), eventId, search),
 
   sendReminder: (eventId: string) => {
     const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
@@ -441,7 +374,7 @@ function postJson(body: unknown): RequestInit {
   };
 }
 
-export const api = {
+const localApi = {
   // Stats
   getStats: async (): Promise<FacultyStats> =>
     (await fetchApi<FacultyStats>('/api/stats')) ?? clientStorage.getStats(),
@@ -528,3 +461,19 @@ export const api = {
   getEmailLogs: async (): Promise<EmailDispatchLog[]> =>
     (await fetchApi<EmailDispatchLog[]>('/api/email-logs')) ?? clientStorage.getEmailLogs()
 };
+
+export type Api = typeof localApi;
+
+// With Firebase configured every call goes to Firestore instead. The SDK sits in its
+// own chunk, so a build without Firebase config never downloads it.
+function lazyFirebaseApi(): Api {
+  const load = () => import('./firebaseApi').then(m => m.firebaseApi);
+  return new Proxy({} as Api, {
+    get: (_target, key) => async (...args: unknown[]) => {
+      const impl = await load();
+      return (impl[key as keyof Api] as (...params: unknown[]) => unknown)(...args);
+    },
+  });
+}
+
+export const api: Api = FIREBASE_ENABLED ? lazyFirebaseApi() : localApi;
