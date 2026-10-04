@@ -452,10 +452,10 @@ export default function App() {
             {/* Col 3: Đội Cộng tác viên */}
             <div>
               <h4 className="font-tech text-xs font-bold uppercase tracking-wider text-white mb-4">
-                Đội Cộng tác viên
+                Đội Cộng tác viên Đoàn - Hội khoa Điện - Điện tử
               </h4>
               <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                Đội Cộng tác viên Khoa Điện - Điện tử đồng hành cùng Đoàn - Hội tổ chức sự kiện, truyền thông và hỗ trợ sinh viên.
+                Đồng hành cùng Ban Chấp hành Đoàn - Hội tổ chức sự kiện, làm truyền thông và hỗ trợ sinh viên toàn khoa.
               </p>
             </div>
 

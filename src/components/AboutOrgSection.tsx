@@ -37,7 +37,7 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <div>
               <h3 className="font-tech text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
-                BAN CHẤP HÀNH & ĐỘI CỘNG TÁC VIÊN
+                BAN CHẤP HÀNH & ĐỘI CỘNG TÁC VIÊN ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Đội ngũ cán bộ Đoàn - Hội nòng cốt phụ trách các mảng công tác</p>
             </div>
@@ -82,7 +82,7 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
                     : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300'
                 }`}
               >
-                Đội Cộng tác viên
+                Đội Cộng tác viên Đoàn - Hội khoa Điện - Điện tử
               </button>
             </div>
           </div>

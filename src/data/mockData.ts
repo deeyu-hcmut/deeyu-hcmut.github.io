@@ -308,26 +308,26 @@ export const INITIAL_BCH: BCHMember[] = [
   {
     id: 'bch-5',
     name: 'Đ/c Vũ Hải Đăng',
-    position: 'Đội trưởng Đội Cộng tác viên',
+    position: 'Đội trưởng Đội Cộng tác viên Đoàn - Hội khoa Điện - Điện tử',
     organization: 'DOI_CTV',
     email: 'dang.vh@robofee.org',
     phone: '0966 998 877',
     classGroup: 'D22_DKTD03',
     avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
     bio: 'Đội trưởng Đội tuyển Robocon Trường, Huy chương Vàng Thiết kế Robot tự hành cấp Khu vực 2025.',
-    department: 'Đội Cộng tác viên Khoa Điện - Điện tử',
+    department: 'Đội Cộng tác viên Đoàn - Hội khoa Điện - Điện tử',
   },
   {
     id: 'bch-6',
     name: 'Đ/c Mai Phương Thảo',
-    position: 'Đội phó Đội Cộng tác viên',
+    position: 'Đội phó Đội Cộng tác viên Đoàn - Hội khoa Điện - Điện tử',
     organization: 'DOI_CTV',
     email: 'thao.mp@ctxh.fee.edu.vn',
     phone: '0933 445 566',
     classGroup: 'D23_Y_SINH01',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     bio: 'Gương thanh niên tình nguyện tiêu biểu, phụ trách mạng lưới hiến máu tình nguyện và dự án Nắng Ấm Biên Cương.',
-    department: 'Đội Cộng tác viên Khoa Điện - Điện tử',
+    department: 'Đội Cộng tác viên Đoàn - Hội khoa Điện - Điện tử',
   }
 ];
 
