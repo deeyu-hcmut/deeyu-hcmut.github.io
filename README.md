@@ -74,6 +74,8 @@ web hỏi MSSV + họ tên (phải khớp danh sách), liên kết tài khoản 
 (giới tính, ngày sinh, lớp, SĐT, Đoàn viên, ngày vào Đoàn, Hội viên). Mỗi MSSV chỉ liên kết được một tài khoản;
 Ban QLNS-CTSV gỡ liên kết trong form Sửa nếu có nhầm lẫn.
 
+Muốn quản lý danh sách sinh viên trên Google Sheet và tự đồng bộ với web: xem [`tools/google-sheet-sync`](tools/google-sheet-sync/README.md).
+
 Mọi vai trò trên đều quét QR điểm danh được. Tài khoản không có trong `admins` là sinh viên: không thấy nút quét QR.
 Giá trị cũ `EVENT_MANAGER` / `EDITOR` vẫn được hiểu là `HC_TV` / `TT_SK`.
 
