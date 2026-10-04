@@ -15,11 +15,12 @@ import {
   GraduationCap,
   Menu,
   X,
-  Radio,
   LogIn,
   LogOut,
   Sun,
-  Moon
+  Moon,
+  ChevronDown,
+  User
 } from 'lucide-react';
 import { Role, NotificationItem } from '../types';
 import { api } from '../services/api';
@@ -58,6 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [theme, toggleTheme] = useTheme();
+  const [showAccount, setShowAccount] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,6 +93,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
+  const ROLE_LABELS: Record<Role, string> = {
+    SUPER_ADMIN: 'Super Admin',
+    EVENT_MANAGER: 'Ban CTXH (Quản lý sự kiện)',
+    EDITOR: 'Ban Truyền thông',
+    STUDENT: 'Chưa được cấp quyền BCH',
+  };
+
   const navLinks = [
     { id: 'home', label: 'Trang chủ', icon: Zap },
     { id: 'events', label: 'Sự kiện & Đăng ký', icon: Calendar },
@@ -106,58 +115,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-blue-100 dark:border-blue-400/30 shadow-md shadow-blue-900/5' 
         : 'bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700'
     }`}>
-      {/* Top Banner Notice */}
-      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white px-4 py-1 text-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 text-white border border-white/30">
-              <Radio className="w-2.5 h-2.5 mr-1 text-white animate-pulse" />
-              PORTAL 2026
-            </span>
-            <span className="hidden sm:inline font-medium tracking-wide text-blue-50">ĐOÀN TNCS HỒ CHÍ MINH - HỘI SINH VIÊN KHOA ĐIỆN - ĐIỆN TỬ</span>
-            <span className="sm:hidden font-medium text-blue-50">ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ</span>
-          </div>
-
-          <div className="flex items-center space-x-3 text-[11px]">
-            {FIREBASE_ENABLED ? (
-              /* Staff sign-in: role comes from admins/{email} in Firestore */
-              session ? (
-                <div className="flex items-center space-x-1.5 bg-blue-800/80 px-2.5 py-0.5 rounded-full border border-blue-400/40 text-white">
-                  <span className="hidden md:inline font-medium text-blue-100 max-w-[180px] truncate">{session.email}</span>
-                  <span className="font-semibold">{currentRole === 'STUDENT' ? 'Chưa cấp quyền' : currentRole}</span>
-                  <button onClick={onSignOut} className="flex items-center font-semibold hover:text-blue-200 cursor-pointer" aria-label="Đăng xuất">
-                    <LogOut className="w-3 h-3 ml-1" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={onSignIn}
-                  className="flex items-center space-x-1.5 bg-blue-800/80 hover:bg-blue-900 px-2.5 py-0.5 rounded-full border border-blue-400/40 text-white font-semibold cursor-pointer"
-                >
-                  <LogIn className="w-3 h-3" />
-                  <span>Đăng nhập BCH</span>
-                </button>
-              )
-            ) : (
-            /* Quick Role Switcher (demo mode) */
-            <div className="flex items-center space-x-1.5 bg-blue-800/80 px-2.5 py-0.5 rounded-full border border-blue-400/40 text-white">
-              <span className="text-blue-100 hidden md:inline font-medium">Vai trò:</span>
-              <select 
-                value={currentRole} 
-                onChange={(e) => setCurrentRole(e.target.value as Role)}
-                className="bg-transparent text-white font-semibold text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="STUDENT" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Sinh viên / Đoàn viên</option>
-                <option value="EVENT_MANAGER" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Ban CTXH (Quản trị Sự kiện)</option>
-                <option value="EDITOR" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Ban Truyền thông (FEE Media)</option>
-                <option value="SUPER_ADMIN" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Super Admin (BCH Khoa)</option>
-              </select>
-            </div>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Main Nav Container */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18">
@@ -202,7 +159,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="header-theme-toggle"
               onClick={toggleTheme}
-              className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+              className="hidden sm:inline-flex p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
               aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
               title={theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
             >
@@ -214,6 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="header-notification-bell"
                 onClick={() => {
+                  setShowAccount(false);
                   setShowNotifications(!showNotifications);
                   if (unreadCount > 0) handleMarkAllRead();
                 }}
@@ -273,6 +231,80 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Sign-in / account menu */}
+            {FIREBASE_ENABLED && !session ? (
+              <button
+                id="header-sign-in"
+                onClick={onSignIn}
+                className="flex items-center space-x-2 p-2 sm:px-4 sm:py-2.5 rounded-xl text-sm font-bold whitespace-nowrap bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                title="Đăng nhập dành cho Ban Chấp hành"
+              >
+                <LogIn className="w-4 h-4" />
+                <span className="hidden sm:inline">Đăng nhập</span>
+              </button>
+            ) : (
+              <div className="relative">
+                <button
+                  id="header-account"
+                  onClick={() => {
+                    setShowNotifications(false);
+                    setShowAccount(!showAccount);
+                  }}
+                  className="flex items-center space-x-1 p-1 sm:pr-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+                  aria-label="Tài khoản"
+                >
+                  <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold uppercase">
+                    {session ? session.email[0] : <User className="w-4 h-4" />}
+                  </span>
+                  <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                </button>
+
+                {showAccount && (
+                  <div
+                    id="account-popover"
+                    className="absolute right-0 mt-3 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2"
+                  >
+                    {session ? (
+                      <>
+                        <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-2">
+                          <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{session.displayName || session.email}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{session.email}</p>
+                          <p className={`mt-1.5 inline-block px-2 py-0.5 rounded-md text-[11px] font-bold ${currentRole === 'STUDENT' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'}`}>
+                            {ROLE_LABELS[currentRole]}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setShowAccount(false);
+                            onSignOut();
+                          }}
+                          className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors text-rose-600 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Đăng xuất</span>
+                        </button>
+                      </>
+                    ) : (
+                      /* Demo build without Firebase: pick a role to try every screen */
+                      <div className="px-3 py-2">
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Vai trò (bản demo)</label>
+                        <select
+                          value={currentRole}
+                          onChange={(e) => setCurrentRole(e.target.value as Role)}
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                        >
+                          <option value="STUDENT">Sinh viên / Đoàn viên</option>
+                          <option value="EVENT_MANAGER">Ban CTXH (Quản lý sự kiện)</option>
+                          <option value="EDITOR">Ban Truyền thông</option>
+                          <option value="SUPER_ADMIN">Super Admin</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Mobile Hamburger Toggle */}
             <button
@@ -336,6 +368,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
 
           <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex flex-col space-y-2">
+            <button
+              onClick={toggleTheme}
+              className="sm:hidden w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span>{theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}</span>
+            </button>
             <button
               onClick={() => {
                 onOpenStudentLookup();
