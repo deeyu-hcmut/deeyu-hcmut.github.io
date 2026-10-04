@@ -99,6 +99,9 @@ export default function App() {
       unsubscribe = watchSession(next => {
         setSession(next);
         setCurrentRole(next?.role ?? 'STUDENT');
+        if (next?.roleCheckFailed) {
+          showToast('Không kiểm tra được quyền BCH (máy chủ dữ liệu đang quá tải hoặc hết hạn mức trong ngày). Vui lòng tải lại trang sau.');
+        }
       });
     });
     return () => {

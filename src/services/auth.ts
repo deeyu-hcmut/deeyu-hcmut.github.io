@@ -10,6 +10,8 @@ export interface StaffSession {
   displayName: string | null;
   // STUDENT when the Google account is not listed in admins/{email}
   role: Role;
+  // The role could not be read (e.g. Firestore's daily free quota is used up); `role` is then STUDENT
+  roleCheckFailed?: boolean;
 }
 
 export const auth = getAuth(app);
@@ -18,12 +20,13 @@ if (USE_FIREBASE_EMULATOR) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
 }
 
-async function resolveRole(email: string): Promise<Role> {
+async function resolveRole(email: string): Promise<{ role: Role; roleCheckFailed?: boolean }> {
   try {
     const snap = await getDoc(doc(db, 'admins', email));
-    return snap.exists() ? normalizeRole(snap.data().role) : 'STUDENT';
-  } catch {
-    return 'STUDENT';
+    return { role: snap.exists() ? normalizeRole(snap.data().role) : 'STUDENT' };
+  } catch (err) {
+    console.error('Could not read the staff role', err);
+    return { role: 'STUDENT', roleCheckFailed: true };
   }
 }
 
@@ -33,7 +36,7 @@ export function watchSession(onChange: (session: StaffSession | null) => void): 
       onChange(null);
       return;
     }
-    onChange({ email: user.email, displayName: user.displayName, role: await resolveRole(user.email) });
+    onChange({ email: user.email, displayName: user.displayName, ...(await resolveRole(user.email)) });
   });
 }
 

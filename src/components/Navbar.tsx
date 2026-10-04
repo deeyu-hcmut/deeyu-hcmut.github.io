@@ -29,8 +29,10 @@ import type { StaffSession } from '../services/auth';
 import { useTheme } from '../theme';
 import { ROLE_LABELS, STAFF_ROLES } from '../utils/roles';
 
-// Every Firestore poll is billed as reads, so poll far less often than the local demo
-const NOTIFICATION_POLL_MS = FIREBASE_ENABLED ? 120_000 : 8000;
+// Every Firestore load is billed as up to 20 reads (free plan: 50,000 a day for the whole site),
+// so with Firebase there is no background polling: load on page open, refresh when the bell is opened
+const NOTIFICATION_POLL_MS = 8000;
+const NOTIFICATION_REFRESH_MS = 5 * 60_000;
 
 interface NavbarProps {
   activeTab: string;
@@ -74,10 +76,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const [notificationsLoadedAt, setNotificationsLoadedAt] = useState(0);
+
   const loadNotifications = async () => {
     try {
       const data = await api.getNotifications();
       setNotifications(data);
+      setNotificationsLoadedAt(Date.now());
     } catch (err) {
       console.error('Failed to load notifications', err);
     }
@@ -85,6 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   useEffect(() => {
     loadNotifications();
+    if (FIREBASE_ENABLED) return;
     const interval = setInterval(() => {
       if (!document.hidden) loadNotifications();
     }, NOTIFICATION_POLL_MS);
@@ -175,6 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setShowAccount(false);
                   setShowNotifications(!showNotifications);
                   if (unreadCount > 0) handleMarkAllRead();
+                  if (!showNotifications && Date.now() - notificationsLoadedAt > NOTIFICATION_REFRESH_MS) loadNotifications();
                 }}
                 className="relative p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
                 aria-label="Thông báo"

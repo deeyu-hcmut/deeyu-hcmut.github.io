@@ -18,6 +18,10 @@ Script Apps Script gắn vào Google Sheet danh sách sinh viên, tự đồng b
 - **Xoá dòng trong sheet không xoá trên web.** Muốn xoá hẳn, xoá trên trang Quản trị rồi xoá dòng trong sheet.
 - MSSV trùng hoặc sai định dạng (không phải chữ/số) bị bỏ qua và được báo trong thông báo sau khi chạy.
 - Chỉ ghi lại đúng những ô thay đổi, công thức ở chỗ khác trong sheet không bị ảnh hưởng.
+- **Tiết kiệm hạn mức Firestore** (gói miễn phí: 50.000 lượt đọc/ngày cho cả trang web): mỗi lần chạy chỉ đọc những dòng
+  vừa sửa trong sheet và những hồ sơ vừa sửa trên web. Không ai sửa gì thì một lần chạy tốn khoảng 1 lượt đọc.
+  Script lưu dấu vết trong tab ẩn `_dong_bo` — đừng xoá/sửa tab này (xoá thì lần sau sẽ đọc lại toàn bộ một lần).
+  Menu **Đồng bộ toàn bộ** đọc lại mọi hồ sơ (tốn bằng số sinh viên), chỉ dùng khi nghi dữ liệu lệch.
 
 ## Yêu cầu
 
@@ -46,7 +50,7 @@ Script Apps Script gắn vào Google Sheet danh sách sinh viên, tự đồng b
      (đây là script của chính bạn) → **Cho phép**.
    - Bấm **Đồng bộ ngay** lần nữa. Góc dưới phải hiện kết quả, ví dụ `Web: thêm 120, cập nhật 0…`.
 6. Kiểm tra trên web (Quản trị → Sinh viên) thấy dữ liệu đúng thì bấm
-   **Đồng bộ web → Bật tự động (mỗi 10 phút)**.
+   **Đồng bộ web → Bật tự động (mỗi 15 phút)**.
 
 Tắt: **Đồng bộ web → Tắt tự động**.
 
@@ -75,6 +79,7 @@ collection `bch` (tab **BCH & Trưởng, phó ban CTV** trong trang Quản trị
 - Đọc mọi tab có cột `Họ và tên` ở dòng 1 (ví dụ 3 tab BCH Đoàn / BCH Hội / Trưởng, phó ban CTV).
   Ô **Tổ chức** ghi `Đoàn Thanh niên`, `Hội Sinh viên` hoặc `Đội CTV`; để trống thì lấy theo tên tab
   (tên tab có chữ "Đoàn", "Hội" hoặc "CTV" / "Trưởng, phó ban").
+- Chạy tự động chỉ đọc Firestore khi sheet BCH có thay đổi; bấm **Đồng bộ ngay** thì luôn đồng bộ.
 - Người chỉ có trên web được thêm dòng vào tab cùng tổ chức. Xoá dòng trong sheet **không** xoá trên web, trừ khi sửa
   `const XOA_NGUOI_KHONG_CO_TRONG_SHEET = false;` thành `true` (dùng khi đổi nhiệm kỳ: web khớp đúng sheet,
   ai không còn trong sheet bị xoá khỏi web).

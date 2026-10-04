@@ -19,7 +19,8 @@ const COLLECTION = 'members';
 // Các tab cần đồng bộ, ví dụ ['K24', 'K25', 'K26']. Để trống [] thì đồng bộ mọi tab có cột MSSV ở dòng 1.
 // Tab đặt tên theo khóa (K24, K25...) thì ô Khóa để trống sẽ tự lấy tên tab.
 const SHEET_NAMES = [];
-const SYNC_EVERY_MINUTES = 10;
+// Each run only reads what changed, but keep it modest: Firestore's free plan allows 50,000 reads a day
+const SYNC_EVERY_MINUTES = 15;
 
 const DOCS_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 const DOC_PREFIX = `projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}/`;
@@ -50,6 +51,7 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Đồng bộ web')
     .addItem('Đồng bộ ngay', 'dongBoNgay')
+    .addItem('Đồng bộ toàn bộ (đọc lại hết, tốn hạn mức)', 'dongBoToanBo')
     .addItem(`Bật tự động (mỗi ${SYNC_EVERY_MINUTES} phút)`, 'batTuDong')
     .addItem('Tắt tự động', 'tatTuDong')
     .addToUi();
@@ -75,34 +77,53 @@ function tatTuDong() {
 // ---------------------------------------------------------------- sync
 
 function dongBo() {
+  return runLocked(false);
+}
+
+function dongBoToanBo() {
+  SpreadsheetApp.getActive().toast(runLocked(true), 'Đồng bộ web', 10);
+}
+
+function runLocked(full) {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return 'Đang có một lần đồng bộ khác chạy, bỏ qua.';
   try {
-    return syncOnce();
+    return syncOnce(full);
   } finally {
     lock.releaseLock();
   }
 }
 
-function syncOnce() {
+/*
+ * Firestore's free plan allows 50,000 reads a day, so a run only reads what changed:
+ *   - sheet rows whose content differs from the last run (row hashes kept in the hidden tab STATE_SHEET)
+ *   - records updated on the website since the last run (query on `updatedAt`)
+ * A full run (first run, or menu "Đồng bộ toàn bộ") reads every record once.
+ */
+// Every record this script writes in one run gets the same updatedAt, so the next run can tell
+// its own writes apart from edits made on the website
+let writeStamp = '';
+
+function syncOnce(forceFull) {
+  const runStartedAt = new Date().toISOString();
+  writeStamp = runStartedAt;
   const tabs = loadTabs();
   if (tabs.length === 0) throw new Error('Không tab nào có cột MSSV ở dòng tiêu đề.');
 
-  const remote = loadMembers();
-  const writes = [];
+  const props = PropertiesService.getScriptProperties();
+  const lastSync = props.getProperty(LAST_SYNC_KEY) || '';
+  const savedHashes = loadRowHashes();
+  const full = forceFull || !lastSync || Object.keys(savedHashes).length === 0;
+
+  // Sheet rows, with a hash of everything the sync looks at
+  const rows = [];
   const seen = {};
   const skipped = [];
-  // Only the changed cells are written back, so formulas elsewhere in the sheet are untouched
-  const cellUpdates = [];
-  let created = 0;
-  let updated = 0;
-
   tabs.forEach(tab => {
     const { values, colOf, name } = tab;
     for (let r = 1; r < values.length; r++) {
-      const row = values[r];
       const where = `${name} dòng ${r + 1}`;
-      const mssv = String(row[colOf.mssv]).trim();
+      const mssv = String(values[r][colOf.mssv]).trim();
       if (!mssv) continue;
       const id = mssv.toLowerCase();
       if (!/^[a-z0-9]{1,20}$/.test(id)) {
@@ -114,44 +135,81 @@ function syncOnce() {
         continue;
       }
       seen[id] = where;
+      rows.push({ tab, r, id, mssv, where, hash: rowHash(tab, values[r]) });
+    }
+  });
 
-      const existing = remote[id];
-      const studentOwned = Boolean(existing && existing.profileCompletedAt);
-      const changes = {};
+  // Firestore records this run needs
+  let remote;
+  let webChanged;
+  let reads;
+  if (full) {
+    remote = loadMembers();
+    webChanged = remote;
+    reads = Object.keys(remote).length;
+  } else {
+    // 2-minute overlap so an edit made while the previous run was going is not missed
+    const since = new Date(new Date(lastSync).getTime() - 2 * 60 * 1000).toISOString();
+    // Records written by the previous run carry updatedAt === lastSync and are left out by the query
+    webChanged = queryUpdatedSince(since, lastSync);
+    const needed = rows.filter(row => savedHashes[row.id] !== row.hash && !webChanged[row.id]).map(row => row.id);
+    remote = Object.assign(getMembersByIds(needed), webChanged);
+    reads = Object.keys(webChanged).length + needed.length;
+  }
 
-      COLUMNS.forEach(c => {
-        const col = colOf[c.field];
-        if (c.field === 'mssv') return;
-        if (col === undefined) {
-          // Tabs named after a Khóa (K24, K25 ...) without a Khóa column
-          if (c.field === 'cohort' && tab.cohort && (!existing || !existing.cohort)) changes.cohort = tab.cohort;
-          return;
-        }
-        const cell = row[col];
-        if (c.owner === 'student' && studentOwned) {
-          // Web → Sheet: what the student declared replaces the cell
-          const display = toCell(c, existing[c.field], cell);
-          if (!sameCell(cell, display)) cellUpdates.push({ sheet: tab.sheet, row: r + 1, col: col + 1, value: display });
-          return;
-        }
-        let value = fromCell(c, cell);
-        if (value === undefined && c.field === 'cohort' && tab.cohort && (!existing || !existing.cohort)) value = tab.cohort;
-        if (value === undefined) return; // empty cell keeps the web value
-        if (!existing || existing[c.field] !== value) changes[c.field] = value;
-      });
+  const writes = [];
+  // Only the changed cells are written back, so formulas elsewhere in the sheet are untouched
+  const cellUpdates = [];
+  let created = 0;
+  let updated = 0;
 
-      if (!existing) {
-        if (!changes.fullName) {
-          skipped.push(`${where} (MSSV ${mssv} thiếu họ tên)`);
-          continue;
-        }
-        writes.push(createWrite(id, Object.assign({ mssv: mssv }, changes)));
-        created++;
-      } else if (Object.keys(changes).length > 0) {
-        if (changes.isUnionMember === false) changes.unionJoinDate = '';
-        writes.push(updateWrite(id, changes));
-        updated++;
+  rows.forEach(item => {
+    const { tab, r, id, mssv, where } = item;
+    const sheetChanged = full || savedHashes[id] !== item.hash;
+    if (!sheetChanged && !webChanged[id]) return; // nothing changed on either side
+    const row = tab.values[r];
+    const { colOf } = tab;
+    const existing = remote[id];
+    const studentOwned = Boolean(existing && existing.profileCompletedAt);
+    const changes = {};
+
+    COLUMNS.forEach(c => {
+      const col = colOf[c.field];
+      if (c.field === 'mssv') return;
+      if (col === undefined) {
+        // Tabs named after a Khóa (K24, K25 ...) without a Khóa column
+        if (c.field === 'cohort' && tab.cohort && (!existing || !existing.cohort)) changes.cohort = tab.cohort;
+        return;
       }
+      const cell = row[col];
+      if (c.owner === 'student' && studentOwned) {
+        // Web → Sheet: what the student declared replaces the cell
+        const display = toCell(c, existing[c.field], cell);
+        if (!sameCell(cell, display)) {
+          cellUpdates.push({ sheet: tab.sheet, row: r + 1, col: col + 1, value: display });
+          row[col] = display;
+        }
+        return;
+      }
+      let value = fromCell(c, cell);
+      if (value === undefined && c.field === 'cohort' && tab.cohort && (!existing || !existing.cohort)) value = tab.cohort;
+      if (value === undefined) return; // empty cell keeps the web value
+      if (!existing || existing[c.field] !== value) changes[c.field] = value;
+    });
+    item.hash = rowHash(tab, row);
+
+    if (!existing) {
+      if (!changes.fullName) {
+        skipped.push(`${where} (MSSV ${mssv} thiếu họ tên)`);
+        item.hash = ''; // retry next run
+        return;
+      }
+      writes.push(createWrite(id, Object.assign({ mssv: mssv }, changes)));
+      created++;
+    } else if (Object.keys(changes).length > 0) {
+      if (changes.isUnionMember === false) changes.unionJoinDate = '';
+      writes.push(updateWrite(id, changes));
+      updated++;
     }
   });
 
@@ -160,11 +218,11 @@ function syncOnce() {
   const byCohortTabs = tabs.some(t => t.cohort);
   const appendTo = new Map();
   const noTab = {};
-  Object.keys(remote)
+  Object.keys(webChanged)
     .filter(id => !seen[id])
     .sort()
     .forEach(id => {
-      const member = remote[id];
+      const member = webChanged[id];
       const tab = byCohortTabs
         ? tabs.find(t => t.cohort && normalizeKey(t.cohort) === normalizeKey(member.cohort || ''))
         : tabs[0];
@@ -179,18 +237,21 @@ function syncOnce() {
       });
       if (!appendTo.has(tab)) appendTo.set(tab, []);
       appendTo.get(tab).push(row);
+      rows.push({ id, hash: rowHash(tab, row) });
     });
 
   commitAll(writes);
   cellUpdates.forEach(u => u.sheet.getRange(u.row, u.col).setValue(u.value));
   let appended = 0;
-  appendTo.forEach((rows, tab) => {
-    tab.sheet.getRange(tab.sheet.getLastRow() + 1, 1, rows.length, tab.values[0].length).setValues(rows);
-    appended += rows.length;
+  appendTo.forEach((newRows, tab) => {
+    tab.sheet.getRange(tab.sheet.getLastRow() + 1, 1, newRows.length, tab.values[0].length).setValues(newRows);
+    appended += newRows.length;
   });
+  saveRowHashes(rows);
+  props.setProperty(LAST_SYNC_KEY, runStartedAt);
 
   const parts = [
-    `Tab: ${tabs.map(t => t.name).join(', ')}.`,
+    `${full ? 'Đồng bộ toàn bộ' : 'Đồng bộ thay đổi'} (đọc ${reads} bản ghi).`,
     `Web: thêm ${created}, cập nhật ${updated}.`,
     `Sheet: thêm ${appended} dòng, cập nhật ${cellUpdates.length} ô từ thông tin sinh viên tự khai.`,
   ];
@@ -200,6 +261,43 @@ function syncOnce() {
   const summary = parts.join(' ');
   console.log(summary);
   return summary;
+}
+
+// ---------------------------------------------------------------- change tracking
+
+const STATE_SHEET = '_dong_bo';
+const LAST_SYNC_KEY = 'lastSync';
+
+function rowHash(tab, row) {
+  const text = JSON.stringify([tab.cohort, COLUMNS.map(c => (tab.colOf[c.field] === undefined ? null : row[tab.colOf[c.field]]))]);
+  return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text, Utilities.Charset.UTF_8));
+}
+
+function stateSheet() {
+  const spreadsheet = SpreadsheetApp.getActive();
+  let sheet = spreadsheet.getSheetByName(STATE_SHEET);
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(STATE_SHEET);
+    sheet.hideSheet();
+  }
+  return sheet;
+}
+
+function loadRowHashes() {
+  const sheet = SpreadsheetApp.getActive().getSheetByName(STATE_SHEET);
+  const hashes = {};
+  if (!sheet || sheet.getLastRow() < 2) return hashes;
+  sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues().forEach(([id, hash]) => {
+    if (id) hashes[String(id)] = String(hash);
+  });
+  return hashes;
+}
+
+function saveRowHashes(rows) {
+  const sheet = stateSheet();
+  sheet.clearContents();
+  const data = [['ID (do script quản lý, đừng sửa)', 'Hash']].concat(rows.map(row => [row.id, row.hash]));
+  sheet.getRange(1, 1, data.length, 2).setValues(data);
 }
 
 // Tabs to sync: SHEET_NAMES if set, otherwise every tab whose first row has an MSSV column
@@ -366,6 +464,42 @@ function loadMembers() {
   return members;
 }
 
+// Records whose updatedAt is after `since` (ISO strings compare in time order), except `excludeStamp`.
+// Firestore bills every document a query returns, so the filtering happens server side.
+function queryUpdatedSince(since, excludeStamp) {
+  const field = { fieldPath: 'updatedAt' };
+  const results = request('post', `${DOCS_URL}:runQuery`, {
+    structuredQuery: {
+      from: [{ collectionId: COLLECTION }],
+      where: {
+        compositeFilter: {
+          op: 'AND',
+          filters: [
+            { fieldFilter: { field, op: 'GREATER_THAN', value: { stringValue: since } } },
+            { fieldFilter: { field, op: 'NOT_EQUAL', value: { stringValue: excludeStamp } } },
+          ],
+        },
+      },
+    },
+  });
+  const members = {};
+  (Array.isArray(results) ? results : []).forEach(item => {
+    if (item.document) members[item.document.name.split('/').pop()] = decodeFields(item.document.fields || {});
+  });
+  return members;
+}
+
+function getMembersByIds(ids) {
+  const members = {};
+  for (let i = 0; i < ids.length; i += 100) {
+    const results = request('post', `${DOCS_URL}:batchGet`, { documents: ids.slice(i, i + 100).map(id => DOC_PREFIX + id) });
+    (Array.isArray(results) ? results : []).forEach(item => {
+      if (item.found) members[item.found.name.split('/').pop()] = decodeFields(item.found.fields || {});
+    });
+  }
+  return members;
+}
+
 // New record: same defaults as the website's buildMember
 function createWrite(id, data) {
   const now = new Date().toISOString();
@@ -388,13 +522,13 @@ function createWrite(id, data) {
       profileCompletedAt: '',
     },
     data,
-    { updatedAt: now }
+    { updatedAt: writeStamp || now }
   );
   return { update: { name: DOC_PREFIX + id, fields: encodeFields(record) }, currentDocument: { exists: false } };
 }
 
 function updateWrite(id, changes) {
-  const data = Object.assign({}, changes, { updatedAt: new Date().toISOString() });
+  const data = Object.assign({}, changes, { updatedAt: writeStamp || new Date().toISOString() });
   return {
     update: { name: DOC_PREFIX + id, fields: encodeFields(data) },
     updateMask: { fieldPaths: Object.keys(data) },

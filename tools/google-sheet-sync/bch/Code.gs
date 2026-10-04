@@ -9,6 +9,7 @@
  * - Thứ tự hiển thị trên web = thứ tự tab, rồi thứ tự dòng trong sheet.
  * - Đọc mọi tab có cột "Họ và tên" ở dòng 1. Ô Tổ chức trống thì lấy theo tên tab
  *   (tab có chữ "Đoàn", "Hội" hoặc "CTV").
+ * - Chạy tự động chỉ đọc Firestore khi sheet có thay đổi (gói miễn phí giới hạn 50.000 lượt đọc/ngày).
  * - Người chỉ có trên web được thêm dòng vào tab cùng tổ chức. Xoá dòng trong sheet KHÔNG xoá trên web,
  *   trừ khi bật XOA_NGUOI_KHONG_CO_TRONG_SHEET (dùng khi đổi nhiệm kỳ).
  */
@@ -19,7 +20,7 @@ const COLLECTION = 'bch';
 const SHEET_NAMES = [];
 // true: người có trên web nhưng không còn trong sheet sẽ bị XOÁ khỏi web (thay vì được thêm vào sheet)
 const XOA_NGUOI_KHONG_CO_TRONG_SHEET = false;
-const SYNC_EVERY_MINUTES = 10;
+const SYNC_EVERY_MINUTES = 15;
 
 const DOCS_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 const DOC_PREFIX = `projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}/`;
@@ -46,8 +47,9 @@ function onOpen() {
     .addToUi();
 }
 
+// Manual run: always syncs, even when the sheet looks unchanged
 function dongBoNgay() {
-  SpreadsheetApp.getActive().toast(dongBo(), 'Đồng bộ web', 10);
+  SpreadsheetApp.getActive().toast(runLocked(true), 'Đồng bộ web', 10);
 }
 
 function batTuDong() {
@@ -64,19 +66,32 @@ function tatTuDong() {
 
 // ---------------------------------------------------------------- sync
 
+// Timed trigger: skipped (no Firestore read at all) while the sheet is unchanged
 function dongBo() {
+  return runLocked(false);
+}
+
+function runLocked(force) {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return 'Đang có một lần đồng bộ khác chạy, bỏ qua.';
   try {
-    return syncOnce();
+    return syncOnce(force);
   } finally {
     lock.releaseLock();
   }
 }
 
-function syncOnce() {
+const SHEET_HASH_KEY = 'sheetHash';
+
+function syncOnce(force) {
   const tabs = loadTabs();
   if (tabs.length === 0) throw new Error('Không tab nào có cột "Họ và tên" ở dòng tiêu đề.');
+
+  // Firestore's free plan allows 50,000 reads a day: read the cards only when the sheet changed
+  const props = PropertiesService.getScriptProperties();
+  const text = JSON.stringify(tabs.map(t => [t.name, t.values]));
+  const sheetHash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text, Utilities.Charset.UTF_8));
+  if (!force && props.getProperty(SHEET_HASH_KEY) === sheetHash) return 'Sheet không thay đổi, bỏ qua.';
 
   const remote = loadCards();
   const remoteByKey = {};
@@ -178,6 +193,8 @@ function syncOnce() {
     tab.sheet.getRange(tab.sheet.getLastRow() + 1, 1, rows.length, tab.values[0].length).setValues(rows);
     appended += rows.length;
   });
+  // Rows appended above change the sheet, so the next timed run reads once more and then settles
+  props.setProperty(SHEET_HASH_KEY, appended > 0 ? '' : sheetHash);
 
   const parts = [
     `Tab: ${tabs.map(t => t.name).join(', ')}.`,
