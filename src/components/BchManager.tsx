@@ -20,7 +20,7 @@ import { writeWorkbook } from '../utils/excel';
 export const ORGANIZATION_LABELS: Record<BchOrganization, string> = {
   DOAN_KHOA: 'Đoàn Thanh niên',
   HOI_SINH_VIEN: 'Hội Sinh viên',
-  DOI_CTV: 'Đội CTV Đoàn - Hội',
+  DOI_CTV: 'Trưởng, phó ban Đội CTV',
 };
 
 const ORGANIZATIONS = Object.keys(ORGANIZATION_LABELS) as BchOrganization[];

@@ -33,7 +33,7 @@ const COLUMNS = [
   { field: 'bio', aliases: ['gioithieu', 'mota'] },
 ];
 
-const ORGANIZATION_LABELS = { DOAN_KHOA: 'Đoàn Thanh niên', HOI_SINH_VIEN: 'Hội Sinh viên', DOI_CTV: 'Đội CTV' };
+const ORGANIZATION_LABELS = { DOAN_KHOA: 'Đoàn Thanh niên', HOI_SINH_VIEN: 'Hội Sinh viên', DOI_CTV: 'Trưởng, phó ban Đội CTV' };
 
 // ---------------------------------------------------------------- menu & triggers
 
