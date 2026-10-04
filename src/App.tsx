@@ -22,7 +22,7 @@ import {
   CircuitBoard,
   CheckCircle2
 } from 'lucide-react';
-import { Role, EventItem, NewsItem, BCHMember, FacultyStats, RegistrationRecord } from './types';
+import { Role, EventItem, NewsItem, BCHMember, RegistrationRecord } from './types';
 import { api } from './services/api';
 import { FIREBASE_ENABLED } from './services/firebaseConfig';
 import type { StaffSession } from './services/auth';
@@ -32,7 +32,6 @@ import { HeroSection } from './components/HeroSection';
 import { AboutOrgSection } from './components/AboutOrgSection';
 import { NewsFeed } from './components/NewsFeed';
 import { EventsHub } from './components/EventsHub';
-import { INITIAL_STATS } from './data/mockData';
 
 // Views that are not on the home page are split into their own chunks
 const QRCheckInScanner = lazy(() => import('./components/QRCheckInScanner').then(m => ({ default: m.QRCheckInScanner })));
@@ -109,7 +108,6 @@ export default function App() {
   };
 
   // Data States
-  const [stats, setStats] = useState<FacultyStats>(INITIAL_STATS);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [bchMembers, setBchMembers] = useState<BCHMember[]>([]);
@@ -127,13 +125,11 @@ export default function App() {
   // Fetch initial data
   const fetchData = async () => {
     try {
-      const [statsData, eventsData, newsData, bchData] = await Promise.all([
-        api.getStats().catch(() => INITIAL_STATS),
+      const [eventsData, newsData, bchData] = await Promise.all([
         api.getEvents().catch(() => []),
         api.getNews().catch(() => []),
         api.getBCH().catch(() => [])
       ]);
-      setStats(statsData);
       setEvents(eventsData);
       setNews(newsData);
       setBchMembers(bchData);
@@ -150,18 +146,10 @@ export default function App() {
 
   const handleRegisterSuccess = (record: RegistrationRecord, updatedEvent: EventItem) => {
     setEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
-    setStats(prev => ({
-      ...prev,
-      totalRegistrations: prev.totalRegistrations + 1
-    }));
     showToast(`Đăng ký thành công vé #${record.ticketCode}! Hãy lưu lại mã QR để điểm danh.`);
   };
 
   const handleCheckInSuccess = (record: RegistrationRecord) => {
-    setStats(prev => ({
-      ...prev,
-      totalCheckIns: prev.totalCheckIns + 1
-    }));
     showToast(`Đã điểm danh cho sinh viên ${record.fullName}!`);
   };
 
@@ -218,7 +206,6 @@ export default function App() {
         {activeTab === 'home' && (
           <div>
             <HeroSection
-              stats={stats}
               upcomingEvent={events.find(e => e.status === 'REGISTRATION_OPEN') || events[0]}
               onExploreEvents={() => setActiveTab('events')}
               onOpenLookup={() => setActiveTab('lookup')}
