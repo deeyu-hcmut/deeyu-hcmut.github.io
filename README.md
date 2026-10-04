@@ -57,7 +57,8 @@ Mở [Firestore → Rules](https://console.firebase.google.com/project/deeyu-hcm
 > Rules đảm bảo: ai cũng đăng ký được nhưng không thể sửa vé/điểm danh; email & SĐT sinh viên chỉ BCH xem được.
 
 ### 3. Cấp quyền BCH
-Trong [Firestore → Data](https://console.firebase.google.com/project/deeyu-hcmut/firestore/data), collection `admins`. Mỗi tài khoản là một document:
+Tài khoản `SUPER_ADMIN` cấp, đổi, thu hồi quyền ngay trên web: **Quản trị → Phân quyền Người dùng → Tài khoản BCH được cấp quyền** (không tự đổi quyền của chính mình được).
+Tài khoản Super Admin **đầu tiên** phải tạo tay trong [Firestore → Data](https://console.firebase.google.com/project/deeyu-hcmut/firestore/data), collection `admins`. Mỗi tài khoản là một document:
 - **Document ID**: email Google, ví dụ `dtn-ddt@hcmut.edu.vn`
 - **Trường** `role` (string), một trong:
 

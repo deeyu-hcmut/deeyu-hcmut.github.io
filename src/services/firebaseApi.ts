@@ -23,6 +23,7 @@ import {
   EventItem,
   MemberRecord,
   NewsItem,
+  StaffAccount,
   NotificationItem,
   RegistrationRecord,
 } from '../types';
@@ -42,8 +43,10 @@ import {
   memberIdOf,
   buildBch,
   bchKeyOf,
+  normalizeStaffEmail,
   type BchInput,
 } from './shared';
+import { STAFF_ROLES, normalizeRole } from '../utils/roles';
 
 /*
  * Firestore layout (access rules in /firestore.rules):
@@ -56,7 +59,7 @@ import {
  *   notifications/{id}                 public read; staff write
  *   emailLogs/{id}                     event staff read; any staff adds on check-in
  *   members/{mssvKey}                  student / Đoàn viên / Hội viên records; Ban QLNS-CTSV only
- *   admins/{email}                     { role } of each staff Google account
+ *   admins/{email}                     { role, updatedAt } of each staff Google account; Super Admin edits
  */
 
 type ContactInfo = { email: string; phone: string; note: string };
@@ -443,6 +446,27 @@ const rawFirebaseApi: Api = {
       message: `Đã xếp hàng email nhắc nhở 24h cho ${recipients.length} sinh viên.`,
       sentCount: recipients.length,
     };
+  },
+
+  getStaffAccounts: async () =>
+    (await getDocs(collection(db, 'admins'))).docs
+      .map(d => ({ email: d.id, role: normalizeRole(d.data().role), updatedAt: d.data().updatedAt }) as StaffAccount)
+      .sort((a, b) => a.email.localeCompare(b.email)),
+
+  setStaffRole: async (email, role) => {
+    if (!STAFF_ROLES.includes(role)) throw new Error('Vai trò không hợp lệ.');
+    const account = { role, updatedAt: new Date().toISOString() };
+    const id = normalizeStaffEmail(email);
+    const batch = writeBatch(db);
+    batch.set(doc(db, 'admins', id), account);
+    await batch.commit();
+    return { email: id, ...account };
+  },
+
+  removeStaffAccount: async email => {
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'admins', email));
+    await batch.commit();
   },
 
   getBCH: async () => (await loadBch()).map(({ order: _order, ...member }) => member),

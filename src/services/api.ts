@@ -1,4 +1,4 @@
-import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats, MemberRecord } from '../types';
+import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats, MemberRecord, Role, StaffAccount } from '../types';
 import { 
   INITIAL_EVENTS, 
   INITIAL_NEWS, 
@@ -22,6 +22,7 @@ import {
   memberIdOf,
   buildBch,
   bchKeyOf,
+  normalizeStaffEmail,
   type MemberInput,
   type BchInput
 } from './shared';
@@ -35,6 +36,7 @@ const STORAGE_KEYS = {
   EMAIL_LOGS: 'fee_portal_email_logs_v2',
   MEMBERS: 'fee_portal_members_v1',
   BCH: 'fee_portal_bch_v1',
+  ADMINS: 'fee_portal_admins_v1',
 };
 
 function getLocalData<T>(key: string, initialData: T): T {
@@ -357,6 +359,20 @@ const clientStorage = {
     };
   },
 
+  getStaffAccounts: (): StaffAccount[] =>
+    getLocalData<StaffAccount[]>(STORAGE_KEYS.ADMINS, []).sort((a, b) => a.email.localeCompare(b.email)),
+
+  setStaffRole: (email: string, role: Role): StaffAccount => {
+    const account: StaffAccount = { email: normalizeStaffEmail(email), role, updatedAt: new Date().toISOString() };
+    const others = clientStorage.getStaffAccounts().filter(a => a.email !== account.email);
+    setLocalData(STORAGE_KEYS.ADMINS, [...others, account]);
+    return account;
+  },
+
+  removeStaffAccount: (email: string): void => {
+    setLocalData(STORAGE_KEYS.ADMINS, clientStorage.getStaffAccounts().filter(a => a.email !== email));
+  },
+
   // Stored in display order
   getBCH: (): BCHMember[] => getLocalData<BCHMember[]>(STORAGE_KEYS.BCH, INITIAL_BCH),
 
@@ -555,6 +571,14 @@ const localApi = {
 
   // BCH
   getBCH: async (): Promise<BCHMember[]> => clientStorage.getBCH(),
+
+  // Staff Google accounts and their roles (Super Admin only)
+  getStaffAccounts: async (): Promise<StaffAccount[]> => clientStorage.getStaffAccounts(),
+
+  // Adds the account or changes its role
+  setStaffRole: async (email: string, role: Role): Promise<StaffAccount> => clientStorage.setStaffRole(email, role),
+
+  removeStaffAccount: async (email: string): Promise<void> => clientStorage.removeStaffAccount(email),
 
   // BCH / Đội CTV cards on the "Cơ cấu Tổ chức" page (Super Admin, Ban QLNS-CTSV)
   saveBchMember: async (input: BchInput, id?: string): Promise<BCHMember> => clientStorage.saveBchMember(input, id),

@@ -97,6 +97,13 @@ export interface BCHMember {
   department: string;
 }
 
+// admins/{email}: a Google account granted a staff role by the Super Admin
+export interface StaffAccount {
+  email: string;
+  role: Role;
+  updatedAt?: string;
+}
+
 export type MemberGender = 'NAM' | 'NU' | 'KHAC' | '';
 export type MemberStatus = 'STUDYING' | 'RESERVED' | 'GRADUATED' | 'DROPPED';
 

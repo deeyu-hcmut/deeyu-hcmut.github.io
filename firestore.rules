@@ -35,9 +35,17 @@ service cloud.firestore {
       return !exists(registrationPath(regId)) && existsAfter(registrationPath(regId));
     }
 
+    // Managed from Quản trị → Phân quyền. A Super Admin cannot change or remove their own
+    // account, so the last Super Admin can never lock everyone out.
     match /admins/{email} {
       allow get: if signedIn() && request.auth.token.email == email;
-      allow read, write: if isSuperAdmin();
+      allow read: if isSuperAdmin();
+      allow delete: if isSuperAdmin() && email != request.auth.token.email;
+      allow create, update: if isSuperAdmin()
+        && email != request.auth.token.email
+        && email == email.lower()
+        && request.resource.data.keys().hasOnly(['role', 'updatedAt'])
+        && request.resource.data.role in ['SUPER_ADMIN', 'HC_TV', 'TT_SK', 'QLNS_CTSV'];
     }
 
     // ---------- Public content ----------

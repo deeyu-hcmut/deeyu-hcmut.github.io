@@ -32,6 +32,7 @@ import { ROLE_LABELS, canManageEvents, canManageMembers } from '../utils/roles';
 
 const MemberManager = lazy(() => import('./MemberManager').then(m => ({ default: m.MemberManager })));
 const BchManager = lazy(() => import('./BchManager').then(m => ({ default: m.BchManager })));
+const StaffAccountsManager = lazy(() => import('./StaffAccountsManager').then(m => ({ default: m.StaffAccountsManager })));
 
 type AdminTab = 'REGISTRATIONS' | 'AUTOMATION' | 'BCH' | 'MEMBERS' | 'ROLES' | 'EMAIL_LOGS';
 
@@ -42,6 +43,8 @@ interface AdminDashboardProps {
   onOpenQRScanner: () => void;
   // Reloads the public BCH cards after an edit in the BCH tab
   onBchChange: () => void;
+  // Signed-in account (undefined in the demo build)
+  currentEmail?: string;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -49,7 +52,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   currentRole,
   setCurrentRole,
   onOpenQRScanner,
-  onBchChange
+  onBchChange,
+  currentEmail
 }) => {
   const eventAccess = canManageEvents(currentRole);
   const memberAccess = canManageMembers(currentRole);
@@ -592,16 +596,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* TAB 3: ROLES & PERMISSIONS (RBAC) */}
         {activeTab === 'ROLES' && (
           <div className="mt-6 space-y-6">
-            {/* How to grant roles: only the Super Admin can edit admins/{email} */}
-            {FIREBASE_ENABLED && currentRole === 'SUPER_ADMIN' && (
-              <div className="p-5 rounded-3xl border border-blue-200 dark:border-blue-400/30 bg-blue-50/60 dark:bg-blue-950/40 text-sm text-slate-700 dark:text-slate-200">
-                <p>
-                  Quyền được cấp trong Firestore: mỗi tài khoản BCH là một document <code className="font-mono text-xs">admins/&lt;email&gt;</code> với
-                  trường <code className="font-mono text-xs">role</code> là <code className="font-mono text-xs">SUPER_ADMIN</code>,{' '}
-                  <code className="font-mono text-xs">HC_TV</code>, <code className="font-mono text-xs">TT_SK</code> hoặc{' '}
-                  <code className="font-mono text-xs">QLNS_CTSV</code>. Tài khoản chưa có trong danh sách là sinh viên và không quét QR điểm danh được.
-                </p>
-              </div>
+            {/* Only the Super Admin grants roles (admins/{email}) */}
+            {currentRole === 'SUPER_ADMIN' && (
+              <Suspense fallback={<div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">Đang tải...</div>}>
+                <StaffAccountsManager currentEmail={currentEmail} />
+              </Suspense>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {rolesList.map(item => (

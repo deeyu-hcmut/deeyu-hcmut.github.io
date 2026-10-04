@@ -380,6 +380,7 @@ export default function App() {
               setCurrentRole={setCurrentRole}
               onOpenQRScanner={() => setIsQRScannerOpen(true)}
               onBchChange={() => api.getBCH().then(setBchMembers).catch(() => {})}
+              currentEmail={session?.email}
             />
           )}
         </Suspense>

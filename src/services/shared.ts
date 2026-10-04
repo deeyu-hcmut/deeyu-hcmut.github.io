@@ -154,6 +154,15 @@ export function buildMember(input: Partial<MemberInput>, previous?: MemberRecord
   };
 }
 
+// admins/{email} ids are the Google account email, which Firebase Auth reports in lower case
+export function normalizeStaffEmail(email: string): string {
+  const value = email.trim().toLowerCase();
+  if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(value) || value.length > 100) {
+    throw new Error(`Email "${email.trim()}" không hợp lệ.`);
+  }
+  return value;
+}
+
 export type BchInput = Omit<BCHMember, 'id'>;
 
 const BCH_ORGANIZATIONS: BchOrganization[] = ['DOAN_KHOA', 'HOI_SINH_VIEN', 'DOI_CTV'];
