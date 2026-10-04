@@ -364,28 +364,7 @@ const clientStorage = {
   },
 
   getEmailLogs: (): EmailDispatchLog[] => {
-    return getLocalData<EmailDispatchLog[]>(STORAGE_KEYS.EMAIL_LOGS, [
-      {
-        id: 'email-001',
-        recipientEmail: '2211001@student.university.edu.vn',
-        recipientName: 'Nguyễn Văn An',
-        subject: '[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký EE TECH DAY 2026 kèm Vé Điện Tử QR',
-        type: 'REGISTRATION_CONFIRMATION',
-        sentAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-        status: 'DELIVERED',
-        ticketCode: 'TECH-88392'
-      },
-      {
-        id: 'email-002',
-        recipientEmail: '2111054@student.university.edu.vn',
-        recipientName: 'Lê Quang Minh',
-        subject: '[Đoàn - Hội Khoa Điện - Điện tử] Nhắc nhở: Hội thảo Thiết kế Vi mạch Bán dẫn VLSI diễn ra ngày mai',
-        type: 'REMINDER_24H',
-        sentAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-        status: 'DELIVERED',
-        ticketCode: 'VLSI-44211'
-      }
-    ]);
+    return getLocalData<EmailDispatchLog[]>(STORAGE_KEYS.EMAIL_LOGS, []);
   }
 };
 

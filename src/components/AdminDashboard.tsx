@@ -123,20 +123,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  const [seeding, setSeeding] = useState(false);
-
-  const handleSeedDemoData = async () => {
-    setSeeding(true);
-    try {
-      const { seedDemoData } = await import('../services/firebaseApi');
-      setActionNotice(`${await seedDemoData()} Tải lại trang để xem dữ liệu.`);
-    } catch (err: any) {
-      setActionNotice(`Lỗi: ${err.message}`);
-    } finally {
-      setSeeding(false);
-    }
-  };
-
   const rolesList: { role: Role; title: string; desc: string; permissions: string[] }[] = [
     {
       role: 'SUPER_ADMIN',
@@ -533,15 +519,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   trường <code className="font-mono text-xs">role</code> là <code className="font-mono text-xs">SUPER_ADMIN</code>,{' '}
                   <code className="font-mono text-xs">EVENT_MANAGER</code> hoặc <code className="font-mono text-xs">EDITOR</code>.
                 </p>
-                {currentRole === 'SUPER_ADMIN' && (
-                  <button
-                    onClick={handleSeedDemoData}
-                    disabled={seeding}
-                    className="mt-3 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-xs font-bold"
-                  >
-                    {seeding ? 'Đang nạp...' : 'Nạp dữ liệu mẫu (chỉ khi database còn trống)'}
-                  </button>
-                )}
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

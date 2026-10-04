@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { RegistrationRecord, EventItem } from '../types';
 import { api } from '../services/api';
-import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 
 type CameraState = 'idle' | 'starting' | 'on' | 'error';
 
@@ -67,10 +66,7 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
     mssv: string;
     event: string;
     time: string;
-  }>>(FIREBASE_ENABLED ? [] : [
-    { name: 'Nguyễn Văn An', mssv: '2211001', event: 'EE TECH DAY 2026', time: '08:10' },
-    { name: 'Lê Quang Minh', mssv: '2111054', event: 'Hội thảo Vi mạch Bán dẫn', time: '09:05' }
-  ]);
+  }>>([]);
 
   const [cameraState, setCameraState] = useState<CameraState>('idle');
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -355,29 +351,6 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
                     </p>
                   )}
 
-                  {!FIREBASE_ENABLED && (
-                    <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                      <span className="text-[10px] text-slate-400 block w-full">Thử nhanh với vé mẫu (bản demo):</span>
-                      <button
-                        onClick={() => handleSimulateScan('TECH-88392')}
-                        className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-blue-950/90 text-blue-200 border border-blue-500/40 hover:bg-blue-900 transition-colors"
-                      >
-                        #TECH-88392
-                      </button>
-                      <button
-                        onClick={() => handleSimulateScan('TECH-91204')}
-                        className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-blue-950/90 text-blue-200 border border-blue-500/40 hover:bg-blue-900 transition-colors"
-                      >
-                        #TECH-91204
-                      </button>
-                      <button
-                        onClick={() => handleSimulateScan('2211001')}
-                        className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-slate-800 text-slate-200 border border-slate-600 hover:bg-slate-700 transition-colors"
-                      >
-                        MSSV 2211001
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
             </div>

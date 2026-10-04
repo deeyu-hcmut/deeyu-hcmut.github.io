@@ -25,7 +25,7 @@ import {
   NotificationItem,
   RegistrationRecord,
 } from '../types';
-import { INITIAL_BCH, INITIAL_EVENTS, INITIAL_NEWS } from '../data/mockData';
+
 import {
   EDITABLE_EVENT_FIELDS,
   EDITABLE_NEWS_FIELDS,
@@ -481,32 +481,3 @@ export const firebaseApi = Object.fromEntries(
   ])
 ) as Api;
 
-// One-off import of the sample events/news/BCH into an empty project (SUPER_ADMIN only).
-export async function seedDemoData(): Promise<string> {
-  const existing = await getDocs(query(collection(db, 'events'), limit(1)));
-  if (!existing.empty) {
-    return 'Cơ sở dữ liệu đã có sự kiện, bỏ qua bước nạp dữ liệu mẫu.';
-  }
-
-  const batch = writeBatch(db);
-  const now = Date.now();
-  INITIAL_EVENTS.forEach(({ id, ...event }, index) => {
-    // Participant counters start at zero: the sample registrations are not imported
-    batch.set(doc(db, 'events', id), {
-      ...event,
-      currentParticipants: 0,
-      checkedInCount: 0,
-      createdAt: new Date(now - index * 1000).toISOString(),
-    });
-  });
-  INITIAL_NEWS.forEach(({ id, ...article }) => batch.set(doc(db, 'news', id), article));
-  INITIAL_BCH.forEach(({ id, ...member }, order) => batch.set(doc(db, 'bch', id), { ...member, order }));
-
-  try {
-    await batch.commit();
-  } catch (err) {
-    throw friendlyError(err);
-  }
-  invalidate('events', 'news');
-  return `Đã nạp ${INITIAL_EVENTS.length} sự kiện, ${INITIAL_NEWS.length} bản tin và ${INITIAL_BCH.length} thành viên BCH.`;
-}
