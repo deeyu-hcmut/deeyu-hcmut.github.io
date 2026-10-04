@@ -8,12 +8,12 @@ import {
   Layers, 
   GraduationCap, 
   Mail, 
-  Phone, 
   MapPin, 
   HeartHandshake, 
   Cpu, 
   Globe, 
   Facebook, 
+  Instagram,
   Youtube, 
   Radio, 
   ArrowUp,
@@ -422,16 +422,12 @@ export default function App() {
                   className="w-24 h-24"
                 />
                 <span className="font-tech text-base font-extrabold text-white leading-tight">
-                  Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
+                  Đoàn Thanh niên - Hội sinh viên<br />khoa Điện - Điện tử
                 </span>
               </div>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
                 Cổng thông tin điện tử, quản lý phong trào sinh viên và tự động hóa điểm danh Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Khoa Điện - Điện tử (HCMUT).
               </p>
-              <div className="text-xs text-blue-400 font-semibold flex items-center space-x-1.5 pt-1">
-                <CircuitBoard className="w-4 h-4" />
-                <span>Tiên phong Chuyển đổi số & Công nghệ Vi mạch</span>
-              </div>
             </div>
 
             {/* Col 2: Quick Links */}
@@ -507,17 +503,40 @@ export default function App() {
                 Liên hệ Đoàn - Hội Khoa
               </h4>
               <div className="space-y-3 text-xs sm:text-sm text-slate-400">
-                <p className="flex items-start space-x-2.5">
+                <div className="flex items-start space-x-2.5">
                   <MapPin className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span>Văn phòng Đoàn - Hội Khoa Điện - Điện tử (Phòng B102, Nhà B)</span>
-                </p>
+                  <div className="space-y-0.5">
+                    <p>P204-B1, BK CS1</p>
+                    <p>P515-BK.B6, BK CS2</p>
+                  </div>
+                </div>
                 <p className="flex items-center space-x-2.5">
                   <Mail className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                  <span>doanhoi.fee@university.edu.vn</span>
+                  <a href="mailto:dtn-ddt@hcmut.edu.vn" className="hover:text-blue-400 transition-colors">
+                    dtn-ddt@hcmut.edu.vn
+                  </a>
                 </p>
                 <p className="flex items-center space-x-2.5">
-                  <Phone className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                  <span className="font-mono">0903 123 456 (Hotline Bí thư)</span>
+                  <Facebook className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                  <a 
+                    href="https://www.facebook.com/dee.yu.hcmut" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-blue-400 transition-colors"
+                  >
+                    dee.yu.hcmut
+                  </a>
+                </p>
+                <p className="flex items-center space-x-2.5">
+                  <Instagram className="w-4 h-4 text-pink-400 flex-shrink-0" />
+                  <a 
+                    href="https://www.instagram.com/deeyu_media25" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-pink-400 transition-colors"
+                  >
+                    deeyu_media25
+                  </a>
                 </p>
               </div>
             </div>
