@@ -50,7 +50,7 @@ Hội nghị vinh dự đón tiếp đại diện Đảng ủy - Ban Chủ nhi�
 
 Đại hội đã biểu quyết thông qua các phương hướng trọng tâm:
 1. Đẩy mạnh chuyển đổi số trong công tác Đoàn và phong trào thanh niên (Portal trực tuyến, cấp vé điện tử QR, điểm danh thời gian thực).
-2. Phát triển mạnh mẽ phong trào Sinh viên 5 Tốt và Câu lạc bộ học thuật chuyên sâu.
+2. Phát triển mạnh mẽ phong trào Sinh viên 5 Tốt và các hoạt động học thuật chuyên sâu.
 3. Đồng hành cùng sinh viên trong nghiên cứu khoa học, khởi nghiệp sáng tạo và việc làm công nghệ cao.`,
     category: 'HOAT_DONG_KHOA',
     categoryName: 'Hoạt động Đoàn - Hội',
@@ -148,7 +148,7 @@ export const INITIAL_EVENTS: EventItem[] = [
     maxParticipants: 500,
     currentParticipants: 382,
     bannerUrl: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
-    organizer: 'Đoàn - Hội Khoa Điện - Điện tử & CLB Robofee',
+    organizer: 'Đoàn - Hội Khoa Điện - Điện tử',
     contactEmail: 'doanhoi.fee@university.edu.vn',
     requirements: ['Mang theo thẻ sinh viên', 'Trang phục lịch sự / Áo Đoàn', 'Xuất trình vé QR khi check-in'],
     isMandatoryCheckIn: true,
@@ -214,7 +214,7 @@ export const INITIAL_EVENTS: EventItem[] = [
     title: 'Workshop Thực hành: Xây dựng Hệ thống IoT Giám sát Điện năng với ESP32 & Cloud MQTT',
     slug: 'workshop-thuc-hanh-iot-giam-sat-dien-nang-2026',
     description: 'Khóa học thực chiến 1 ngày cung cấp board mạch mẫu, hướng dẫn lập trình firmware và kết nối dashboard thời gian thực.',
-    content: `Khóa huấn luyện do CLB IoT & AIoT Khoa Điện - Điện tử trực tiếp giảng dạy.
+    content: `Khóa huấn luyện do Đoàn - Hội Khoa Điện - Điện tử tổ chức.
 Mỗi học viên được cấp kit thực hành cảm biến dòng PZEM-004T + Vi điều khiển ESP32 NodeMCU.`,
     type: 'SEMINAR_WORKSHOP',
     typeName: 'Workshop Thực hành',
@@ -227,7 +227,7 @@ Mỗi học viên được cấp kit thực hành cảm biến dòng PZEM-004T +
     maxParticipants: 50,
     currentParticipants: 50,
     bannerUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
-    organizer: 'CLB Học thuật IoT & AIoT Hub',
+    organizer: 'Đoàn - Hội Khoa Điện - Điện tử',
     contactEmail: 'iot.fee@university.edu.vn',
     requirements: ['Đã học môn Kỹ thuật Lập trình C/C++', 'Tự trang bị laptop cá nhân'],
     isMandatoryCheckIn: true,
@@ -278,7 +278,7 @@ export const INITIAL_BCH: BCHMember[] = [
     phone: '0912 345 678',
     classGroup: 'D22_DKTD01',
     avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
-    bio: 'Sinh viên 5 Tốt cấp Thành phố, Giải Nhì NCKH Sinh viên cấp Trường. Trực tiếp phụ trách Ban Học thuật và CLB Robofee.',
+    bio: 'Sinh viên 5 Tốt cấp Thành phố, Giải Nhì NCKH Sinh viên cấp Trường. Trực tiếp phụ trách Ban Học thuật.',
     department: 'Ban Học thuật & Nghiên cứu Khoa học',
   },
   {
@@ -308,26 +308,26 @@ export const INITIAL_BCH: BCHMember[] = [
   {
     id: 'bch-5',
     name: 'Đ/c Vũ Hải Đăng',
-    position: 'Chủ nhiệm CLB Robofee & Hệ thống Nhúng',
-    organization: 'CLB_TRUC_THUOC',
+    position: 'Đội trưởng Đội Cộng tác viên',
+    organization: 'DOI_CTV',
     email: 'dang.vh@robofee.org',
     phone: '0966 998 877',
     classGroup: 'D22_DKTD03',
     avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
     bio: 'Đội trưởng Đội tuyển Robocon Trường, Huy chương Vàng Thiết kế Robot tự hành cấp Khu vực 2025.',
-    department: 'CLB Học thuật Robofee',
+    department: 'Đội Cộng tác viên Khoa Điện - Điện tử',
   },
   {
     id: 'bch-6',
     name: 'Đ/c Mai Phương Thảo',
-    position: 'Đội trưởng Đội Công tác Xã hội & Tình nguyện',
-    organization: 'CLB_TRUC_THUOC',
+    position: 'Đội phó Đội Cộng tác viên',
+    organization: 'DOI_CTV',
     email: 'thao.mp@ctxh.fee.edu.vn',
     phone: '0933 445 566',
     classGroup: 'D23_Y_SINH01',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     bio: 'Gương thanh niên tình nguyện tiêu biểu, phụ trách mạng lưới hiến máu tình nguyện và dự án Nắng Ấm Biên Cương.',
-    department: 'Đội Tình nguyện Xanh FEE',
+    department: 'Đội Cộng tác viên Khoa Điện - Điện tử',
   }
 ];
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cpu, Mail, Phone, CircuitBoard } from 'lucide-react';
+import { Mail, Phone, CircuitBoard } from 'lucide-react';
 import { BCHMember } from '../types';
 import { sizedImage } from '../utils/image';
 
@@ -8,7 +8,7 @@ interface AboutOrgSectionProps {
 }
 
 export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) => {
-  const [selectedOrgFilter, setSelectedOrgFilter] = useState<'ALL' | 'DOAN_KHOA' | 'HOI_SINH_VIEN' | 'CLB_TRUC_THUOC'>('ALL');
+  const [selectedOrgFilter, setSelectedOrgFilter] = useState<'ALL' | 'DOAN_KHOA' | 'HOI_SINH_VIEN' | 'DOI_CTV'>('ALL');
 
   const filteredMembers = bchMembers.filter(m => 
     selectedOrgFilter === 'ALL' || m.organization === selectedOrgFilter
@@ -37,7 +37,7 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <div>
               <h3 className="font-tech text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
-                BAN CHẤP HÀNH & BAN ĐIỀU HÀNH CÁC CLB
+                BAN CHẤP HÀNH & ĐỘI CỘNG TÁC VIÊN
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Đội ngũ cán bộ Đoàn - Hội nòng cốt phụ trách các mảng công tác</p>
             </div>
@@ -75,14 +75,14 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
                 Hội Sinh viên
               </button>
               <button
-                onClick={() => setSelectedOrgFilter('CLB_TRUC_THUOC')}
+                onClick={() => setSelectedOrgFilter('DOI_CTV')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  selectedOrgFilter === 'CLB_TRUC_THUOC'
+                  selectedOrgFilter === 'DOI_CTV'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300'
                 }`}
               >
-                CLB / Đội / Nhóm
+                Đội Cộng tác viên
               </button>
             </div>
           </div>
@@ -149,28 +149,6 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* CLB Trực thuộc Spotlight */}
-          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-blue-50 dark:from-blue-950/40 via-indigo-50 dark:via-indigo-950/40 to-blue-50 dark:to-blue-950/40 border border-blue-200 dark:border-blue-400/30 shadow-sm">
-            <h4 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center space-x-2">
-              <Cpu className="w-5 h-5 text-blue-600 dark:text-blue-300" />
-              <span>Hệ sinh thái Câu lạc bộ Học thuật & Kỹ năng Trực thuộc FEE</span>
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
-                <div className="font-bold text-blue-700 dark:text-blue-300 text-sm mb-1">CLB Robofee & Hệ thống Nhúng</div>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">Đào tạo lập trình vi điều khiển, thiết kế PCB, tham gia Robocon, Cuộc thi xe tự hành.</p>
-              </div>
-              <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
-                <div className="font-bold text-orange-600 dark:text-orange-300 text-sm mb-1">CLB IoT & AIoT Hub</div>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">Nghiên cứu ứng dụng cảm biến thông minh, hệ thống Smart City, điện toán biên và TinyML.</p>
-              </div>
-              <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
-                <div className="font-bold text-emerald-700 dark:text-emerald-300 text-sm mb-1">Đội Tình nguyện Xanh & Chuyên Điện</div>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">Thực hiện công trình sửa chữa điện, đèn chiếu sáng mặt trời, tổ chức lớp học STEM thiếu nhi.</p>
-              </div>
-            </div>
           </div>
 
         </div>

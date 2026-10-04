@@ -84,7 +84,7 @@ export interface BCHMember {
   id: string;
   name: string;
   position: string;
-  organization: 'DOAN_KHOA' | 'HOI_SINH_VIEN' | 'CLB_TRUC_THUOC';
+  organization: 'DOAN_KHOA' | 'HOI_SINH_VIEN' | 'DOI_CTV';
   email: string;
   phone: string;
   classGroup: string;

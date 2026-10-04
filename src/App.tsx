@@ -449,17 +449,14 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Col 3: CLB Trực thuộc */}
+            {/* Col 3: Đội Cộng tác viên */}
             <div>
               <h4 className="font-tech text-xs font-bold uppercase tracking-wider text-white mb-4">
-                Hệ sinh thái CLB FEE
+                Đội Cộng tác viên
               </h4>
-              <ul className="space-y-3 text-xs sm:text-sm text-slate-400">
-                <li className="text-slate-300 font-medium hover:text-white transition-colors">• CLB Robofee & Hệ thống Nhúng</li>
-                <li className="text-slate-300 font-medium hover:text-white transition-colors">• CLB IoT & AIoT Hub</li>
-                <li className="text-slate-300 font-medium hover:text-white transition-colors">• Đội Tình nguyện Xanh & Chuyên Điện</li>
-                <li className="text-slate-300 font-medium hover:text-white transition-colors">• Ban Truyền thông FEE Media Production</li>
-              </ul>
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                Đội Cộng tác viên Khoa Điện - Điện tử đồng hành cùng Đoàn - Hội tổ chức sự kiện, truyền thông và hỗ trợ sinh viên.
+              </p>
             </div>
 
             {/* Col 4: Contact */}
