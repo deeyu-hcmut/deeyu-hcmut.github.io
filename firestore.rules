@@ -187,13 +187,39 @@ service cloud.firestore {
     match /members/{memberId} {
       allow read, delete: if canManageMembers();
       allow create, update: if canManageMembers() && isValidMember(memberId);
+
+      // First sign-in with an @hcmut.edu.vn account: the student may read a record that is not
+      // linked yet (to check MSSV + name) or is linked to them, and fill in their own details.
+      allow get: if isHcmutUser() && linkableBy(resource.data);
+      allow list: if isHcmutUser() && resource.data.accountEmail == request.auth.token.email;
+      allow update: if isHcmutUser() && linkableBy(resource.data) && isOwnProfileUpdate(memberId);
+    }
+
+    function isHcmutUser() {
+      return signedIn() && request.auth.token.email.matches('.*@hcmut[.]edu[.]vn$');
+    }
+
+    function linkableBy(member) {
+      return member.get('accountEmail', '') == '' || member.accountEmail == request.auth.token.email;
+    }
+
+    function isOwnProfileUpdate(memberId) {
+      let after = request.resource.data;
+      return after.diff(resource.data).affectedKeys().hasOnly(['gender', 'dateOfBirth', 'classGroup', 'email', 'phone',
+                                                               'isUnionMember', 'unionJoinDate', 'isAssociationMember',
+                                                               'accountEmail', 'profileCompletedAt', 'updatedAt'])
+        && after.accountEmail == request.auth.token.email
+        && after.phone is string && after.phone.size() <= 20
+        && after.email is string && after.email.size() <= 100
+        && after.classGroup is string && after.classGroup.size() <= 50
+        && isValidMember(memberId);
     }
 
     function isValidMember(memberId) {
       let m = request.resource.data;
       return m.keys().hasOnly(['mssv', 'fullName', 'gender', 'dateOfBirth', 'cohort', 'classGroup', 'email', 'phone',
-                               'isUnionMember', 'unionJoinDate', 'unionCardNumber', 'isAssociationMember',
-                               'status', 'note', 'updatedAt'])
+                               'isUnionMember', 'unionJoinDate', 'isAssociationMember',
+                               'status', 'note', 'updatedAt', 'accountEmail', 'profileCompletedAt'])
         && memberId.matches('^[a-z0-9]{1,20}$')
         && m.mssv is string && m.mssv.lower() == memberId
         && m.fullName is string && m.fullName.size() > 0 && m.fullName.size() <= 100

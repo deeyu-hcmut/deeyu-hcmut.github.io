@@ -120,12 +120,21 @@ export interface MemberRecord {
   phone: string;
   isUnionMember: boolean; // Đoàn viên
   unionJoinDate: string; // YYYY-MM-DD or ''
-  unionCardNumber: string;
   isAssociationMember: boolean; // Hội viên
   status: MemberStatus;
   note: string;
   updatedAt: string;
+  // @hcmut.edu.vn Google account the student linked on first sign-in ('' = not linked yet)
+  accountEmail: string;
+  // When the student finished the first sign-in profile form ('' = not yet)
+  profileCompletedAt: string;
 }
+
+// Fields a student fills in (or corrects) on their first sign-in
+export type StudentProfilePatch = Pick<
+  MemberRecord,
+  'gender' | 'dateOfBirth' | 'classGroup' | 'email' | 'phone' | 'isUnionMember' | 'unionJoinDate' | 'isAssociationMember'
+>;
 
 export interface NotificationItem {
   id: string;

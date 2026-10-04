@@ -1,4 +1,4 @@
-import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats, MemberRecord, Role, StaffAccount } from '../types';
+import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats, MemberRecord, Role, StaffAccount, StudentProfilePatch } from '../types';
 import { 
   INITIAL_EVENTS, 
   INITIAL_NEWS, 
@@ -23,6 +23,7 @@ import {
   buildBch,
   bchKeyOf,
   normalizeStaffEmail,
+  buildStudentProfile,
   type MemberInput,
   type BchInput
 } from './shared';
@@ -428,9 +429,9 @@ const clientStorage = {
   getMembers: (): MemberRecord[] =>
     getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).sort((a, b) => a.mssv.localeCompare(b.mssv)),
 
-  saveMember: (input: MemberInput, previousId?: string): MemberRecord => {
+  saveMember: (input: MemberInput, previousId?: string, unlinkAccount?: boolean): MemberRecord => {
     const members = getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []);
-    const member = buildMember(input);
+    const member = buildMember(input, members.find(m => m.id === previousId), unlinkAccount);
     if (member.id !== previousId && members.some(m => m.id === member.id)) {
       throw new Error(`MSSV ${member.mssv} đã có trong danh sách.`);
     }
@@ -454,6 +455,26 @@ const clientStorage = {
     });
     setLocalData(STORAGE_KEYS.MEMBERS, [...byId.values()]);
     return { created, updated: rows.length - created };
+  },
+
+  // The demo has no sign-in, so these only serve the type; the first sign-in form needs Firebase
+  getMyMemberProfile: (accountEmail: string): MemberRecord | null =>
+    getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).find(m => m.accountEmail === accountEmail.toLowerCase()) ?? null,
+
+  findMemberForLink: (mssv: string, _fullName: string, _accountEmail: string): MemberRecord => {
+    const member = getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).find(m => m.id === memberIdOf(mssv));
+    if (!member) throw new Error('MSSV này chưa có trong danh sách sinh viên của khoa.');
+    return member;
+  },
+
+  saveMyProfile: (memberId: string, patch: StudentProfilePatch, accountEmail: string): void => {
+    const now = new Date().toISOString();
+    const members = getLocalData<MemberRecord[]>(STORAGE_KEYS.MEMBERS, []).map(m =>
+      m.id === memberId
+        ? { ...m, ...buildStudentProfile(patch), accountEmail: accountEmail.toLowerCase(), profileCompletedAt: now, updatedAt: now }
+        : m
+    );
+    setLocalData(STORAGE_KEYS.MEMBERS, members);
   }
 };
 
@@ -608,15 +629,30 @@ const localApi = {
   // Student / Đoàn viên / Hội viên records (Ban QLNS-CTSV); the demo keeps them in this browser only
   getMembers: async (): Promise<MemberRecord[]> => clientStorage.getMembers(),
 
-  // previousId: the record being edited (its MSSV may change), undefined when adding
-  saveMember: async (input: MemberInput, previousId?: string): Promise<MemberRecord> =>
-    clientStorage.saveMember(input, previousId),
+  // previousId: the record being edited (its MSSV may change), undefined when adding.
+  // The student's account link is kept unless unlinkAccount is set.
+  saveMember: async (input: MemberInput, previousId?: string, unlinkAccount?: boolean): Promise<MemberRecord> =>
+    clientStorage.saveMember(input, previousId, unlinkAccount),
 
   deleteMember: async (memberId: string): Promise<void> => clientStorage.deleteMember(memberId),
 
   // Upsert by MSSV; cells left out of a row keep the stored value
   importMembers: async (rows: Partial<MemberInput>[]): Promise<{ created: number; updated: number }> =>
-    clientStorage.importMembers(rows)
+    clientStorage.importMembers(rows),
+
+  // ---------- First sign-in of a student with an @hcmut.edu.vn account ----------
+
+  // The record linked to this account, or null when the student has not linked one yet
+  getMyMemberProfile: async (accountEmail: string): Promise<MemberRecord | null> =>
+    clientStorage.getMyMemberProfile(accountEmail),
+
+  // Checks MSSV + full name against the list before the student may claim the record
+  findMemberForLink: async (mssv: string, fullName: string, accountEmail: string): Promise<MemberRecord> =>
+    clientStorage.findMemberForLink(mssv, fullName, accountEmail),
+
+  // Links the account and stores what the student filled in
+  saveMyProfile: async (memberId: string, patch: StudentProfilePatch, accountEmail: string): Promise<void> =>
+    clientStorage.saveMyProfile(memberId, patch, accountEmail)
 };
 
 export type Api = typeof localApi;

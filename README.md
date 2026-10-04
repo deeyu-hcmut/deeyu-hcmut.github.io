@@ -69,6 +69,11 @@ Tài khoản Super Admin **đầu tiên** phải tạo tay trong [Firestore → 
 | `TT_SK` | Ban TT-SK | Như HC-TV, thêm đăng/sửa/xoá tin tức |
 | `QLNS_CTSV` | Ban QLNS-CTSV | BCH & Đội CTV trên trang Cơ cấu Tổ chức (collection `bch`), danh sách sinh viên, đoàn viên, hội viên (collection `members`) |
 
+Danh sách sinh viên chỉ cần nhập MSSV, Họ và tên, Khóa. Khi sinh viên đăng nhập lần đầu bằng tài khoản **@hcmut.edu.vn**,
+web hỏi MSSV + họ tên (phải khớp danh sách), liên kết tài khoản với hồ sơ đó rồi cho sinh viên tự điền phần còn thiếu
+(giới tính, ngày sinh, lớp, SĐT, Đoàn viên, ngày vào Đoàn, Hội viên). Mỗi MSSV chỉ liên kết được một tài khoản;
+Ban QLNS-CTSV gỡ liên kết trong form Sửa nếu có nhầm lẫn.
+
 Mọi vai trò trên đều quét QR điểm danh được. Tài khoản không có trong `admins` là sinh viên: không thấy nút quét QR.
 Giá trị cũ `EVENT_MANAGER` / `EDITOR` vẫn được hiểu là `HC_TV` / `TT_SK`.
 

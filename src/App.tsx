@@ -22,11 +22,12 @@ import {
   CircuitBoard,
   CheckCircle2
 } from 'lucide-react';
-import { Role, EventItem, NewsItem, BCHMember, RegistrationRecord } from './types';
+import { Role, EventItem, NewsItem, BCHMember, RegistrationRecord, MemberRecord } from './types';
 import { api } from './services/api';
 import { FIREBASE_ENABLED } from './services/firebaseConfig';
 import type { StaffSession } from './services/auth';
 import { canCheckIn } from './utils/roles';
+import { isHcmutEmail } from './services/shared';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { HeroSection } from './components/HeroSection';
@@ -38,6 +39,18 @@ import { EventsHub } from './components/EventsHub';
 const QRCheckInScanner = lazy(() => import('./components/QRCheckInScanner').then(m => ({ default: m.QRCheckInScanner })));
 const StudentPortalLookup = lazy(() => import('./components/StudentPortalLookup').then(m => ({ default: m.StudentPortalLookup })));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const StudentProfileModal = lazy(() => import('./components/StudentProfileModal').then(m => ({ default: m.StudentProfileModal })));
+
+// "Để sau" on the first sign-in form lasts until the browser tab is closed
+const PROFILE_LATER_KEY = 'fee_portal_profile_later';
+
+function profileDeferred(email: string): boolean {
+  try {
+    return sessionStorage.getItem(PROFILE_LATER_KEY) === email;
+  } catch {
+    return false;
+  }
+}
 
 // Tabs are mirrored in the URL hash (#/events, #/news, ...) so they survive a reload,
 // can be shared as links and work with the browser Back button on GitHub Pages.
@@ -92,6 +105,39 @@ export default function App() {
       unsubscribe?.();
     };
   }, []);
+
+  // Students signing in with @hcmut.edu.vn link their record and fill in missing details once
+  const [myProfile, setMyProfile] = useState<MemberRecord | null>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const hcmutEmail = FIREBASE_ENABLED && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
+
+  useEffect(() => {
+    setMyProfile(null);
+    setProfileModalOpen(false);
+    if (!hcmutEmail) return;
+    let cancelled = false;
+    api.getMyMemberProfile(hcmutEmail)
+      .then(record => {
+        if (cancelled) return;
+        setMyProfile(record);
+        if (!record?.profileCompletedAt && !profileDeferred(hcmutEmail)) setProfileModalOpen(true);
+      })
+      .catch(err => console.error('Failed to load student profile', err));
+    return () => {
+      cancelled = true;
+    };
+  }, [hcmutEmail]);
+
+  const closeProfileModal = () => {
+    setProfileModalOpen(false);
+    if (hcmutEmail && !myProfile?.profileCompletedAt) {
+      try {
+        sessionStorage.setItem(PROFILE_LATER_KEY, hcmutEmail);
+      } catch {
+        // ignore
+      }
+    }
+  };
 
   const handleSignIn = async () => {
     try {
@@ -232,7 +278,21 @@ export default function App() {
         onSignOut={handleSignOut}
         onOpenQRScanner={openQRScanner}
         onOpenStudentLookup={() => setActiveTab('lookup')}
+        onOpenProfile={hcmutEmail ? () => setProfileModalOpen(true) : undefined}
       />
+
+      {profileModalOpen && hcmutEmail && (
+        <Suspense fallback={null}>
+          <StudentProfileModal
+            key={myProfile?.id ?? 'unlinked'}
+            accountEmail={hcmutEmail}
+            displayName={session?.displayName ?? null}
+            linked={myProfile}
+            onSaved={record => setMyProfile(record)}
+            onLater={closeProfileModal}
+          />
+        </Suspense>
+      )}
 
       {/* Active Tab View Rendering */}
       <main className="flex-1">

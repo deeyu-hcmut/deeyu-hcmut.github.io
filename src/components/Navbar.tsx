@@ -43,6 +43,8 @@ interface NavbarProps {
   // Undefined hides the button: only staff may run the check-in station
   onOpenQRScanner?: () => void;
   onOpenStudentLookup: () => void;
+  // Set for @hcmut.edu.vn accounts: opens the student profile form
+  onOpenProfile?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -54,7 +56,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSignIn,
   onSignOut,
   onOpenQRScanner,
-  onOpenStudentLookup
+  onOpenStudentLookup,
+  onOpenProfile
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -236,7 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 id="header-sign-in"
                 onClick={onSignIn}
                 className="flex items-center space-x-2 p-2 sm:px-4 sm:py-2.5 rounded-xl text-sm font-bold whitespace-nowrap bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-                title="Đăng nhập dành cho Ban Chấp hành"
+                title="Đăng nhập bằng tài khoản Google (sinh viên dùng email @hcmut.edu.vn)"
               >
                 <LogIn className="w-4 h-4" />
                 <span className="hidden sm:inline">Đăng nhập</span>
@@ -272,6 +275,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                             {currentRole === 'STUDENT' ? 'Chưa được cấp quyền BCH' : ROLE_LABELS[currentRole]}
                           </p>
                         </div>
+                        {onOpenProfile && (
+                          <button
+                            onClick={() => {
+                              setShowAccount(false);
+                              onOpenProfile();
+                            }}
+                            className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          >
+                            <GraduationCap className="w-4 h-4" />
+                            <span>Hồ sơ sinh viên</span>
+                          </button>
+                        )}
                         <button
                           onClick={() => {
                             setShowAccount(false);

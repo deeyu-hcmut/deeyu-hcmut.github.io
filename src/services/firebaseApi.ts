@@ -44,8 +44,10 @@ import {
   buildBch,
   bchKeyOf,
   normalizeStaffEmail,
+  buildStudentProfile,
   type BchInput,
 } from './shared';
+import { normalizeKey } from '../utils/excel';
 import { STAFF_ROLES, normalizeRole } from '../utils/roles';
 
 /*
@@ -58,7 +60,8 @@ import { STAFF_ROLES, normalizeRole } from '../utils/roles';
  *   students/{mssvKey}                 { eventIds } index for the public MSSV lookup
  *   notifications/{id}                 public read; staff write
  *   emailLogs/{id}                     event staff read; any staff adds on check-in
- *   members/{mssvKey}                  student / Đoàn viên / Hội viên records; Ban QLNS-CTSV only
+ *   members/{mssvKey}                  student / Đoàn viên / Hội viên records; Ban QLNS-CTSV, plus the
+ *                                      student's own record once linked to their @hcmut.edu.vn account
  *   admins/{email}                     { role, updatedAt } of each staff Google account; Super Admin edits
  */
 
@@ -549,10 +552,12 @@ const rawFirebaseApi: Api = {
     ),
 
   getMembers: async () =>
-    (await getDocs(query(collection(db, 'members'), orderBy('mssv')))).docs.map(d => withId<MemberRecord>(d)),
+    (await getDocs(query(collection(db, 'members'), orderBy('mssv')))).docs.map(toMember),
 
-  saveMember: async (input, previousId) => {
-    const { id, ...member } = buildMember(input);
+  saveMember: async (input, previousId, unlinkAccount) => {
+    const previousSnap = previousId ? await getDoc(doc(db, 'members', previousId)) : null;
+    const previous = previousSnap?.exists() ? toMember(previousSnap) : undefined;
+    const { id, ...member } = buildMember(input, previous, unlinkAccount);
     if (id !== previousId && (await getDoc(doc(db, 'members', id))).exists()) {
       throw new Error(`MSSV ${member.mssv} đã có trong danh sách.`);
     }
@@ -570,9 +575,7 @@ const rawFirebaseApi: Api = {
   },
 
   importMembers: async rows => {
-    const existing = new Map(
-      (await getDocs(collection(db, 'members'))).docs.map(d => [d.id, withId<MemberRecord>(d)])
-    );
+    const existing = new Map((await getDocs(collection(db, 'members'))).docs.map(d => [d.id, toMember(d)]));
     const merged = new Map<string, MemberRecord>();
     let created = 0;
     rows.forEach(row => {
@@ -590,7 +593,56 @@ const rawFirebaseApi: Api = {
     }
     return { created, updated: rows.length - created };
   },
+
+  getMyMemberProfile: async accountEmail => {
+    const snap = await getDocs(
+      query(collection(db, 'members'), where('accountEmail', '==', accountEmail.toLowerCase()), limit(1))
+    );
+    return snap.empty ? null : toMember(snap.docs[0]);
+  },
+
+  findMemberForLink: async (mssv, fullName, accountEmail) => {
+    const id = memberIdOf(mssv);
+    if (!/^[a-z0-9]{1,20}$/.test(id)) throw new Error('MSSV chỉ gồm chữ và số.');
+    let snap: DocumentSnapshot;
+    try {
+      snap = await getDoc(doc(db, 'members', id));
+    } catch (err) {
+      // firestore.rules hide records already linked to another account
+      if ((err as { code?: string }).code === 'permission-denied') throw new Error(LINKED_ELSEWHERE);
+      throw err;
+    }
+    if (!snap.exists()) throw new Error(NOT_IN_LIST);
+    const member = toMember(snap);
+    if (member.accountEmail && member.accountEmail !== accountEmail.toLowerCase()) throw new Error(LINKED_ELSEWHERE);
+    if (normalizeKey(member.fullName) !== normalizeKey(fullName)) {
+      throw new Error('Họ tên không khớp với MSSV trong danh sách. Kiểm tra lại (có dấu, đầy đủ họ và tên).');
+    }
+    return member;
+  },
+
+  saveMyProfile: async (memberId, patch, accountEmail) => {
+    const now = new Date().toISOString();
+    const changes = {
+      ...buildStudentProfile(patch),
+      accountEmail: accountEmail.toLowerCase(),
+      profileCompletedAt: now,
+      updatedAt: now,
+    };
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'members', memberId), changes);
+    await batch.commit();
+  },
 };
+
+const NOT_IN_LIST = 'MSSV này chưa có trong danh sách sinh viên của khoa. Liên hệ Ban QLNS-CTSV để được bổ sung.';
+const LINKED_ELSEWHERE =
+  'MSSV này đã được liên kết với một tài khoản khác. Nếu đó không phải bạn, liên hệ Ban QLNS-CTSV để được hỗ trợ.';
+
+// Records imported before the account link existed have no link fields
+function toMember(snap: DocumentSnapshot | QueryDocumentSnapshot): MemberRecord {
+  return { accountEmail: '', profileCompletedAt: '', ...withId<MemberRecord>(snap) };
+}
 
 function friendlyError(err: unknown): Error {
   const code = (err as { code?: string } | null)?.code;

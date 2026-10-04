@@ -34,7 +34,7 @@ const GENDER_LABELS: Record<Exclude<MemberGender, ''>, string> = {
   KHAC: 'Khác',
 };
 
-type TypeFilter = 'ALL' | 'UNION' | 'NOT_UNION' | 'ASSOCIATION' | 'NOT_ASSOCIATION';
+type TypeFilter = 'ALL' | 'UNION' | 'NOT_UNION' | 'ASSOCIATION' | 'NOT_ASSOCIATION' | 'PROFILE_DONE' | 'PROFILE_MISSING';
 
 // Big lists stay responsive: search narrows what is rendered
 const MAX_ROWS = 300;
@@ -50,7 +50,6 @@ const EMPTY_FORM: MemberInput = {
   phone: '',
   isUnionMember: false,
   unionJoinDate: '',
-  unionCardNumber: '',
   isAssociationMember: false,
   status: 'STUDYING',
   note: '',
@@ -69,7 +68,6 @@ const COLUMNS: { field: keyof MemberInput; header: string; aliases: string[] }[]
   { field: 'phone', header: 'Số điện thoại', aliases: ['sodienthoai', 'sdt', 'dienthoai'] },
   { field: 'isUnionMember', header: 'Đoàn viên', aliases: ['doanvien'] },
   { field: 'unionJoinDate', header: 'Ngày vào Đoàn', aliases: ['ngayvaodoan'] },
-  { field: 'unionCardNumber', header: 'Số thẻ đoàn viên', aliases: ['sothedoanvien', 'sothedoan'] },
   { field: 'isAssociationMember', header: 'Hội viên', aliases: ['hoivien'] },
   { field: 'status', header: 'Trạng thái', aliases: ['trangthai'] },
   { field: 'note', header: 'Ghi chú', aliases: ['ghichu'] },
@@ -159,7 +157,6 @@ function toSheetRow(m: MemberRecord): Record<string, string> {
     'Số điện thoại': m.phone,
     'Đoàn viên': m.isUnionMember ? 'x' : '',
     'Ngày vào Đoàn': displayDate(m.unionJoinDate),
-    'Số thẻ đoàn viên': m.unionCardNumber,
     'Hội viên': m.isAssociationMember ? 'x' : '',
     'Trạng thái': STATUS_LABELS[m.status],
     'Ghi chú': m.note,
@@ -185,6 +182,8 @@ export const MemberManager: React.FC = () => {
   const [form, setForm] = useState<MemberInput>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<MemberRecord | null>(null);
+  const [unlinkRequested, setUnlinkRequested] = useState(false);
 
   const [deleting, setDeleting] = useState<MemberRecord | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
@@ -214,9 +213,11 @@ export const MemberManager: React.FC = () => {
       if (typeFilter === 'NOT_UNION' && m.isUnionMember) return false;
       if (typeFilter === 'ASSOCIATION' && !m.isAssociationMember) return false;
       if (typeFilter === 'NOT_ASSOCIATION' && m.isAssociationMember) return false;
+      if (typeFilter === 'PROFILE_DONE' && !m.profileCompletedAt) return false;
+      if (typeFilter === 'PROFILE_MISSING' && m.profileCompletedAt) return false;
       if (statusFilter !== 'ALL' && m.status !== statusFilter) return false;
       if (!q) return true;
-      return [m.mssv, m.fullName, m.classGroup, m.cohort, m.email, m.phone, m.unionCardNumber]
+      return [m.mssv, m.fullName, m.classGroup, m.cohort, m.email, m.phone, m.accountEmail || '']
         .some(v => v.toLowerCase().includes(q));
     });
   }, [members, search, typeFilter, statusFilter]);
@@ -225,7 +226,7 @@ export const MemberManager: React.FC = () => {
     total: members.length,
     union: members.filter(m => m.isUnionMember).length,
     association: members.filter(m => m.isAssociationMember).length,
-    studying: members.filter(m => m.status === 'STUDYING').length,
+    profileDone: members.filter(m => m.profileCompletedAt).length,
   }), [members]);
 
   const showNotice = (kind: 'success' | 'error', text: string) => {
@@ -235,13 +236,15 @@ export const MemberManager: React.FC = () => {
 
   const openForm = (member?: MemberRecord) => {
     if (member) {
-      const { id: _id, updatedAt: _updatedAt, ...input } = member;
-      setForm(input);
+      const { id: _id, updatedAt: _updatedAt, accountEmail: _accountEmail, profileCompletedAt: _done, ...input } = member;
+      setForm({ ...EMPTY_FORM, ...input });
       setEditingId(member.id);
     } else {
       setForm(EMPTY_FORM);
       setEditingId(null);
     }
+    setEditingRecord(member ?? null);
+    setUnlinkRequested(false);
     setFormError(null);
   };
 
@@ -257,7 +260,7 @@ export const MemberManager: React.FC = () => {
     setSaving(true);
     setFormError(null);
     try {
-      const saved = await api.saveMember(form, editingId ?? undefined);
+      const saved = await api.saveMember(form, editingId ?? undefined, unlinkRequested);
       setMembers(prev =>
         [saved, ...prev.filter(m => m.id !== saved.id && m.id !== editingId)].sort((a, b) => a.mssv.localeCompare(b.mssv))
       );
@@ -340,7 +343,7 @@ export const MemberManager: React.FC = () => {
     { label: 'Tổng sinh viên', value: stats.total, icon: Users, tone: 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/40' },
     { label: 'Đoàn viên', value: stats.union, icon: BadgeCheck, tone: 'text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/40' },
     { label: 'Hội viên', value: stats.association, icon: CheckCircle2, tone: 'text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/40' },
-    { label: 'Đang học', value: stats.studying, icon: GraduationCap, tone: 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40' },
+    { label: 'Đã bổ sung hồ sơ', value: stats.profileDone, icon: GraduationCap, tone: 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40' },
   ];
 
   return (
@@ -400,6 +403,8 @@ export const MemberManager: React.FC = () => {
             <option value="NOT_UNION">Chưa là đoàn viên</option>
             <option value="ASSOCIATION">Là hội viên</option>
             <option value="NOT_ASSOCIATION">Chưa là hội viên</option>
+            <option value="PROFILE_DONE">Đã tự bổ sung hồ sơ</option>
+            <option value="PROFILE_MISSING">Chưa bổ sung hồ sơ</option>
           </select>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as MemberStatus | 'ALL')} className={`${inputClass} sm:w-40`}>
             <option value="ALL">Mọi trạng thái</option>
@@ -447,7 +452,8 @@ export const MemberManager: React.FC = () => {
 
       <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-3">
         Nhập Excel: mỗi dòng một sinh viên, khớp theo MSSV (đã có thì cập nhật, chưa có thì thêm mới). Ô để trống giữ nguyên dữ liệu cũ.
-        Cột Đoàn viên / Hội viên ghi "x" hoặc "Có"; ngày theo dạng dd/mm/yyyy.
+        Cột Đoàn viên / Hội viên ghi "x" hoặc "Có"; ngày theo dạng dd/mm/yyyy. Chỉ cần MSSV + Họ và tên + Khóa:
+        khi sinh viên đăng nhập lần đầu bằng tài khoản @hcmut.edu.vn, họ sẽ tự điền phần còn thiếu.
       </p>
 
       {/* Table */}
@@ -492,6 +498,13 @@ export const MemberManager: React.FC = () => {
                     <td className="px-4 py-3">
                       <p className="font-bold text-slate-900 dark:text-slate-100">{m.fullName}</p>
                       <p className="text-[10px] text-slate-400 font-mono">{m.email || m.phone}</p>
+                      {m.profileCompletedAt ? (
+                        <span className="mt-0.5 inline-block text-[10px] font-semibold text-emerald-700 dark:text-emerald-300" title={m.accountEmail}>
+                          ✓ Đã tự bổ sung hồ sơ
+                        </span>
+                      ) : (
+                        <span className="mt-0.5 inline-block text-[10px] text-slate-400">Chưa đăng nhập bổ sung</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className="block font-medium">{m.classGroup || '—'}</span>
@@ -501,7 +514,7 @@ export const MemberManager: React.FC = () => {
                       {m.isUnionMember ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-400/30">
                           <Check className="w-3 h-3 mr-1" />
-                          {m.unionCardNumber || 'Đoàn viên'}
+                          Đoàn viên
                         </span>
                       ) : (
                         <span className="text-slate-400">—</span>
@@ -626,10 +639,6 @@ export const MemberManager: React.FC = () => {
                       <label className={labelClass}>Ngày vào Đoàn</label>
                       <input type="date" value={form.unionJoinDate} onChange={e => setField('unionJoinDate', e.target.value)} className={inputClass} />
                     </div>
-                    <div>
-                      <label className={labelClass}>Số thẻ đoàn viên</label>
-                      <input maxLength={30} value={form.unionCardNumber} onChange={e => setField('unionCardNumber', e.target.value)} className={`${inputClass} font-mono`} />
-                    </div>
                   </div>
                 )}
               </div>
@@ -638,6 +647,24 @@ export const MemberManager: React.FC = () => {
                 <label className={labelClass}>Ghi chú</label>
                 <textarea rows={2} maxLength={500} value={form.note} onChange={e => setField('note', e.target.value)} className={inputClass} />
               </div>
+
+              {/* Account the student linked on first sign-in */}
+              {editingRecord?.accountEmail && (
+                <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span>
+                    Tài khoản đã liên kết: <strong className="font-mono">{editingRecord.accountEmail}</strong>
+                    {unlinkRequested && <span className="text-rose-600 dark:text-rose-300"> — sẽ gỡ khi lưu</span>}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setUnlinkRequested(v => !v)}
+                    className="px-3 py-1.5 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-rose-700 dark:hover:text-rose-300"
+                    title="Dùng khi sinh viên liên kết nhầm; lần đăng nhập sau họ sẽ được hỏi lại"
+                  >
+                    {unlinkRequested ? 'Giữ liên kết' : 'Gỡ liên kết'}
+                  </button>
+                </div>
+              )}
 
               {formError && (
                 <p className="text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 rounded-lg px-3 py-2">

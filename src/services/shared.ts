@@ -1,4 +1,4 @@
-import { BCHMember, BchOrganization, EventItem, EventType, FacultyStats, MemberGender, MemberRecord, MemberStatus, NewsItem, RegistrationRecord } from '../types';
+import { BCHMember, BchOrganization, EventItem, EventType, FacultyStats, MemberGender, MemberRecord, MemberStatus, NewsItem, RegistrationRecord, StudentProfilePatch } from '../types';
 import { INITIAL_STATS } from '../data/mockData';
 
 // Logic shared by the localStorage backend (api.ts) and the Firestore backend (firebaseApi.ts).
@@ -111,7 +111,8 @@ export function filterEvents(events: EventItem[], type?: string, status?: string
   return result;
 }
 
-export type MemberInput = Omit<MemberRecord, 'id' | 'updatedAt'>;
+// What staff edit; the account link is only set by the student or cleared via `unlinkAccount`
+export type MemberInput = Omit<MemberRecord, 'id' | 'updatedAt' | 'accountEmail' | 'profileCompletedAt'>;
 
 const MEMBER_GENDERS: MemberGender[] = ['NAM', 'NU', 'KHAC', ''];
 const MEMBER_STATUSES: MemberStatus[] = ['STUDYING', 'RESERVED', 'GRADUATED', 'DROPPED'];
@@ -125,8 +126,8 @@ function text(value: unknown, max: number): string {
   return String(value ?? '').trim().slice(0, max);
 }
 
-// Normalises a form / Excel row; `previous` fills in what the input leaves out
-export function buildMember(input: Partial<MemberInput>, previous?: MemberRecord): MemberRecord {
+// Normalises a form / Excel row; `previous` fills in what the input leaves out and keeps the account link
+export function buildMember(input: Partial<MemberInput>, previous?: MemberRecord, unlinkAccount = false): MemberRecord {
   const merged = { ...previous, ...Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined)) };
   const mssv = text(merged.mssv, 20);
   const id = memberIdOf(mssv);
@@ -146,11 +147,41 @@ export function buildMember(input: Partial<MemberInput>, previous?: MemberRecord
     phone: text(merged.phone, 20),
     isUnionMember,
     unionJoinDate: isUnionMember ? text(merged.unionJoinDate, 10) : '',
-    unionCardNumber: isUnionMember ? text(merged.unionCardNumber, 30) : '',
     isAssociationMember: Boolean(merged.isAssociationMember),
     status: MEMBER_STATUSES.includes(merged.status as MemberStatus) ? (merged.status as MemberStatus) : 'STUDYING',
     note: text(merged.note, 500),
     updatedAt: new Date().toISOString(),
+    accountEmail: unlinkAccount ? '' : previous?.accountEmail ?? '',
+    profileCompletedAt: unlinkAccount ? '' : previous?.profileCompletedAt ?? '',
+  };
+}
+
+export function isHcmutEmail(email: string | null | undefined): boolean {
+  return Boolean(email && /@hcmut\.edu\.vn$/i.test(email.trim()));
+}
+
+// Validates the first sign-in form; every field except the Đoàn join date is required
+export function buildStudentProfile(patch: StudentProfilePatch): StudentProfilePatch {
+  const gender = MEMBER_GENDERS.includes(patch.gender) ? patch.gender : '';
+  if (!gender) throw new Error('Vui lòng chọn giới tính.');
+  const dateOfBirth = text(patch.dateOfBirth, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) throw new Error('Vui lòng nhập ngày sinh.');
+  const classGroup = text(patch.classGroup, 50);
+  if (!classGroup) throw new Error('Vui lòng nhập lớp / chi đoàn.');
+  const phone = text(patch.phone, 20);
+  if (!/^[0-9+ .-]{8,20}$/.test(phone)) throw new Error('Số điện thoại không hợp lệ.');
+  const email = text(patch.email, 100);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Email liên hệ không hợp lệ.');
+  const isUnionMember = Boolean(patch.isUnionMember);
+  return {
+    gender,
+    dateOfBirth,
+    classGroup,
+    email,
+    phone,
+    isUnionMember,
+    unionJoinDate: isUnionMember ? text(patch.unionJoinDate, 10) : '',
+    isAssociationMember: Boolean(patch.isAssociationMember),
   };
 }
 
