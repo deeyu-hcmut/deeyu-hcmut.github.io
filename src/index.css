@@ -10,6 +10,7 @@
  * indigo-* sits a few degrees more violet so existing blue→indigo gradients stay subtle.
  */
 @theme {
+  --font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --color-blue-50: oklch(0.967 0.016 277);
   --color-blue-100: oklch(0.93 0.032 277);
   --color-blue-200: oklch(0.87 0.06 277);
@@ -58,7 +59,7 @@
   }
 
   body {
-    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #0f172a;
     background-color: #f8fafc;
     -webkit-font-smoothing: antialiased;
@@ -78,24 +79,25 @@
     text-align-last: right;
   }
 
+  /* Titles in Cabin, body text in Open Sans */
   h1, h2, h3, h4, .font-tech {
-    font-family: 'Space Grotesk', 'Be Vietnam Pro', sans-serif;
+    font-family: 'Cabin', 'Open Sans', sans-serif;
     letter-spacing: -0.02em;
   }
 }
 
 /*
- * Hero title is always two nowrap lines; the longer one is ~16.9em wide, so size the
+ * Hero title is always two nowrap lines; the longer one is ~17.4em wide, so size the
  * font to the space left by the page gutters (px-4 / sm:px-6 / lg:px-8), up to 60px.
  */
 .hero-title {
-  font-size: min(calc((100vw - 2.5rem) / 17.2), 3.75rem);
+  font-size: min(calc((100vw - 2.5rem) / 17.8), 3.75rem);
 }
 @media (min-width: 640px) {
-  .hero-title { font-size: min(calc((100vw - 3.5rem) / 17.2), 3.75rem); }
+  .hero-title { font-size: min(calc((100vw - 3.5rem) / 17.8), 3.75rem); }
 }
 @media (min-width: 1024px) {
-  .hero-title { font-size: min(calc((100vw - 4.5rem) / 17.2), 3.75rem); }
+  .hero-title { font-size: min(calc((100vw - 4.5rem) / 17.8), 3.75rem); }
 }
 
 /* Custom Circuit & Tech Background Effects for Light Theme */

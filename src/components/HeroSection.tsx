@@ -26,7 +26,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div>
-          <div className="max-w-5xl mx-auto space-y-6 text-center">
+          <div className="max-w-6xl mx-auto space-y-6 text-center">
             
             {/* Top Badges */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
