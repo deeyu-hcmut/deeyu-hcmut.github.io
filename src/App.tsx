@@ -28,6 +28,7 @@ import { FIREBASE_ENABLED } from './services/firebaseConfig';
 import type { StaffSession } from './services/auth';
 import { canCheckIn } from './utils/roles';
 import { isHcmutEmail } from './services/shared';
+import { SessionContext } from './session';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { HeroSection } from './components/HeroSection';
@@ -258,7 +259,16 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const sessionInfo = {
+    session,
+    role: currentRole,
+    myProfile,
+    signIn: handleSignIn,
+    openProfile: hcmutEmail ? () => setProfileModalOpen(true) : undefined,
+  };
+
   return (
+    <SessionContext.Provider value={sessionInfo}>
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white pb-16 lg:pb-0">
       
       {/* Toast Notification */}
@@ -627,5 +637,6 @@ export default function App() {
       </footer>
 
     </div>
+    </SessionContext.Provider>
   );
 }

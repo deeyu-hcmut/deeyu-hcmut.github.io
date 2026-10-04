@@ -38,7 +38,10 @@ export function watchSession(onChange: (session: StaffSession | null) => void): 
 }
 
 export async function signInStaff(): Promise<void> {
-  await signInWithPopup(auth, new GoogleAuthProvider());
+  const provider = new GoogleAuthProvider();
+  // Always show the account chooser, so a student signed in with Gmail can switch to @hcmut.edu.vn
+  provider.setCustomParameters({ prompt: 'select_account' });
+  await signInWithPopup(auth, provider);
 }
 
 export async function signOutStaff(): Promise<void> {

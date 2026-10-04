@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   X, 
   Ticket, 
@@ -13,10 +13,16 @@ import {
   Loader2,
   Calendar,
   MapPin,
-  Clock
+  LogIn,
+  Lock
 } from 'lucide-react';
 import { EventItem, RegistrationRecord } from '../types';
 import { api } from '../services/api';
+import { FIREBASE_ENABLED } from '../services/firebaseConfig';
+import { CLASS_GROUP_PATTERN, isHcmutEmail } from '../services/shared';
+import { useSessionInfo } from '../session';
+
+const FACULTY = 'Khoa Điện - Điện tử';
 
 interface RegistrationModalProps {
   event: EventItem;
@@ -29,13 +35,38 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const [fullName, setFullName] = useState('');
-  const [mssv, setMssv] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [classGroup, setClassGroup] = useState('D22_DKTD01');
-  const [faculty, setFaculty] = useState('Khoa Điện - Điện tử');
+  const { session, role, myProfile, signIn, openProfile } = useSessionInfo();
+  // A student's own profile fills the form; name and MSSV then cannot be changed (no registering for others)
+  const profile = myProfile?.profileCompletedAt ? myProfile : null;
+
+  const [fullName, setFullName] = useState(profile?.fullName ?? '');
+  const [mssv, setMssv] = useState(profile?.mssv ?? '');
+  const [email, setEmail] = useState(profile?.email || session?.email || '');
+  const [phone, setPhone] = useState(profile?.phone ?? '');
+  const [classGroup, setClassGroup] = useState(profile?.classGroup ?? '');
   const [note, setNote] = useState('');
+
+  // Fill in once the profile arrives (it loads after sign-in, possibly while this form is open)
+  useEffect(() => {
+    if (!profile) return;
+    setFullName(profile.fullName);
+    setMssv(profile.mssv);
+    setClassGroup(profile.classGroup);
+    setPhone(prev => prev || profile.phone);
+    setEmail(prev => prev || profile.email || session?.email || '');
+  }, [profile?.id, profile?.profileCompletedAt]);
+
+  // Registration needs a signed-in account; an @hcmut.edu.vn student must finish their profile first
+  const isStudentAccount = role === 'STUDENT';
+  const gate: 'signin' | 'hcmut' | 'profile' | null = !FIREBASE_ENABLED
+    ? null
+    : !session
+      ? 'signin'
+      : isStudentAccount && !isHcmutEmail(session.email)
+        ? 'hcmut'
+        : isStudentAccount && !profile
+          ? 'profile'
+          : null;
   
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -49,6 +80,10 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
       setErrorMessage('Vui lòng điền đầy đủ các thông tin bắt buộc (*).');
       return;
     }
+    if (!CLASS_GROUP_PATTERN.test(classGroup.trim().toUpperCase())) {
+      setErrorMessage('Chi đoàn / Lớp phải gồm đúng 8 ký tự chữ hoặc số, ví dụ DD23KSTN.');
+      return;
+    }
 
     setLoading(true);
 
@@ -58,8 +93,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         mssv: mssv.trim(),
         email: email.trim(),
         phone: phone.trim(),
-        classGroup: classGroup.trim(),
-        faculty,
+        classGroup: classGroup.trim().toUpperCase(),
+        faculty: FACULTY,
         note: note.trim()
       });
 
@@ -121,9 +156,61 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           </div>
         </div>
 
-        {/* Form Body Scrollable */}
+        {gate ? (
+          <div className="p-6 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 flex items-center justify-center mx-auto">
+              {gate === 'profile' ? <GraduationCap className="w-7 h-7" /> : <LogIn className="w-7 h-7" />}
+            </div>
+            <p className="text-sm text-slate-700 dark:text-slate-200">
+              {gate === 'signin' && 'Vui lòng đăng nhập bằng tài khoản @hcmut.edu.vn để đăng ký. Thông tin của bạn sẽ được điền sẵn.'}
+              {gate === 'hcmut' && (
+                <>
+                  Bạn đang đăng nhập bằng <strong>{session?.email}</strong>. Sinh viên cần đăng nhập bằng tài khoản
+                  <strong> @hcmut.edu.vn</strong> để đăng ký sự kiện.
+                </>
+              )}
+              {gate === 'profile' && 'Hoàn tất hồ sơ sinh viên trước (chỉ làm một lần), sau đó thông tin sẽ được điền sẵn khi đăng ký.'}
+            </p>
+            <div className="flex justify-center gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
+              >
+                Hủy bỏ
+              </button>
+              {gate === 'profile' ? (
+                <button
+                  type="button"
+                  onClick={openProfile}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-1.5"
+                >
+                  <GraduationCap className="w-4 h-4" />
+                  <span>Hoàn tất hồ sơ</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={signIn}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-1.5"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>{gate === 'hcmut' ? 'Đăng nhập tài khoản khác' : 'Đăng nhập với Google'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+        /* Form Body Scrollable */
         <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4">
           
+          {profile && (
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5" />
+              Thông tin lấy từ hồ sơ sinh viên của bạn. Họ tên và MSSV không sửa được ở đây.
+            </p>
+          )}
+
           {errorMessage && (
             <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 text-rose-700 dark:text-rose-300 text-xs flex items-start space-x-2">
               <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-300 flex-shrink-0 mt-0.5" />
@@ -143,8 +230,9 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                readOnly={Boolean(profile)}
                 placeholder="VD: Nguyễn Văn An"
-                className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full read-only:bg-slate-50 dark:read-only:bg-slate-950 read-only:text-slate-500 dark:read-only:text-slate-400 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -162,8 +250,9 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   value={mssv}
                   onChange={(e) => setMssv(e.target.value)}
-                  placeholder="VD: 2211001"
-                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
+                  readOnly={Boolean(profile)}
+                  placeholder="VD: 2311234"
+                  className="w-full read-only:bg-slate-50 dark:read-only:bg-slate-950 read-only:text-slate-500 dark:read-only:text-slate-400 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
                 />
               </div>
             </div>
@@ -178,9 +267,12 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   type="text"
                   required
                   value={classGroup}
-                  onChange={(e) => setClassGroup(e.target.value)}
-                  placeholder="VD: D22_DKTD01"
-                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  onChange={(e) => setClassGroup(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                  maxLength={8}
+                  pattern={CLASS_GROUP_PATTERN.source}
+                  title="Đúng 8 ký tự chữ hoặc số, ví dụ DD23KSTN"
+                  placeholder="VD: DD23KSTN"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono uppercase"
                 />
               </div>
             </div>
@@ -199,7 +291,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@student.edu.vn"
+                  placeholder="mssv@hcmut.edu.vn"
                   className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
@@ -275,6 +367,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           </div>
 
         </form>
+        )}
       </div>
     </div>
   );
