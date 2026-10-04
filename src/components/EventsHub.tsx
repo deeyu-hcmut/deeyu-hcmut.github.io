@@ -38,6 +38,7 @@ interface EventsHubProps {
   onCreateEvent: (eventData: Partial<EventItem>) => void;
   onDeleteEvent: (event: EventItem) => Promise<void>;
   onUpdateEvent: (eventId: string, patch: Partial<EventItem>) => Promise<void>;
+  isCompact?: boolean;
 }
 
 export const EventsHub: React.FC<EventsHubProps> = ({
@@ -46,7 +47,8 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   onRegisterSuccess,
   onCreateEvent,
   onDeleteEvent,
-  onUpdateEvent
+  onUpdateEvent,
+  isCompact = false
 }) => {
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -263,118 +265,120 @@ export const EventsHub: React.FC<EventsHubProps> = ({
     setNewDesc('');
   };
 
-  return (
-    <div className="py-10 bg-slate-50 dark:bg-slate-950 min-h-[75vh]">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Hub Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200 dark:border-slate-700">
-          <div>
-            <div className="flex items-center space-x-3">
-              <span className="p-3 rounded-2xl bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 shadow-2xs">
-                <Calendar className="w-6 h-6" />
-              </span>
-              <div>
-                <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-                  SỰ KIỆN & ĐĂNG KÝ THAM GIA
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                  Cổng đăng ký trực tuyến, tự động tạo vé điện tử QR độc nhất và điểm danh thời gian thực
-                </p>
+  const contentBody = (
+    <>
+      {!isCompact && (
+        <>
+          {/* Hub Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200 dark:border-slate-700">
+            <div>
+              <div className="flex items-center space-x-3">
+                <span className="p-3 rounded-2xl bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 shadow-2xs">
+                  <Calendar className="w-6 h-6" />
+                </span>
+                <div>
+                  <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                    SỰ KIỆN & ĐĂNG KÝ THAM GIA
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                    Cổng đăng ký trực tuyến, tự động tạo vé điện tử QR độc nhất và điểm danh thời gian thực
+                  </p>
+                </div>
               </div>
             </div>
+
+            <div className="flex items-center space-x-3">
+              {/* View Mode Toggle */}
+              <div className="flex items-center bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
+                <button
+                  onClick={() => setViewMode('GRID')}
+                  className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
+                    viewMode === 'GRID' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                  }`}
+                  title="Dạng lưới"
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('LIST')}
+                  className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
+                    viewMode === 'LIST' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                  }`}
+                  title="Dạng danh sách"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('CALENDAR')}
+                  className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
+                    viewMode === 'CALENDAR' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                  }`}
+                  title="Dạng lịch trình"
+                >
+                  <Calendar className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Create Event (Admin/Manager) */}
+              {(currentRole === 'SUPER_ADMIN' || currentRole === 'EVENT_MANAGER') && (
+                <button
+                  id="create-event-btn"
+                  onClick={openCreateEvent}
+                  className="flex items-center space-x-2 px-4 py-3 rounded-2xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Tạo Sự kiện mới</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center space-x-3">
-            {/* View Mode Toggle */}
-            <div className="flex items-center bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
-              <button
-                onClick={() => setViewMode('GRID')}
-                className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
-                  viewMode === 'GRID' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-                }`}
-                title="Dạng lưới"
-              >
-                <Grid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('LIST')}
-                className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
-                  viewMode === 'LIST' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-                }`}
-                title="Dạng danh sách"
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('CALENDAR')}
-                className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
-                  viewMode === 'CALENDAR' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-                }`}
-                title="Dạng lịch trình"
-              >
-                <Calendar className="w-4 h-4" />
-              </button>
+          {/* Filters and Search Toolbar */}
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-12 gap-4">
+            {/* Search */}
+            <div className="sm:col-span-4 relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                id="event-search-input"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm sự kiện, địa điểm, từ khóa..."
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              />
             </div>
 
-            {/* Create Event (Admin/Manager) */}
-            {(currentRole === 'SUPER_ADMIN' || currentRole === 'EVENT_MANAGER') && (
-              <button
-                id="create-event-btn"
-                onClick={openCreateEvent}
-                className="flex items-center space-x-2 px-4 py-3 rounded-2xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 whitespace-nowrap cursor-pointer"
+            {/* Type Filter */}
+            <div className="sm:col-span-4">
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
               >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Tạo Sự kiện mới</span>
-              </button>
-            )}
-          </div>
-        </div>
+                {eventTypes.map(t => (
+                  <option key={t.id} value={t.id} className="bg-white dark:bg-slate-900">{t.label}</option>
+                ))}
+              </select>
+            </div>
 
-        {/* Filters and Search Toolbar */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-12 gap-4">
-          {/* Search */}
-          <div className="sm:col-span-4 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              id="event-search-input"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm sự kiện, địa điểm, từ khóa..."
-              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
-            />
+            {/* Status Filter */}
+            <div className="sm:col-span-4">
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
+              >
+                {statusFilters.map(s => (
+                  <option key={s.id} value={s.id} className="bg-white dark:bg-slate-900">{s.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
+        </>
+      )}
 
-          {/* Type Filter */}
-          <div className="sm:col-span-4">
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
-            >
-              {eventTypes.map(t => (
-                <option key={t.id} value={t.id} className="bg-white dark:bg-slate-900">{t.label}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Status Filter */}
-          <div className="sm:col-span-4">
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
-            >
-              {statusFilters.map(s => (
-                <option key={s.id} value={s.id} className="bg-white dark:bg-slate-900">{s.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Events Rendering */}
-        <div className="mt-8">
+      {/* Events Rendering */}
+      <div className={isCompact ? '' : 'mt-8'}>
           {filteredEvents.length === 0 ? (
             <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
               <Calendar className="w-12 h-12 text-slate-400 mx-auto mb-3" />
@@ -955,7 +959,17 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             </div>
           </div>
         )}
+    </>
+  );
 
+  if (isCompact) {
+    return <div>{contentBody}</div>;
+  }
+
+  return (
+    <div className="py-10 bg-slate-50 dark:bg-slate-950 min-h-[75vh]">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        {contentBody}
       </div>
     </div>
   );

@@ -18,10 +18,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onReadNews
 }) => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/80 dark:from-blue-950/40 via-white dark:via-slate-900 to-slate-50 dark:to-slate-950 pt-10 pb-16 sm:pt-16 sm:pb-24 border-b border-slate-200 dark:border-slate-700 bg-grid-pattern">
+    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 dark:from-blue-950/30 via-white dark:via-slate-900/60 to-slate-50/60 dark:to-slate-950 pt-10 pb-16 sm:pt-16 sm:pb-24 bg-grid-pattern">
       {/* Ambient Soft Glows */}
       <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      
+      {/* Bottom seamless fade */}
+      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-50/80 dark:from-slate-950 to-transparent pointer-events-none" />
 
       <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         

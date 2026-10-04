@@ -233,7 +233,7 @@ export default function App() {
       {/* Active Tab View Rendering */}
       <main className="flex-1">
         {activeTab === 'home' && (
-          <div>
+          <div className="relative">
             <HeroSection
               upcomingEvent={events.find(e => e.status === 'REGISTRATION_OPEN') || events[0]}
               onExploreEvents={() => setActiveTab('events')}
@@ -242,22 +242,26 @@ export default function App() {
               onReadNews={() => setActiveTab('news')}
             />
 
-            {/* Quick Section previews on home */}
-            <div className="py-14 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
-              <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between mb-8">
+            {/* Seamless Section 1: Events Preview */}
+            <section className="relative py-16 sm:py-20 overflow-hidden">
+              <div className="absolute top-1/2 left-0 w-80 h-80 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
+              <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
                   <div>
-                    <h3 className="font-tech text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2.5">
-                      <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-300" />
-                      <span>SỰ KIỆN NỔI BẬT ĐANG MỞ ĐĂNG KÝ</span>
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold mb-2.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>Điểm hẹn Phong trào & Học thuật</span>
+                    </div>
+                    <h3 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                      SỰ KIỆN NỔI BẬT ĐANG MỞ ĐĂNG KÝ
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Tự động cấp vé QR & điểm danh điện tử trực tuyến</p>
                   </div>
                   <button
                     onClick={() => setActiveTab('events')}
-                    className="text-sm font-bold text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 flex items-center space-x-1.5 hover:underline cursor-pointer bg-blue-50 dark:bg-blue-950/40 px-4 py-2 rounded-xl border border-blue-200 dark:border-blue-400/30"
+                    className="self-start sm:self-auto text-sm font-bold text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 flex items-center space-x-2 cursor-pointer bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-blue-400/50 transition-all"
                   >
-                    <span>Xem tất cả ({events.length})</span>
+                    <span>Khám phá tất cả ({events.length})</span>
                     <span>→</span>
                   </button>
                 </div>
@@ -269,26 +273,37 @@ export default function App() {
                   onCreateEvent={handleCreateEvent}
                   onDeleteEvent={handleDeleteEvent}
                   onUpdateEvent={handleUpdateEvent}
+                  isCompact={true}
                 />
               </div>
-            </div>
+            </section>
 
-            {/* News preview on home */}
-            <div className="py-14 bg-slate-50 dark:bg-slate-950">
-              <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between mb-8">
+            {/* Subtle Glow Divider */}
+            <div className="w-full max-w-5xl mx-auto h-px bg-gradient-to-r from-transparent via-blue-500/20 dark:via-blue-400/20 to-transparent" />
+
+            {/* Seamless Section 2: News Preview */}
+            <section className="relative py-16 sm:py-20 overflow-hidden bg-slate-100/50 dark:bg-slate-900/40">
+              <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-slate-50/80 dark:from-slate-950 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-50/80 dark:from-slate-950 to-transparent pointer-events-none" />
+              <div className="absolute bottom-1/3 right-0 w-80 h-80 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none translate-x-1/2" />
+
+              <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
                   <div>
-                    <h3 className="font-tech text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2.5">
-                      <Newspaper className="w-6 h-6 text-blue-600 dark:text-blue-300" />
-                      <span>BẢNG TIN & HOẠT ĐỘNG MỚI NHẤT</span>
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold mb-2.5">
+                      <Newspaper className="w-3.5 h-3.5" />
+                      <span>Nhịp sống Tuổi trẻ & Học bổng</span>
+                    </div>
+                    <h3 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                      BẢNG TIN & HOẠT ĐỘNG MỚI NHẤT
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Tin phong trào, nghiên cứu khoa học và học bổng doanh nghiệp</p>
                   </div>
                   <button
                     onClick={() => setActiveTab('news')}
-                    className="text-sm font-bold text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 flex items-center space-x-1.5 hover:underline cursor-pointer bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs"
+                    className="self-start sm:self-auto text-sm font-bold text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 flex items-center space-x-2 cursor-pointer bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-blue-400/50 transition-all"
                   >
-                    <span>Xem tất cả ({news.length})</span>
+                    <span>Xem tất cả tin tức ({news.length})</span>
                     <span>→</span>
                   </button>
                 </div>
@@ -299,11 +314,15 @@ export default function App() {
                   onCreateNews={handleCreateNews}
                   onUpdateNews={handleUpdateNews}
                   onDeleteNews={handleDeleteNews}
+                  isCompact={true}
                 />
               </div>
-            </div>
+            </section>
 
-            {/* Org Section snippet */}
+            {/* Subtle Glow Divider */}
+            <div className="w-full max-w-5xl mx-auto h-px bg-gradient-to-r from-transparent via-blue-500/20 dark:via-blue-400/20 to-transparent" />
+
+            {/* Seamless Section 3: BCH & Org snippet */}
             <AboutOrgSection bchMembers={bchMembers} />
           </div>
         )}
@@ -391,8 +410,11 @@ export default function App() {
         onOpenQRScanner={() => setIsQRScannerOpen(true)}
       />
 
+      {/* Smooth Transition into Footer */}
+      <div className="h-16 sm:h-24 bg-gradient-to-b from-transparent to-slate-900 dark:to-slate-950 pointer-events-none" />
+
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 text-sm mt-16 border-t border-slate-800">
+      <footer className="bg-slate-900 dark:bg-slate-950 text-slate-300 text-sm border-t border-slate-800/80">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             
