@@ -105,7 +105,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           </div>
 
           {/* Detailed Content */}
-          <div className="prose max-w-none text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <div className="prose max-w-none text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line text-justify bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
             {event.content}
           </div>
 

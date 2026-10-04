@@ -566,12 +566,12 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                 </div>
 
                 {/* Summary block */}
-                <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-600 text-blue-900 dark:text-blue-200 text-sm font-medium leading-relaxed">
+                <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-600 text-blue-900 dark:text-blue-200 text-sm font-medium leading-relaxed text-justify">
                   {selectedNews.summary}
                 </div>
 
                 {/* Article Body */}
-                <div className="text-slate-700 dark:text-slate-200 text-sm sm:text-base leading-relaxed space-y-4 whitespace-pre-line">
+                <div className="text-slate-700 dark:text-slate-200 text-sm sm:text-base leading-relaxed space-y-4 whitespace-pre-line text-justify">
                   {selectedNews.content}
                 </div>
 

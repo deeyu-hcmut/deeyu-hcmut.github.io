@@ -65,10 +65,43 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Body paragraphs are justified; in centred blocks the last (or only) line stays centred */
+  p {
+    text-align: justify;
+  }
+
+  .text-center p {
+    text-align-last: center;
+  }
+
+  .text-right p {
+    text-align-last: right;
+  }
+
   h1, h2, h3, h4, .font-tech {
     font-family: 'Space Grotesk', 'Be Vietnam Pro', sans-serif;
     letter-spacing: -0.02em;
   }
+}
+
+/* Hero title: Source Sans 3 is the current release of Source Sans Pro (same design, full Vietnamese) */
+.font-title {
+  font-family: 'Source Sans 3', 'Source Sans Pro', 'Be Vietnam Pro', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/*
+ * Hero title is always two nowrap lines; the longer one is ~16.7em wide, so size the
+ * font to the space left by the page gutters (px-4 / sm:px-6 / lg:px-8), up to 60px.
+ */
+.hero-title {
+  font-size: min(calc((100vw - 2.5rem) / 17.2), 3.75rem);
+}
+@media (min-width: 640px) {
+  .hero-title { font-size: min(calc((100vw - 3.5rem) / 17.2), 3.75rem); }
+}
+@media (min-width: 1024px) {
+  .hero-title { font-size: min(calc((100vw - 4.5rem) / 17.2), 3.75rem); }
 }
 
 /* Custom Circuit & Tech Background Effects for Light Theme */

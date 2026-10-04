@@ -26,7 +26,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div>
-          <div className="max-w-4xl mx-auto space-y-6 text-center">
+          <div className="max-w-5xl mx-auto space-y-6 text-center">
             
             {/* Top Badges */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
@@ -42,9 +42,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Main Title */}
-            <h1 className="font-tech text-3xl sm:text-5xl xl:text-6xl font-extrabold tracking-tight text-slate-950 dark:text-slate-100 leading-[1.12]">
-              TUỔI TRẺ <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 dark:from-blue-300 dark:via-blue-200 dark:to-indigo-300 bg-clip-text text-transparent">ĐIỆN - ĐIỆN TỬ</span>
-              <br /> TIÊN PHONG SÁNG TẠO & CÔNG NGHỆ
+            {/* Always exactly two lines: each line is nowrap and the size scales with the viewport */}
+            <h1 className="font-title hero-title font-bold text-slate-950 dark:text-slate-100 leading-[1.15]">
+              <span className="block whitespace-nowrap">
+                TUỔI TRẺ <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 dark:from-blue-300 dark:via-blue-200 dark:to-indigo-300 bg-clip-text text-transparent">ĐIỆN - ĐIỆN TỬ</span>
+              </span>
+              <span className="block whitespace-nowrap">KHAI PHÓNG - TIÊN PHONG - SÁNG TẠO</span>
             </h1>
             
             {/* Subtitle */}
