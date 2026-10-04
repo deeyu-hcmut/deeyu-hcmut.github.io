@@ -31,7 +31,7 @@ export const INITIAL_NEWS: NewsItem[] = [
 - Giấy chứng nhận tham gia và cơ hội phỏng vấn trực tiếp vào các tập đoàn bán dẫn đối tác (Marvell, Renesas, Synopsys, FPT Semiconductor).`,
     category: 'CUOC_THI_NCKH',
     categoryName: 'Cuộc thi NCKH & Học thuật',
-    author: 'Ban Học thuật & NCKH Đoàn Khoa',
+    author: 'Ban Học thuật & NCKH Đoàn Thanh niên',
     authorRole: 'Trưởng Ban Học thuật',
     publishedAt: '2026-08-12T08:30:00Z',
     coverImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
@@ -43,7 +43,7 @@ export const INITIAL_NEWS: NewsItem[] = [
     id: 'news-2',
     title: 'Hội nghị Kiện toàn Ban Chấp hành Đoàn - Hội Khoa Điện - Điện tử Nhiệm kỳ 2025 - 2027',
     slug: 'hoi-nghi-kien-toan-bch-doan-hoi-khoa-dien-dien-tu',
-    summary: 'Đại hội đại biểu đã bầu ra 15 đồng chí ưu tú vào Ban Chấp hành Đoàn Khoa và 11 đồng chí vào Ban Thư ký Hội Sinh viên Khoa với tinh thần Tiên phong - Đột phá - Trách nhiệm.',
+    summary: 'Đại hội đại biểu đã bầu ra 15 đồng chí ưu tú vào Ban Chấp hành Đoàn Thanh niên và 11 đồng chí vào Ban Thư ký Hội Sinh viên Khoa với tinh thần Tiên phong - Đột phá - Trách nhiệm.',
     content: `Trong không khí trang trọng và phấn khởi, Hội nghị Kiện toàn Ban Chấp hành Đoàn - Hội Khoa Điện - Điện tử đã diễn ra thành công tốt đẹp tại Hội trường A.
 
 Hội nghị vinh dự đón tiếp đại diện Đảng ủy - Ban Chủ nhiệm Khoa, Thường vụ Đoàn Trường và hơn 180 đại biểu đại diện cho hơn 3.800 đoàn viên, hội viên toàn khoa.
@@ -55,10 +55,10 @@ Hội nghị vinh dự đón tiếp đại diện Đảng ủy - Ban Chủ nhi�
     category: 'HOAT_DONG_KHOA',
     categoryName: 'Hoạt động Đoàn - Hội',
     author: 'Ban Thông tin & Truyền thông FEE Media',
-    authorRole: 'Phó Bí thư Đoàn Khoa',
+    authorRole: 'Phó Bí thư Đoàn Thanh niên',
     publishedAt: '2026-08-08T14:15:00Z',
     coverImage: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80',
-    tags: ['Đại hội', 'BCH Đoàn Khoa', 'Tuổi trẻ FEE', 'Tiên phong'],
+    tags: ['Đại hội', 'BCH Đoàn Thanh niên', 'Tuổi trẻ FEE', 'Tiên phong'],
     views: 2420,
     featured: true,
   },
@@ -67,7 +67,7 @@ Hội nghị vinh dự đón tiếp đại diện Đảng ủy - Ban Chủ nhi�
     title: 'Chiến dịch Tình nguyện Mùa Hè Xanh 2026: Đội hình Chuyên Điện mang nguồn sáng về vùng cao',
     slug: 'mua-he-xanh-2026-doi-hinh-chuyen-dien-thap-sang-duong-que',
     summary: 'Hơn 60 chiến sĩ Mùa Hè Xanh FEE đã hoàn thành xuất sắc công trình thanh niên "Thắp sáng đường quê bằng năng lượng mặt trời" với hơn 5km đèn chiếu sáng tại Huyện miền núi.',
-    content: `Chiến dịch tình nguyện Mùa Hè Xanh năm 2026 của Đoàn Khoa Điện - Điện tử đã khép lại với những dấu ấn đậm nét của sức trẻ và chuyên môn kỹ thuật.
+    content: `Chiến dịch tình nguyện Mùa Hè Xanh năm 2026 của Đoàn Thanh niên Khoa Điện - Điện tử đã khép lại với những dấu ấn đậm nét của sức trẻ và chuyên môn kỹ thuật.
 
 ### Các công trình tiêu biểu đã hoàn thành:
 - Lắp đặt **45 bộ đèn năng lượng mặt trời thông minh** dọc 5.2 km tuyến đường liên thôn.
@@ -136,7 +136,7 @@ export const INITIAL_EVENTS: EventItem[] = [
 ### Quyền lợi người tham gia:
 - Được cấp **Thẻ vé điện tử QR** qua cổng Portal.
 - Quét mã QR tại cổng để xác nhận tham dự chính thức.
-- Nhận quà tặng kỷ niệm từ Đoàn Khoa và Doanh nghiệp tài trợ.`,
+- Nhận quà tặng kỷ niệm từ Đoàn Thanh niên và Doanh nghiệp tài trợ.`,
     type: 'ACADEMIC_CONTEST',
     typeName: 'Học thuật & Triển lãm',
     status: 'REGISTRATION_OPEN',
@@ -260,19 +260,19 @@ export const INITIAL_BCH: BCHMember[] = [
   {
     id: 'bch-1',
     name: 'Đ/c Nguyễn Thành Trung',
-    position: 'Bí thư Đoàn Khoa',
+    position: 'Bí thư Đoàn Thanh niên',
     organization: 'DOAN_KHOA',
     email: 'trung.nt@fee.edu.vn',
     phone: '0903 123 456',
     classGroup: 'Chi đoàn Cán bộ Giảng viên',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     bio: 'Thạc sĩ Kỹ thuật Viễn thông, 8 năm kinh nghiệm công tác Đoàn - Hội. Phụ trách chung công tác chính trị tư tưởng và định hướng chuyển đổi số.',
-    department: 'Ban Thường vụ Đoàn Khoa',
+    department: 'Ban Thường vụ Đoàn Thanh niên',
   },
   {
     id: 'bch-2',
     name: 'Đ/c Lê Thị Hoàng Yến',
-    position: 'Phó Bí thư Đoàn Khoa',
+    position: 'Phó Bí thư Đoàn Thanh niên',
     organization: 'DOAN_KHOA',
     email: 'yen.lth@fee.edu.vn',
     phone: '0912 345 678',

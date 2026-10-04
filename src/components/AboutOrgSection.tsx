@@ -62,7 +62,7 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
                     : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300'
                 }`}
               >
-                Đoàn Khoa
+                Đoàn Thanh niên
               </button>
               <button
                 onClick={() => setSelectedOrgFilter('HOI_SINH_VIEN')}
