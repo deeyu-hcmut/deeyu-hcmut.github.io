@@ -121,20 +121,20 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
   };
 
   return (
-    <div className="py-8 bg-slate-50 min-h-[75vh]">
+    <div className="py-8 bg-slate-50 dark:bg-slate-950 min-h-[75vh]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-6 border-b border-slate-200">
+        <div className="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-blue-100 text-blue-700 border border-blue-200 shadow-2xs">
+            <div className="p-2.5 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 shadow-2xs">
               <QrCode className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-tech text-xl sm:text-2xl font-extrabold text-slate-900">
+              <h2 className="font-tech text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100">
                 TRẠM ĐIỂM DANH & QUÉT VÉ QR SỰ KIỆN
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Ghi nhận sinh viên tham dự sự kiện trực tuyến
               </p>
             </div>
@@ -143,7 +143,7 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-white text-slate-500 hover:text-slate-900 border border-slate-200 shadow-2xs transition-colors"
+              className="p-2 rounded-xl bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200 dark:border-slate-700 shadow-2xs transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -151,15 +151,15 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
         </div>
 
         {/* Event Selector Scope */}
-        <div className="mt-6 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <label className="block text-xs font-bold text-slate-700 mb-2 flex items-center space-x-1.5">
-            <Calendar className="w-3.5 h-3.5 text-blue-600" />
+        <div className="mt-6 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-2 flex items-center space-x-1.5">
+            <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
             <span>Chọn sự kiện đang tổ chức điểm danh:</span>
           </label>
           <select
             value={selectedEventId}
             onChange={(e) => setSelectedEventId(e.target.value)}
-            className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-blue-700 font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-xs text-blue-700 dark:text-blue-300 font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
             <option value="ALL">Tất cả sự kiện hôm nay (Tự động nhận diện)</option>
             {events.map(evt => (
@@ -224,8 +224,8 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
             </div>
 
             {/* Manual Code / MSSV Input */}
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
                 Nhập thủ công Mã Vé hoặc MSSV:
               </label>
               <div className="flex gap-2">
@@ -236,7 +236,7 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
                   onChange={(e) => setTicketInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handlePerformCheckIn(ticketInput)}
                   placeholder="VD: FEE-TECH-88392 hoặc 2211001..."
-                  className="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900 uppercase font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-slate-100 uppercase font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
                 <button
                   id="submit-checkin-btn"
@@ -265,18 +265,18 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
             {result && (
               <div className={`p-5 rounded-2xl border transition-all animate-in fade-in shadow-2xs ${
                 result.success
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-400/30 text-emerald-900 dark:text-emerald-200'
                   : result.warning
-                  ? 'bg-amber-50 border-amber-300 text-amber-900'
-                  : 'bg-rose-50 border-rose-300 text-rose-900'
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-400/30 text-amber-900 dark:text-amber-200'
+                  : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-400/30 text-rose-900 dark:text-rose-200'
               }`}>
                 <div className="flex items-start space-x-3">
                   {result.success ? (
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-300 flex-shrink-0" />
                   ) : result.warning ? (
-                    <AlertCircle className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                    <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-300 flex-shrink-0" />
                   ) : (
-                    <AlertCircle className="w-6 h-6 text-rose-600 flex-shrink-0" />
+                    <AlertCircle className="w-6 h-6 text-rose-600 dark:text-rose-300 flex-shrink-0" />
                   )}
 
                   <div className="min-w-0 flex-1">
@@ -286,9 +286,9 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
                     <p className="text-xs mt-1 leading-relaxed font-medium">{result.message}</p>
 
                     {result.record && (
-                      <div className="mt-3 p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 space-y-1 shadow-2xs">
+                      <div className="mt-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 space-y-1 shadow-2xs">
                         <p><strong>Sinh viên:</strong> {result.record.fullName}</p>
-                        <p><strong>MSSV:</strong> <span className="font-mono text-blue-700 font-bold">{result.record.mssv}</span> ({result.record.classGroup})</p>
+                        <p><strong>MSSV:</strong> <span className="font-mono text-blue-700 dark:text-blue-300 font-bold">{result.record.mssv}</span> ({result.record.classGroup})</p>
                         <p><strong>Sự kiện:</strong> {result.record.eventTitle}</p>
                       </div>
                     )}
@@ -298,8 +298,8 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
             )}
 
             {/* Live Check-In Feed */}
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-              <h4 className="font-tech text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+              <h4 className="font-tech text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider mb-3 flex items-center justify-between">
                 <span className="flex items-center">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-ping" />
                   Lịch sử Điểm danh Trực tiếp
@@ -309,18 +309,18 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
 
               <div className="space-y-2.5">
                 {recentCheckIns.map((item, idx) => (
-                  <div key={idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
+                  <div key={idx} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-slate-900 text-xs">{item.name}</div>
-                      <div className="text-[10px] text-slate-500 flex items-center space-x-1.5 mt-0.5">
-                        <span className="font-mono text-blue-700 font-bold">{item.mssv}</span>
+                      <div className="font-bold text-slate-900 dark:text-slate-100 text-xs">{item.name}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center space-x-1.5 mt-0.5">
+                        <span className="font-mono text-blue-700 dark:text-blue-300 font-bold">{item.mssv}</span>
                         <span>•</span>
                         <span className="truncate max-w-[140px]">{item.event}</span>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-400/30">
                         Đã có mặt
                       </span>
                       <p className="text-[9px] text-slate-400 mt-1">{item.time}</p>

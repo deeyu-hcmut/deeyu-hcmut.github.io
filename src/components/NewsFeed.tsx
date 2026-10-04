@@ -95,21 +95,21 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
   };
 
   return (
-    <div className="py-10 bg-slate-50 min-h-[75vh]">
+    <div className="py-10 bg-slate-50 dark:bg-slate-950 min-h-[75vh]">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header & Search */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200 dark:border-slate-700">
           <div>
             <div className="flex items-center space-x-3">
-              <span className="p-3 rounded-2xl bg-blue-100/80 text-blue-700 border border-blue-200 shadow-2xs">
+              <span className="p-3 rounded-2xl bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 shadow-2xs">
                 <Newspaper className="w-6 h-6" />
               </span>
               <div>
-                <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                   BẢNG TIN & HOẠT ĐỘNG ĐOÀN - HỘI
                 </h2>
-                <p className="text-sm text-slate-500 font-medium mt-0.5">Cập nhật tin tức phong trào, học bổng doanh nghiệp, thông báo và cuộc thi NCKH khoa Điện - Điện tử</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">Cập nhật tin tức phong trào, học bổng doanh nghiệp, thông báo và cuộc thi NCKH khoa Điện - Điện tử</p>
               </div>
             </div>
           </div>
@@ -124,12 +124,12 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm tin tức, từ khóa, tag..."
-                className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
               />
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -163,7 +163,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedCategory === cat.id && !selectedTag
                   ? 'bg-blue-600 text-white font-bold shadow-sm'
-                  : 'bg-white text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 border border-slate-200 shadow-sm'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 border border-slate-200 dark:border-slate-700 shadow-sm'
               }`}
             >
               {cat.label}
@@ -173,7 +173,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
 
         {/* Popular Tags List */}
         <div className="mt-3 flex items-center space-x-2 overflow-x-auto pb-1">
-          <span className="text-[11px] text-slate-500 flex items-center whitespace-nowrap font-medium">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center whitespace-nowrap font-medium">
             <Tag className="w-3 h-3 mr-1 text-slate-400" />
             Tags:
           </span>
@@ -184,7 +184,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
               className={`px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all ${
                 selectedTag === tag 
                   ? 'bg-orange-500 text-white font-bold' 
-                  : 'bg-white text-slate-600 hover:text-blue-600 border border-slate-200 shadow-2xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 shadow-2xs'
               }`}
             >
               #{tag}
@@ -193,7 +193,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
           {selectedTag && (
             <button 
               onClick={() => setSelectedTag(null)} 
-              className="text-[10px] text-rose-600 hover:underline ml-2 whitespace-nowrap font-semibold"
+              className="text-[10px] text-rose-600 dark:text-rose-300 hover:underline ml-2 whitespace-nowrap font-semibold"
             >
               (Bỏ lọc tag)
             </button>
@@ -205,10 +205,10 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
           <div 
             id="featured-news-banner"
             onClick={() => setSelectedNews(featuredArticle)}
-            className="mt-8 rounded-3xl overflow-hidden border border-blue-200 bg-white cursor-pointer group hover:border-blue-400 hover:shadow-xl transition-all shadow-sm"
+            className="mt-8 rounded-3xl overflow-hidden border border-blue-200 dark:border-blue-400/30 bg-white dark:bg-slate-900 cursor-pointer group hover:border-blue-400 hover:shadow-xl transition-all shadow-sm"
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-              <div className="lg:col-span-7 relative h-56 sm:h-72 lg:h-96 overflow-hidden bg-slate-100">
+              <div className="lg:col-span-7 relative h-56 sm:h-72 lg:h-96 overflow-hidden bg-slate-100 dark:bg-slate-800">
                 <img 
                   src={featuredArticle.coverImage} 
                   alt={featuredArticle.title}
@@ -225,8 +225,8 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
 
               <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center space-x-2 text-xs text-slate-500 mb-3">
-                    <span className="px-2.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200">
+                  <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    <span className="px-2.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold border border-blue-200 dark:border-blue-400/30">
                       {featuredArticle.categoryName}
                     </span>
                     <span>•</span>
@@ -236,27 +236,27 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                     </span>
                   </div>
 
-                  <h3 className="font-tech text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
+                  <h3 className="font-tech text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors leading-snug">
                     {featuredArticle.title}
                   </h3>
 
-                  <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
+                  <p className="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">
                     {featuredArticle.summary}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-400/30 flex items-center justify-center text-blue-600 dark:text-blue-300">
                       <User className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-800">{featuredArticle.author}</p>
-                      <p className="text-[10px] text-slate-500 font-medium">{featuredArticle.authorRole}</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{featuredArticle.author}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{featuredArticle.authorRole}</p>
                     </div>
                   </div>
 
-                  <span className="flex items-center space-x-1 text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
+                  <span className="flex items-center space-x-1 text-xs font-bold text-blue-600 dark:text-blue-300 group-hover:translate-x-1 transition-transform">
                     <span>Đọc tiếp</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
@@ -269,18 +269,18 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
         {/* News Grid */}
         <div className="mt-8">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
               Danh sách Tin tức ({filteredNews.length})
             </h3>
           </div>
 
           {filteredNews.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
               <Newspaper className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-600 font-medium">Không tìm thấy bài viết phù hợp với tiêu chí lọc.</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Không tìm thấy bài viết phù hợp với tiêu chí lọc.</p>
               <button
                 onClick={() => { setSelectedCategory('ALL'); setSearchQuery(''); setSelectedTag(null); }}
-                className="mt-3 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                className="mt-3 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
               >
                 Đặt lại bộ lọc
               </button>
@@ -292,9 +292,9 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                   key={news.id}
                   id={`news-card-${news.id}`}
                   onClick={() => setSelectedNews(news)}
-                  className="rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group cursor-pointer shadow-sm"
+                  className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-400/30 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group cursor-pointer shadow-sm"
                 >
-                  <div className="relative h-48 overflow-hidden bg-slate-100">
+                  <div className="relative h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
                     <img 
                       src={sizedImage(news.coverImage, 800)} 
                       alt={news.title}
@@ -304,7 +304,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/90 text-blue-700 border border-blue-200 backdrop-blur-sm shadow-xs">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/90 dark:bg-slate-900/90 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 backdrop-blur-sm shadow-xs">
                         {news.categoryName}
                       </span>
                     </div>
@@ -312,7 +312,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
 
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center space-x-2 text-[11px] text-slate-500 mb-2">
+                      <div className="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mb-2">
                         <Calendar className="w-3 h-3 text-slate-400" />
                         <span>{new Date(news.publishedAt).toLocaleDateString('vi-VN')}</span>
                         <span>•</span>
@@ -322,30 +322,30 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                         </span>
                       </div>
 
-                      <h4 className="font-tech text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+                      <h4 className="font-tech text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors line-clamp-2 leading-snug">
                         {news.title}
                       </h4>
 
-                      <p className="mt-2 text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                      <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
                         {news.summary}
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-slate-100">
+                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                       {/* Tags */}
                       <div className="flex flex-wrap gap-1 mb-3">
                         {news.tags.slice(0, 3).map((t, idx) => (
-                          <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                          <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
                             #{t}
                           </span>
                         ))}
                       </div>
 
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[11px] text-slate-500 font-medium truncate max-w-[150px]">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]">
                           Bởi {news.author}
                         </span>
-                        <span className="text-blue-600 font-bold group-hover:translate-x-0.5 transition-transform flex items-center">
+                        <span className="text-blue-600 dark:text-blue-300 font-bold group-hover:translate-x-0.5 transition-transform flex items-center">
                           Chi tiết <ArrowRight className="w-3 h-3 ml-1" />
                         </span>
                       </div>
@@ -360,15 +360,15 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
         {/* Modal: Read News Article Detail */}
         {selectedNews && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-            <div className="relative w-full max-w-3xl max-h-[90vh] bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="relative w-full max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
               
               {/* Modal Header */}
-              <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+              <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
                 <div className="flex items-center space-x-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30">
                     {selectedNews.categoryName}
                   </span>
-                  <span className="text-xs text-slate-500 font-medium">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                     {new Date(selectedNews.publishedAt).toLocaleDateString('vi-VN')}
                   </span>
                 </div>
@@ -376,15 +376,15 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleShare(selectedNews)}
-                    className="flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-2xs"
+                    className="flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5 text-blue-600" />}
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" /> : <Share2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />}
                     <span>{copied ? 'Đã sao chép link' : 'Chia sẻ'}</span>
                   </button>
 
                   <button
                     onClick={() => setSelectedNews(null)}
-                    className="p-1.5 rounded-lg bg-slate-200/70 text-slate-600 hover:text-slate-900"
+                    className="p-1.5 rounded-lg bg-slate-200/70 dark:bg-slate-700/70 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -393,21 +393,21 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
 
               {/* Modal Content Scrollable */}
               <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-                <h1 className="font-tech text-xl sm:text-3xl font-extrabold text-slate-950 leading-snug">
+                <h1 className="font-tech text-xl sm:text-3xl font-extrabold text-slate-950 dark:text-slate-100 leading-snug">
                   {selectedNews.title}
                 </h1>
 
-                <div className="flex items-center space-x-3 text-xs text-slate-500 pb-4 border-b border-slate-200">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700">
+                <div className="flex items-center space-x-3 text-xs text-slate-500 dark:text-slate-400 pb-4 border-b border-slate-200 dark:border-slate-700">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-400/30 flex items-center justify-center text-blue-700 dark:text-blue-300">
                     <User className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900">{selectedNews.author}</p>
-                    <p className="text-[11px] text-slate-500">{selectedNews.authorRole}</p>
+                    <p className="font-bold text-slate-900 dark:text-slate-100">{selectedNews.author}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{selectedNews.authorRole}</p>
                   </div>
                 </div>
 
-                <div className="rounded-2xl overflow-hidden border border-slate-200">
+                <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
                   <img 
                     src={selectedNews.coverImage} 
                     alt={selectedNews.title} 
@@ -418,23 +418,23 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                 </div>
 
                 {/* Summary block */}
-                <div className="p-4 rounded-xl bg-blue-50 border-l-4 border-blue-600 text-blue-900 text-sm font-medium leading-relaxed">
+                <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-600 text-blue-900 dark:text-blue-200 text-sm font-medium leading-relaxed">
                   {selectedNews.summary}
                 </div>
 
                 {/* Article Body */}
-                <div className="text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 whitespace-pre-line">
+                <div className="text-slate-700 dark:text-slate-200 text-sm sm:text-base leading-relaxed space-y-4 whitespace-pre-line">
                   {selectedNews.content}
                 </div>
 
                 {/* Tags in modal */}
-                <div className="pt-4 border-t border-slate-200 flex items-center flex-wrap gap-2">
-                  <span className="text-xs text-slate-500 font-medium flex items-center">
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center flex-wrap gap-2">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center">
                     <Tag className="w-3.5 h-3.5 mr-1" />
                     Chủ đề:
                   </span>
                   {selectedNews.tags.map((t, idx) => (
-                    <span key={idx} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-blue-700 border border-slate-200">
+                    <span key={idx} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-300 border border-slate-200 dark:border-slate-700">
                       #{t}
                     </span>
                   ))}
@@ -447,37 +447,37 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
         {/* Modal: Create News Article */}
         {isCreatingModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div className="relative w-full max-w-2xl bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-4">
-                <h3 className="font-tech text-lg font-bold text-slate-900 flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
+            <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700 mb-4">
+                <h3 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                  <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                   <span>Đăng Tin tức Mới (Ban Truyền thông)</span>
                 </h3>
-                <button onClick={() => setIsCreatingModal(false)} className="text-slate-400 hover:text-slate-600">
+                <button onClick={() => setIsCreatingModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Tiêu đề bài viết *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tiêu đề bài viết *</label>
                   <input
                     type="text"
                     required
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="VD: Khởi động Cuộc thi Robot Tự hành FEE Robocon 2026..."
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Chuyên mục *</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Chuyên mục *</label>
                     <select
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value as NewsCategory)}
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     >
                       <option value="HOAT_DONG_KHOA">Hoạt động Đoàn - Hội</option>
                       <option value="CUOC_THI_NCKH">Cuộc thi & NCKH</option>
@@ -488,46 +488,46 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ newsList, currentRole, onCre
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Tags (cách nhau bởi dấu phẩy)</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tags (cách nhau bởi dấu phẩy)</label>
                     <input
                       type="text"
                       value={newTags}
                       onChange={(e) => setNewTags(e.target.value)}
                       placeholder="Vi mạch, Robocon, ĐRL +10..."
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Tóm tắt ngắn gọn *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tóm tắt ngắn gọn *</label>
                   <textarea
                     rows={2}
                     required
                     value={newSummary}
                     onChange={(e) => setNewSummary(e.target.value)}
                     placeholder="Tóm tắt ngắn hiển thị trên thẻ bài viết..."
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Nội dung chi tiết *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Nội dung chi tiết *</label>
                   <textarea
                     rows={5}
                     required
                     value={newContent}
                     onChange={(e) => setNewContent(e.target.value)}
                     placeholder="Nhập nội dung đầy đủ bài viết..."
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-200">
+                <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                   <button
                     type="button"
                     onClick={() => setIsCreatingModal(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                   >
                     Hủy bỏ
                   </button>

@@ -50,7 +50,7 @@ function tabFromHash(): string {
 function TabFallback() {
   return (
     <div className="flex justify-center py-24">
-      <div className="w-8 h-8 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
+      <div className="w-8 h-8 rounded-full border-2 border-blue-200 dark:border-blue-400/30 border-t-blue-600 animate-spin" />
     </div>
   );
 }
@@ -178,12 +178,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white pb-16 lg:pb-0">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white pb-16 lg:pb-0">
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-4 z-50 p-4 rounded-2xl bg-white/95 border border-blue-200 shadow-xl text-xs text-blue-900 flex items-center space-x-2 animate-in fade-in slide-in-from-top-4 backdrop-blur-md">
-          <Sparkles className="w-4 h-4 text-blue-600 flex-shrink-0" />
+        <div className="fixed top-20 right-4 z-50 p-4 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-blue-200 dark:border-blue-400/30 shadow-xl text-xs text-blue-900 dark:text-blue-200 flex items-center space-x-2 animate-in fade-in slide-in-from-top-4 backdrop-blur-md">
+          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-300 flex-shrink-0" />
           <span className="font-medium">{toastMessage}</span>
         </div>
       )}
@@ -214,19 +214,19 @@ export default function App() {
             />
 
             {/* Quick Section previews on home */}
-            <div className="py-14 bg-white border-b border-slate-200">
+            <div className="py-14 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
               <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between mb-8">
                   <div>
-                    <h3 className="font-tech text-2xl font-bold text-slate-900 flex items-center space-x-2.5">
-                      <Calendar className="w-6 h-6 text-blue-600" />
+                    <h3 className="font-tech text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2.5">
+                      <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-300" />
                       <span>SỰ KIỆN NỔI BẬT ĐANG MỞ ĐĂNG KÝ</span>
                     </h3>
-                    <p className="text-sm text-slate-500 mt-1 font-medium">Tự động cấp vé QR & điểm danh điện tử trực tuyến</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Tự động cấp vé QR & điểm danh điện tử trực tuyến</p>
                   </div>
                   <button
                     onClick={() => setActiveTab('events')}
-                    className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center space-x-1.5 hover:underline cursor-pointer bg-blue-50 px-4 py-2 rounded-xl border border-blue-200"
+                    className="text-sm font-bold text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 flex items-center space-x-1.5 hover:underline cursor-pointer bg-blue-50 dark:bg-blue-950/40 px-4 py-2 rounded-xl border border-blue-200 dark:border-blue-400/30"
                   >
                     <span>Xem tất cả ({events.length})</span>
                     <span>→</span>
@@ -243,19 +243,19 @@ export default function App() {
             </div>
 
             {/* News preview on home */}
-            <div className="py-14 bg-slate-50">
+            <div className="py-14 bg-slate-50 dark:bg-slate-950">
               <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between mb-8">
                   <div>
-                    <h3 className="font-tech text-2xl font-bold text-slate-900 flex items-center space-x-2.5">
-                      <Newspaper className="w-6 h-6 text-blue-600" />
+                    <h3 className="font-tech text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2.5">
+                      <Newspaper className="w-6 h-6 text-blue-600 dark:text-blue-300" />
                       <span>BẢNG TIN & HOẠT ĐỘNG MỚI NHẤT</span>
                     </h3>
-                    <p className="text-sm text-slate-500 mt-1 font-medium">Tin phong trào, nghiên cứu khoa học và học bổng doanh nghiệp</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Tin phong trào, nghiên cứu khoa học và học bổng doanh nghiệp</p>
                   </div>
                   <button
                     onClick={() => setActiveTab('news')}
-                    className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center space-x-1.5 hover:underline cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-2xs"
+                    className="text-sm font-bold text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 flex items-center space-x-1.5 hover:underline cursor-pointer bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs"
                   >
                     <span>Xem tất cả ({news.length})</span>
                     <span>→</span>
@@ -303,9 +303,9 @@ export default function App() {
 
           {activeTab === 'admin' && FIREBASE_ENABLED && currentRole === 'STUDENT' && (
             <div className="max-w-md mx-auto my-20 px-4 text-center">
-              <ShieldCheck className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h2 className="font-tech text-xl font-bold text-slate-900">Khu vực dành cho BCH</h2>
-              <p className="text-sm text-slate-500 mt-2">
+              <ShieldCheck className="w-12 h-12 text-blue-600 dark:text-blue-300 mx-auto mb-4" />
+              <h2 className="font-tech text-xl font-bold text-slate-900 dark:text-slate-100">Khu vực dành cho BCH</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                 {session
                   ? `Tài khoản ${session.email} chưa được cấp quyền quản trị. Liên hệ Super Admin để được thêm vào danh sách.`
                   : 'Đăng nhập bằng tài khoản Google đã được cấp quyền để quản lý sự kiện, tin tức và điểm danh.'}
@@ -335,7 +335,7 @@ export default function App() {
       {/* Floating QR Scanner Modal if triggered */}
       {isQRScannerOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-2xl">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-4 sm:p-6 shadow-2xl">
             <Suspense fallback={<TabFallback />}>
               <QRCheckInScanner
                 events={events}

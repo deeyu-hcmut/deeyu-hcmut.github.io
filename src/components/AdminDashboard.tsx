@@ -165,28 +165,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   ];
 
   return (
-    <div className="py-10 bg-slate-50 min-h-[75vh]">
+    <div className="py-10 bg-slate-50 dark:bg-slate-950 min-h-[75vh]">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-8 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-8 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center space-x-3.5">
-            <div className="p-3 rounded-2xl bg-blue-100/80 text-blue-700 border border-blue-200 shadow-2xs">
+            <div className="p-3 rounded-2xl bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 shadow-2xs">
               <ShieldCheck className="w-7 h-7" />
             </div>
             <div>
-              <h2 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="font-tech text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                 TRUNG TÂM QUẢN TRỊ & TỰ ĐỘNG HÓA (FEE ADMIN)
               </h2>
-              <p className="text-sm text-slate-500 font-medium mt-0.5">
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                 Quản lý người tham gia, xuất file Excel, tự động hóa Email/Push 24h và kiểm soát phân quyền RBAC
               </p>
             </div>
           </div>
 
           {/* Role badge */}
-          <div className="flex items-center space-x-2.5 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-xs text-slate-500 font-semibold">Quyền hiện tại:</span>
+          <div className="flex items-center space-x-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Quyền hiện tại:</span>
             <span className="px-3 py-1 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs">
               {currentRole}
             </span>
@@ -195,25 +195,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         {/* Action Notice Alert */}
         {actionNotice && (
-          <div className="mt-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between animate-in fade-in shadow-2xs">
+          <div className="mt-5 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-400/30 text-emerald-800 dark:text-emerald-200 text-sm flex items-center justify-between animate-in fade-in shadow-2xs">
             <div className="flex items-center space-x-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-300 flex-shrink-0" />
               <span className="font-semibold">{actionNotice}</span>
             </div>
-            <button onClick={() => setActionNotice(null)} className="text-emerald-700 hover:text-emerald-900 font-bold cursor-pointer">
+            <button onClick={() => setActionNotice(null)} className="text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-200 font-bold cursor-pointer">
               Đóng
             </button>
           </div>
         )}
 
         {/* Nav Tabs */}
-        <div className="mt-8 flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200">
+        <div className="mt-8 flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200 dark:border-slate-700">
           <button
             onClick={() => setActiveTab('REGISTRATIONS')}
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'REGISTRATIONS'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
+                : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <Users className="w-4 h-4" />
@@ -225,7 +225,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'AUTOMATION'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
+                : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <Mail className="w-4 h-4" />
@@ -237,7 +237,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'ROLES'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
+                : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
@@ -249,7 +249,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
               activeTab === 'EMAIL_LOGS'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'
+                : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -262,14 +262,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="mt-6 space-y-6">
             
             {/* Toolbar */}
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 
                 {/* Event Select */}
                 <select
                   value={selectedEventId}
                   onChange={(e) => setSelectedEventId(e.target.value)}
-                  className="w-full sm:w-64 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full sm:w-64 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="ALL">Tất cả sự kiện</option>
                   {events.map(e => (
@@ -286,13 +286,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Tìm tên, MSSV, mã vé..."
-                    className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <button
                   onClick={handleSearch}
-                  className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                  className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                 >
                   Lọc
                 </button>
@@ -320,10 +320,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Registrations Table */}
-            <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm">
+            <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-700">
-                  <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
+                <table className="w-full text-left text-xs text-slate-700 dark:text-slate-200">
+                  <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200 dark:border-slate-700">
                     <tr>
                       <th className="px-4 py-3">Mã Vé</th>
                       <th className="px-4 py-3">Sinh viên</th>
@@ -333,41 +333,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <th className="px-4 py-3 text-right">Trạng thái Điểm danh</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {registrations.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                        <td colSpan={6} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
                           Chưa có dữ liệu đăng ký nào phù hợp.
                         </td>
                       </tr>
                     ) : (
                       registrations.map(r => (
-                        <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
-                          <td className="px-4 py-3 font-mono font-bold text-blue-700">
+                        <tr key={r.id} className="hover:bg-blue-50/40 dark:hover:bg-blue-950/40 transition-colors">
+                          <td className="px-4 py-3 font-mono font-bold text-blue-700 dark:text-blue-300">
                             #{r.ticketCode}
                           </td>
                           <td className="px-4 py-3">
-                            <p className="font-bold text-slate-900">{r.fullName}</p>
+                            <p className="font-bold text-slate-900 dark:text-slate-100">{r.fullName}</p>
                             <p className="text-[10px] text-slate-400 font-mono">{r.email}</p>
                           </td>
                           <td className="px-4 py-3 font-mono">
-                            <span className="text-slate-900 font-bold">{r.mssv}</span>
-                            <span className="text-slate-500 block text-[10px]">{r.classGroup}</span>
+                            <span className="text-slate-900 dark:text-slate-100 font-bold">{r.mssv}</span>
+                            <span className="text-slate-500 dark:text-slate-400 block text-[10px]">{r.classGroup}</span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="line-clamp-1 max-w-[200px] text-slate-700 font-medium">{r.eventTitle}</span>
+                            <span className="line-clamp-1 max-w-[200px] text-slate-700 dark:text-slate-200 font-medium">{r.eventTitle}</span>
                           </td>
-                          <td className="px-4 py-3 text-[11px] text-slate-500">
+                          <td className="px-4 py-3 text-[11px] text-slate-500 dark:text-slate-400">
                             {new Date(r.registeredAt).toLocaleDateString('vi-VN')}
                           </td>
                           <td className="px-4 py-3 text-right">
                             {r.checkedIn ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-400/30">
                                 <Check className="w-3 h-3 mr-1" />
                                 Đã điểm danh
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-400/30">
                                 Chưa điểm danh
                               </span>
                             )}
@@ -388,33 +388,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="mt-6 space-y-6">
             
             {/* Quick 24h Reminder Dispatcher */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
-              <h3 className="font-tech text-base font-bold text-slate-900 mb-2 flex items-center space-x-2">
-                <Send className="w-5 h-5 text-blue-600" />
+            <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+              <h3 className="font-tech text-base font-bold text-slate-900 dark:text-slate-100 mb-2 flex items-center space-x-2">
+                <Send className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 <span>Gửi Email & Push Notification Nhắc Nhở 24h Trước Sự Kiện</span>
               </h3>
-              <p className="text-xs text-slate-500 font-medium mb-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-4">
                 Hệ thống tự động quét danh sách người đăng ký và gửi email kèm mã vé QR nhắc nhở trước giờ khai mạc.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {events.filter(e => e.status !== 'COMPLETED').map(evt => (
-                  <div key={evt.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+                  <div key={evt.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] font-bold text-blue-700 uppercase">{evt.typeName}</span>
-                      <h4 className="font-bold text-slate-900 text-xs mt-1 line-clamp-1">{evt.title}</h4>
-                      <p className="text-[11px] text-slate-500 mt-1">
+                      <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase">{evt.typeName}</span>
+                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs mt-1 line-clamp-1">{evt.title}</h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                         📅 {evt.eventDate} ({evt.startTime}) • 📍 {evt.location}
                       </p>
-                      <p className="text-[11px] text-slate-700 mt-2 font-mono">
-                        Số lượng đã đăng ký: <strong className="text-blue-700 font-bold">{evt.currentParticipants} sinh viên</strong>
+                      <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-2 font-mono">
+                        Số lượng đã đăng ký: <strong className="text-blue-700 dark:text-blue-300 font-bold">{evt.currentParticipants} sinh viên</strong>
                       </p>
                     </div>
 
                     <button
                       onClick={() => handleTrigger24hReminder(evt.id)}
                       disabled={sendingReminder}
-                      className="mt-4 w-full py-2 rounded-xl text-xs font-bold bg-blue-100 hover:bg-blue-600 text-blue-700 hover:text-white border border-blue-200 transition-all flex items-center justify-center space-x-1.5"
+                      className="mt-4 w-full py-2 rounded-xl text-xs font-bold bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-600 text-blue-700 dark:text-blue-300 hover:text-white border border-blue-200 dark:border-blue-400/30 transition-all flex items-center justify-center space-x-1.5"
                     >
                       <Bell className="w-3.5 h-3.5" />
                       <span>Kích hoạt Gửi Nhắc Nhở 24h</span>
@@ -425,18 +425,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Email Template Previewer */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+            <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <h3 className="font-tech text-base font-bold text-slate-900 flex items-center space-x-2">
-                  <Mail className="w-5 h-5 text-orange-600" />
+                <h3 className="font-tech text-base font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                  <Mail className="w-5 h-5 text-orange-600 dark:text-orange-300" />
                   <span>Trình Xem Trước Mẫu Email Tự Động (HTML Email Template)</span>
                 </h3>
 
-                <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
                   <button
                     onClick={() => setPreviewType('TICKET')}
                     className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                      previewType === 'TICKET' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600'
+                      previewType === 'TICKET' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     Xác nhận ĐK & Vé QR
@@ -444,7 +444,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <button
                     onClick={() => setPreviewType('REMINDER')}
                     className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                      previewType === 'REMINDER' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600'
+                      previewType === 'REMINDER' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     Nhắc nhở 24h
@@ -452,7 +452,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <button
                     onClick={() => setPreviewType('CHECKIN')}
                     className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                      previewType === 'CHECKIN' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600'
+                      previewType === 'CHECKIN' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     Xác nhận Điểm danh
@@ -461,13 +461,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Realistic Email Mockup Window */}
-              <div className="rounded-2xl border border-slate-200 bg-white text-slate-900 p-6 shadow-md max-w-2xl mx-auto font-sans">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 shadow-md max-w-2xl mx-auto font-sans">
                 {/* Email Header */}
                 <div className="border-b pb-4 text-center">
                   <div className="inline-block bg-blue-600 text-white font-bold px-3 py-1 rounded-full text-xs tracking-wider mb-2 shadow-2xs">
                     ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ
                   </div>
-                  <h2 className="text-xl font-extrabold text-blue-900">
+                  <h2 className="text-xl font-extrabold text-blue-900 dark:text-blue-200">
                     {previewType === 'TICKET' 
                       ? 'XÁC NHẬN ĐĂNG KÝ SỰ KIỆN THÀNH CÔNG' 
                       : previewType === 'REMINDER'
@@ -477,27 +477,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 {/* Email Body */}
-                <div className="py-5 text-sm space-y-3 text-slate-700">
+                <div className="py-5 text-sm space-y-3 text-slate-700 dark:text-slate-200">
                   <p>Xin chào <strong>Nguyễn Văn An</strong> (MSSV: <strong>2211001</strong>),</p>
                   
                   {previewType === 'TICKET' && (
                     <>
                       <p>Bạn đã đăng ký tham gia thành công sự kiện <strong>EE TECH DAY 2026: Triển lãm Đồ án & Ngày hội Tuyển dụng</strong>.</p>
                       
-                      <div className="my-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                        <p className="text-xs text-slate-500 uppercase font-bold">MÃ VÉ ĐIỆN TỬ CỦA BẠN</p>
-                        <p className="text-2xl font-mono font-extrabold text-blue-700 my-1">#FEE-TECH-88392</p>
-                        <p className="text-xs text-slate-600">Thời gian: 08:00 Ngày 28/08/2026 • Hội trường A</p>
+                      <div className="my-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-center">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">MÃ VÉ ĐIỆN TỬ CỦA BẠN</p>
+                        <p className="text-2xl font-mono font-extrabold text-blue-700 dark:text-blue-300 my-1">#FEE-TECH-88392</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300">Thời gian: 08:00 Ngày 28/08/2026 • Hội trường A</p>
                       </div>
 
-                      <p className="text-xs text-slate-500">Vui lòng lưu lại email này hoặc xuất trình mã vé tại cổng Hội trường để hoàn tất điểm danh.</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Vui lòng lưu lại email này hoặc xuất trình mã vé tại cổng Hội trường để hoàn tất điểm danh.</p>
                     </>
                   )}
 
                   {previewType === 'REMINDER' && (
                     <>
                       <p>Sự kiện <strong>EE TECH DAY 2026</strong> bạn đã đăng ký sẽ chính thức khai mạc vào <strong>08:00 sáng mai</strong> tại Hội trường A.</p>
-                      <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
+                      <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-400/30 rounded-lg text-xs text-amber-900 dark:text-amber-200">
                         ⚡ <strong>Lưu ý:</strong> Vui lòng mặc trang phục lịch sự / Áo Đoàn và mang theo thẻ sinh viên kèm vé QR (#FEE-TECH-88392).
                       </div>
                     </>
@@ -506,7 +506,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   {previewType === 'CHECKIN' && (
                     <>
                       <p>Ban Tổ chức xác nhận bạn đã <strong>Check-in thành công</strong> tại sự kiện <strong>EE TECH DAY 2026</strong>.</p>
-                      <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-center font-bold">
+                      <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-400/30 rounded-lg text-emerald-900 dark:text-emerald-200 text-center font-bold">
                         🎉 Ban Tổ chức đã ghi nhận bạn tham gia đầy đủ chương trình.
                       </div>
                     </>
@@ -527,7 +527,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {activeTab === 'ROLES' && (
           <div className="mt-6 space-y-6">
             {FIREBASE_ENABLED && (
-              <div className="p-5 rounded-3xl border border-blue-200 bg-blue-50/60 text-sm text-slate-700">
+              <div className="p-5 rounded-3xl border border-blue-200 dark:border-blue-400/30 bg-blue-50/60 dark:bg-blue-950/40 text-sm text-slate-700 dark:text-slate-200">
                 <p>
                   Quyền được cấp trong Firestore: mỗi tài khoản BCH là một document <code className="font-mono text-xs">admins/&lt;email&gt;</code> với
                   trường <code className="font-mono text-xs">role</code> là <code className="font-mono text-xs">SUPER_ADMIN</code>,{' '}
@@ -550,42 +550,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   key={item.role}
                   className={`p-6 rounded-3xl border transition-all ${
                     currentRole === item.role
-                      ? 'bg-blue-50/60 border-blue-400 shadow-md'
-                      : 'bg-white border-slate-200 shadow-sm hover:border-slate-300'
+                      ? 'bg-blue-50/60 dark:bg-blue-950/40 border-blue-400 shadow-md'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-sm hover:border-slate-300 dark:hover:border-slate-600'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30">
                       {item.role}
                     </span>
                     {currentRole === item.role ? (
-                      <span className="flex items-center text-xs font-bold text-blue-700">
-                        <CheckCircle2 className="w-4 h-4 mr-1 text-blue-600" />
+                      <span className="flex items-center text-xs font-bold text-blue-700 dark:text-blue-300">
+                        <CheckCircle2 className="w-4 h-4 mr-1 text-blue-600 dark:text-blue-300" />
                         Đang kích hoạt
                       </span>
                     ) : FIREBASE_ENABLED ? null : (
                       <button
                         onClick={() => setCurrentRole(item.role)}
-                        className="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 transition-colors"
+                        className="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 transition-colors"
                       >
                         Chuyển sang vai này
                       </button>
                     )}
                   </div>
 
-                  <h4 className="font-tech text-base font-bold text-slate-900">
+                  <h4 className="font-tech text-base font-bold text-slate-900 dark:text-slate-100">
                     {item.title}
                   </h4>
-                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
                     {item.desc}
                   </p>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100">
-                    <span className="text-[11px] font-bold text-slate-700 block mb-1.5">Quyền hạn truy cập:</span>
-                    <ul className="space-y-1 text-[11px] text-slate-600">
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 block mb-1.5">Quyền hạn truy cập:</span>
+                    <ul className="space-y-1 text-[11px] text-slate-600 dark:text-slate-300">
                       {item.permissions.map((perm, idx) => (
                         <li key={idx} className="flex items-center space-x-1.5">
-                          <Check className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                          <Check className="w-3 h-3 text-blue-600 dark:text-blue-300 flex-shrink-0" />
                           <span>{perm}</span>
                         </li>
                       ))}
@@ -600,22 +600,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* TAB 4: EMAIL DISPATCH LOGS */}
         {activeTab === 'EMAIL_LOGS' && (
           <div className="mt-6">
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 mb-4 flex items-center justify-between shadow-sm">
-              <span className="text-xs text-slate-700 font-semibold">
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mb-4 flex items-center justify-between shadow-sm">
+              <span className="text-xs text-slate-700 dark:text-slate-200 font-semibold">
                 Nhật ký các email tự động đã gửi qua SMTP / Resend Simulation
               </span>
               <button
                 onClick={loadData}
-                className="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                className="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Làm mới</span>
               </button>
             </div>
 
-            <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
+            <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-200">
+                <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="px-4 py-3">Người nhận</th>
                     <th className="px-4 py-3">Tiêu đề thư</th>
@@ -624,26 +624,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <th className="px-4 py-3 text-right">Trạng thái</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {emailLogs.map(log => (
-                    <tr key={log.id} className="hover:bg-blue-50/40">
+                    <tr key={log.id} className="hover:bg-blue-50/40 dark:hover:bg-blue-950/40">
                       <td className="px-4 py-3">
-                        <p className="font-bold text-slate-900">{log.recipientName}</p>
+                        <p className="font-bold text-slate-900 dark:text-slate-100">{log.recipientName}</p>
                         <p className="text-[10px] text-slate-400 font-mono">{log.recipientEmail}</p>
                       </td>
-                      <td className="px-4 py-3 text-slate-800">
+                      <td className="px-4 py-3 text-slate-800 dark:text-slate-100">
                         {log.subject}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-blue-700 border border-slate-200 font-medium">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-300 border border-slate-200 dark:border-slate-700 font-medium">
                           {log.type}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[11px] text-slate-500">
+                      <td className="px-4 py-3 text-[11px] text-slate-500 dark:text-slate-400">
                         {new Date(log.sentAt).toLocaleString('vi-VN')}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-400/30">
                           {log.status}
                         </span>
                       </td>

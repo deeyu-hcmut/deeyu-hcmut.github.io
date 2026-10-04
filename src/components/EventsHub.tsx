@@ -97,8 +97,8 @@ export const EventsHub: React.FC<EventsHubProps> = ({
       return (
         <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border flex items-center space-x-1 ${
           isAlmostFull 
-            ? 'bg-orange-100 text-orange-700 border-orange-200 animate-pulse' 
-            : 'bg-emerald-100 text-emerald-700 border-emerald-200'
+            ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-400/30 animate-pulse' 
+            : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-400/30'
         }`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isAlmostFull ? 'bg-orange-600' : 'bg-emerald-600'}`} />
           <span>{isAlmostFull ? 'Sắp hết slot!' : 'Đang mở đăng ký'}</span>
@@ -107,20 +107,20 @@ export const EventsHub: React.FC<EventsHubProps> = ({
     }
     if (status === 'UPCOMING') {
       return (
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
+        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30">
           Sắp diễn ra
         </span>
       );
     }
     if (status === 'REGISTRATION_CLOSED') {
       return (
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-400/30">
           Đã đủ số lượng
         </span>
       );
     }
     return (
-      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         Đã kết thúc
       </span>
     );
@@ -156,21 +156,21 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   };
 
   return (
-    <div className="py-10 bg-slate-50 min-h-[75vh]">
+    <div className="py-10 bg-slate-50 dark:bg-slate-950 min-h-[75vh]">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Hub Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pb-8 border-b border-slate-200 dark:border-slate-700">
           <div>
             <div className="flex items-center space-x-3">
-              <span className="p-3 rounded-2xl bg-blue-100/80 text-blue-700 border border-blue-200 shadow-2xs">
+              <span className="p-3 rounded-2xl bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 shadow-2xs">
                 <Calendar className="w-6 h-6" />
               </span>
               <div>
-                <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="font-tech text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                   SỰ KIỆN & ĐĂNG KÝ THAM GIA
                 </h2>
-                <p className="text-sm text-slate-500 font-medium mt-0.5">
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                   Cổng đăng ký trực tuyến, tự động tạo vé điện tử QR độc nhất và điểm danh thời gian thực
                 </p>
               </div>
@@ -179,11 +179,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
 
           <div className="flex items-center space-x-3">
             {/* View Mode Toggle */}
-            <div className="flex items-center bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex items-center bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
               <button
                 onClick={() => setViewMode('GRID')}
                 className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
-                  viewMode === 'GRID' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                  viewMode === 'GRID' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
                 title="Dạng lưới"
               >
@@ -192,7 +192,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               <button
                 onClick={() => setViewMode('LIST')}
                 className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
-                  viewMode === 'LIST' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                  viewMode === 'LIST' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
                 title="Dạng danh sách"
               >
@@ -201,7 +201,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               <button
                 onClick={() => setViewMode('CALENDAR')}
                 className={`p-2 rounded-xl text-xs transition-all cursor-pointer ${
-                  viewMode === 'CALENDAR' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                  viewMode === 'CALENDAR' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
                 title="Dạng lịch trình"
               >
@@ -234,7 +234,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm kiếm sự kiện, địa điểm, từ khóa..."
-              className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
 
@@ -243,10 +243,10 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
             >
               {eventTypes.map(t => (
-                <option key={t.id} value={t.id} className="bg-white">{t.label}</option>
+                <option key={t.id} value={t.id} className="bg-white dark:bg-slate-900">{t.label}</option>
               ))}
             </select>
           </div>
@@ -256,10 +256,10 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all"
             >
               {statusFilters.map(s => (
-                <option key={s.id} value={s.id} className="bg-white">{s.label}</option>
+                <option key={s.id} value={s.id} className="bg-white dark:bg-slate-900">{s.label}</option>
               ))}
             </select>
           </div>
@@ -268,13 +268,13 @@ export const EventsHub: React.FC<EventsHubProps> = ({
         {/* Events Rendering */}
         <div className="mt-8">
           {filteredEvents.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
               <Calendar className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-              <p className="text-sm font-semibold text-slate-800">Không tìm thấy sự kiện nào.</p>
-              <p className="text-xs text-slate-500 mt-1">Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Không tìm thấy sự kiện nào.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.</p>
               <button
                 onClick={() => { setSelectedType('ALL'); setSelectedStatus('ALL'); setSearchQuery(''); }}
-                className="mt-4 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                className="mt-4 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
               >
                 Xem tất cả sự kiện
               </button>
@@ -285,7 +285,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               {filteredEvents.map(evt => (
                 <div 
                   key={evt.id}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-400/30 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="flex items-start space-x-4">
                     {/* Date Block */}
@@ -301,27 +301,27 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
-                        <span className="text-xs font-semibold text-blue-700">{evt.typeName}</span>
+                        <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">{evt.typeName}</span>
                       </div>
 
                       <h4 
                         onClick={() => setViewingEvent(evt)}
-                        className="font-tech text-base font-bold text-slate-900 hover:text-blue-600 cursor-pointer transition-colors"
+                        className="font-tech text-base font-bold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-300 cursor-pointer transition-colors"
                       >
                         {evt.title}
                       </h4>
 
-                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                         <span className="flex items-center">
-                          <Clock className="w-3.5 h-3.5 mr-1 text-blue-600" />
+                          <Clock className="w-3.5 h-3.5 mr-1 text-blue-600 dark:text-blue-300" />
                           {evt.startTime} - {evt.endTime}
                         </span>
                         <span className="flex items-center">
-                          <MapPin className="w-3.5 h-3.5 mr-1 text-orange-600" />
+                          <MapPin className="w-3.5 h-3.5 mr-1 text-orange-600 dark:text-orange-300" />
                           {evt.location}
                         </span>
                         <span className="flex items-center">
-                          <Users className="w-3.5 h-3.5 mr-1 text-blue-600" />
+                          <Users className="w-3.5 h-3.5 mr-1 text-blue-600 dark:text-blue-300" />
                           {evt.currentParticipants}/{evt.maxParticipants} đã đăng ký
                         </span>
                       </div>
@@ -331,7 +331,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                   <div className="flex items-center space-x-2 flex-shrink-0">
                     <button
                       onClick={() => setViewingEvent(evt)}
-                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                     >
                       Chi tiết
                     </button>
@@ -357,7 +357,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               {filteredEvents.map(evt => (
                 <div 
                   key={evt.id}
-                  className="p-4 rounded-xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-400/30 hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-center space-x-4 min-w-0">
                     <img 
@@ -366,20 +366,20 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
-                      className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-slate-200"
+                      className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700"
                     />
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
                         {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
-                        <span className="text-xs text-blue-700 font-semibold">{evt.typeName}</span>
+                        <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold">{evt.typeName}</span>
                       </div>
                       <h4 
                         onClick={() => setViewingEvent(evt)}
-                        className="font-tech text-sm font-bold text-slate-900 truncate cursor-pointer hover:text-blue-600"
+                        className="font-tech text-sm font-bold text-slate-900 dark:text-slate-100 truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-300"
                       >
                         {evt.title}
                       </h4>
-                      <p className="text-[11px] text-slate-500 mt-0.5 flex items-center space-x-3">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center space-x-3">
                         <span>📅 {evt.eventDate} ({evt.startTime})</span>
                         <span>📍 {evt.location}</span>
                       </p>
@@ -389,7 +389,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                   <div className="flex items-center space-x-2 flex-shrink-0 w-full sm:w-auto justify-end">
                     <button
                       onClick={() => setViewingEvent(evt)}
-                      className="px-3.5 py-1.5 rounded-lg text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                      className="px-3.5 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                     >
                       Xem
                     </button>
@@ -416,10 +416,10 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                   <div
                     key={evt.id}
                     id={`event-card-${evt.id}`}
-                    className="rounded-3xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group shadow-xs"
+                    className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-400/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group shadow-xs"
                   >
                     {/* Banner Image with Overlays */}
-                    <div className="relative h-56 overflow-hidden bg-slate-100">
+                    <div className="relative h-56 overflow-hidden bg-slate-100 dark:bg-slate-800">
                       <img 
                         src={sizedImage(evt.bannerUrl, 800)} 
                         alt={evt.title}
@@ -451,37 +451,37 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     {/* Card Content */}
                     <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
+                        <div className="text-xs font-bold text-blue-600 dark:text-blue-300 uppercase tracking-wider mb-2">
                           {evt.typeName}
                         </div>
 
                         <h4 
                           onClick={() => setViewingEvent(evt)}
-                          className="font-tech text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug cursor-pointer"
+                          className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors line-clamp-2 leading-snug cursor-pointer"
                         >
                           {evt.title}
                         </h4>
 
-                        <div className="mt-3 text-xs sm:text-sm text-slate-500 space-y-1.5">
+                        <div className="mt-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400 space-y-1.5">
                           <div className="flex items-start">
-                            <MapPin className="w-4 h-4 text-orange-600 mr-2 flex-shrink-0 mt-0.5" />
+                            <MapPin className="w-4 h-4 text-orange-600 dark:text-orange-300 mr-2 flex-shrink-0 mt-0.5" />
                             <span className="truncate">{evt.location}</span>
                           </div>
                         </div>
 
                         {/* Quota Progress Bar */}
-                        <div className="mt-5 pt-4 border-t border-slate-100">
-                          <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+                        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
                             <span className="flex items-center font-medium">
                               <Users className="w-4 h-4 mr-1.5 text-slate-400" />
                               Số lượng đăng ký:
                             </span>
-                            <span className="font-bold text-slate-800 font-mono text-xs">
+                            <span className="font-bold text-slate-800 dark:text-slate-100 font-mono text-xs">
                               {evt.currentParticipants} / {evt.maxParticipants} chỗ
                             </span>
                           </div>
                           
-                          <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                          <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700">
                             <div 
                               className={`h-full rounded-full transition-all duration-500 ${
                                 isFull 
@@ -497,10 +497,10 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
                         <button
                           onClick={() => setViewingEvent(evt)}
-                          className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors text-center cursor-pointer"
+                          className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors text-center cursor-pointer"
                         >
                           Xem chi tiết
                         </button>
@@ -517,7 +517,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                         ) : (
                           <button
                             disabled
-                            className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed text-center"
+                            className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed text-center"
                           >
                             {evt.status === 'COMPLETED' ? 'Đã kết thúc' : 'Hết slot'}
                           </button>
@@ -571,31 +571,31 @@ export const EventsHub: React.FC<EventsHubProps> = ({
         {/* Modal: Create Event Form (Admin) */}
         {isCreatingEvent && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div className="relative w-full max-w-2xl bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-              <h3 className="font-tech text-lg font-bold text-slate-900 mb-4 flex items-center space-x-2">
-                <Sparkles className="w-5 h-5 text-blue-600" />
+            <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+              <h3 className="font-tech text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center space-x-2">
+                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 <span>Tạo Sự kiện Mới (Ban CTXH & Quản trị)</span>
               </h3>
 
               <form onSubmit={handleCreateEventSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Tên sự kiện *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tên sự kiện *</label>
                   <input
                     type="text"
                     required
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="VD: Triển lãm Robocon & Vi mạch FEE 2026..."
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Loại sự kiện *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Loại sự kiện *</label>
                   <select
                     value={newType}
                     onChange={(e) => setNewType(e.target.value as EventType)}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="ACADEMIC_CONTEST">Học thuật & Robocon</option>
                     <option value="SEMINAR_WORKSHOP">Hội thảo & Vi mạch</option>
@@ -606,87 +606,87 @@ export const EventsHub: React.FC<EventsHubProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Ngày diễn ra *</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Ngày diễn ra *</label>
                     <input
                       type="date"
                       required
                       value={newEventDate}
                       onChange={(e) => setNewEventDate(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Hạn chót đăng ký</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Hạn chót đăng ký</label>
                     <input
                       type="date"
                       value={newDeadline}
                       onChange={(e) => setNewDeadline(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Giờ bắt đầu</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Giờ bắt đầu</label>
                     <input
                       type="time"
                       value={newStartTime}
                       onChange={(e) => setNewStartTime(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Giờ kết thúc</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Giờ kết thúc</label>
                     <input
                       type="time"
                       value={newEndTime}
                       onChange={(e) => setNewEndTime(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Số lượng tối đa (Slot)</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Số lượng tối đa (Slot)</label>
                     <input
                       type="number"
                       min={10}
                       max={2000}
                       value={newMax}
                       onChange={(e) => setNewMax(Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Địa điểm tổ chức *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Địa điểm tổ chức *</label>
                   <input
                     type="text"
                     required
                     value={newLocation}
                     onChange={(e) => setNewLocation(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Mô tả sự kiện *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Mô tả sự kiện *</label>
                   <textarea
                     rows={3}
                     required
                     value={newDesc}
                     onChange={(e) => setNewDesc(e.target.value)}
                     placeholder="Mô tả nội dung chương trình, quyền lợi tham gia..."
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-200">
+                <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                   <button
                     type="button"
                     onClick={() => setIsCreatingEvent(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                   >
                     Hủy
                   </button>

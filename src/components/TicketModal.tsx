@@ -66,7 +66,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative w-full max-w-md bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
         
         {/* Header */}
         <div className="p-4 bg-blue-600 border-b border-blue-700 flex items-center justify-between text-white">
@@ -93,15 +93,15 @@ export const TicketModal: React.FC<TicketModalProps> = ({
           {/* Visual Ticket Pass */}
           <div 
             id="printable-ticket-card"
-            className="relative rounded-2xl bg-white border-2 border-blue-600/30 p-5 shadow-md text-center overflow-hidden"
+            className="relative rounded-2xl bg-white dark:bg-slate-900 border-2 border-blue-600/30 p-5 shadow-md text-center overflow-hidden"
           >
             {/* Top faculty badge */}
-            <div className="text-[10px] uppercase font-bold tracking-widest text-blue-700 flex items-center justify-center space-x-1 mb-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+            <div className="text-[10px] uppercase font-bold tracking-widest text-blue-700 dark:text-blue-300 flex items-center justify-center space-x-1 mb-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
               <span>KHOA ĐIỆN - ĐIỆN TỬ • PORTAL 2026</span>
             </div>
 
-            <h3 className="font-tech text-base font-extrabold text-slate-900 leading-tight mt-1">
+            <h3 className="font-tech text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight mt-1">
               {event.title}
             </h3>
 
@@ -112,9 +112,9 @@ export const TicketModal: React.FC<TicketModalProps> = ({
               </div>
 
               {/* Ticket Code Tag */}
-              <div className="mt-2.5 flex items-center space-x-1.5 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                <span className="text-[10px] text-slate-500 font-mono">Mã vé:</span>
-                <span className="text-xs font-extrabold text-blue-700 font-mono tracking-wider">
+              <div className="mt-2.5 flex items-center space-x-1.5 bg-blue-50 dark:bg-blue-950/40 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-400/30">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Mã vé:</span>
+                <span className="text-xs font-extrabold text-blue-700 dark:text-blue-300 font-mono tracking-wider">
                   #{record.ticketCode}
                 </span>
               </div>
@@ -122,44 +122,44 @@ export const TicketModal: React.FC<TicketModalProps> = ({
 
             {/* Dashed Separator */}
             <div className="relative my-4">
-              <div className="border-t-2 border-dashed border-slate-200" />
-              <div className="absolute -left-7 -top-2.5 w-5 h-5 rounded-full bg-slate-100 border border-slate-300" />
-              <div className="absolute -right-7 -top-2.5 w-5 h-5 rounded-full bg-slate-100 border border-slate-300" />
+              <div className="border-t-2 border-dashed border-slate-200 dark:border-slate-700" />
+              <div className="absolute -left-7 -top-2.5 w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600" />
+              <div className="absolute -right-7 -top-2.5 w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600" />
             </div>
 
             {/* Student & Event Details */}
-            <div className="grid grid-cols-2 gap-2.5 text-left text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="grid grid-cols-2 gap-2.5 text-left text-xs bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
               <div>
-                <span className="text-[10px] text-slate-500 font-medium">Sinh viên:</span>
-                <p className="font-bold text-slate-900 truncate">{record.fullName}</p>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Sinh viên:</span>
+                <p className="font-bold text-slate-900 dark:text-slate-100 truncate">{record.fullName}</p>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 font-medium">MSSV / Chi đoàn:</span>
-                <p className="font-bold text-blue-700 font-mono">{record.mssv} - {record.classGroup}</p>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">MSSV / Chi đoàn:</span>
+                <p className="font-bold text-blue-700 dark:text-blue-300 font-mono">{record.mssv} - {record.classGroup}</p>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 font-medium">Thời gian:</span>
-                <p className="font-semibold text-slate-800">{event.eventDate} ({event.startTime})</p>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Thời gian:</span>
+                <p className="font-semibold text-slate-800 dark:text-slate-100">{event.eventDate} ({event.startTime})</p>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 font-medium">Hình thức:</span>
-                <p className="font-semibold text-blue-700">Vé điện tử QR</p>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Hình thức:</span>
+                <p className="font-semibold text-blue-700 dark:text-blue-300">Vé điện tử QR</p>
               </div>
               <div className="col-span-2">
-                <span className="text-[10px] text-slate-500 font-medium">Địa điểm:</span>
-                <p className="font-medium text-slate-700 truncate">{event.location}</p>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Địa điểm:</span>
+                <p className="font-medium text-slate-700 dark:text-slate-200 truncate">{event.location}</p>
               </div>
             </div>
 
             {/* Check-in status pill */}
             <div className="mt-3">
               {record.checkedIn ? (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-400/30">
                   <Check className="w-3.5 h-3.5 mr-1" />
                   ĐÃ ĐIỂM DANH ({new Date(record.checkedInAt!).toLocaleTimeString('vi-VN')})
                 </span>
               ) : (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-300">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-400/30">
                   <QrIcon className="w-3.5 h-3.5 mr-1" />
                   SẴN SÀNG QUÉT CHECK-IN TẠI CỬA
                 </span>
@@ -172,9 +172,9 @@ export const TicketModal: React.FC<TicketModalProps> = ({
           <div className="grid grid-cols-2 gap-2 pt-2">
             <button
               onClick={handleCopyCode}
-              className="flex items-center justify-center space-x-1.5 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-all active:scale-95 shadow-2xs"
+              className="flex items-center justify-center space-x-1.5 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all active:scale-95 shadow-2xs"
             >
-              {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-blue-600" />}
+              {copied ? <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-300" /> : <Copy className="w-4 h-4 text-blue-600 dark:text-blue-300" />}
               <span>{copied ? 'Đã sao chép!' : 'Sao chép mã'}</span>
             </button>
 
@@ -187,7 +187,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({
             </button>
           </div>
 
-          <p className="text-[11px] text-slate-500 text-center font-medium">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center font-medium">
             {FIREBASE_ENABLED || !record.email ? (
               // No mail service is wired to Firebase yet, so don't claim a copy was sent
               <>Hãy chụp màn hình hoặc in vé để xuất trình mã QR khi điểm danh. Có thể tra cứu lại vé bằng MSSV.</>

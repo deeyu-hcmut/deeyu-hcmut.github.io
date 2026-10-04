@@ -6,6 +6,13 @@
     <title>Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử | HCMUT</title>
     <meta name="description" content="Cổng thông tin điện tử, quản lý phong trào sinh viên và tự động hóa sự kiện Đoàn - Hội Khoa Điện - Điện tử." />
     <meta name="theme-color" content="#180c5e" />
+    <script>
+      // Apply the saved / OS theme before first paint (key shared with src/theme.ts)
+      try {
+        var t = localStorage.getItem("fee_portal_theme");
+        if (t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.classList.add("dark");
+      } catch (e) {}
+    </script>
     <link rel="canonical" href="https://deeyu-hcmut.github.io/" />
 
     <!-- Open Graph / chia sẻ mạng xã hội -->
@@ -27,7 +34,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   </head>
-  <body class="bg-slate-50 text-slate-900 antialiased font-sans selection:bg-blue-600 selection:text-white">
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased font-sans selection:bg-blue-600 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -17,12 +17,15 @@ import {
   X,
   Radio,
   LogIn,
-  LogOut
+  LogOut,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Role, NotificationItem } from '../types';
 import { api } from '../services/api';
 import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 import type { StaffSession } from '../services/auth';
+import { useTheme } from '../theme';
 
 // Every Firestore poll is billed as reads, so poll far less often than the local demo
 const NOTIFICATION_POLL_MS = FIREBASE_ENABLED ? 120_000 : 8000;
@@ -54,6 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [theme, toggleTheme] = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,8 +103,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className={`sticky top-0 z-40 transition-all duration-300 ${
       scrolled 
-        ? 'bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-md shadow-blue-900/5' 
-        : 'bg-white border-b border-slate-200'
+        ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-blue-100 dark:border-blue-400/30 shadow-md shadow-blue-900/5' 
+        : 'bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700'
     }`}>
       {/* Top Banner Notice */}
       <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white px-4 py-1 text-xs">
@@ -143,10 +147,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onChange={(e) => setCurrentRole(e.target.value as Role)}
                 className="bg-transparent text-white font-semibold text-xs focus:outline-none cursor-pointer"
               >
-                <option value="STUDENT" className="bg-white text-slate-800">Sinh viên / Đoàn viên</option>
-                <option value="EVENT_MANAGER" className="bg-white text-slate-800">Ban CTXH (Quản trị Sự kiện)</option>
-                <option value="EDITOR" className="bg-white text-slate-800">Ban Truyền thông (FEE Media)</option>
-                <option value="SUPER_ADMIN" className="bg-white text-slate-800">Super Admin (BCH Khoa)</option>
+                <option value="STUDENT" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Sinh viên / Đoàn viên</option>
+                <option value="EVENT_MANAGER" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Ban CTXH (Quản trị Sự kiện)</option>
+                <option value="EDITOR" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Ban Truyền thông (FEE Media)</option>
+                <option value="SUPER_ADMIN" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">Super Admin (BCH Khoa)</option>
               </select>
             </div>
             )}
@@ -162,60 +166,47 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div 
             id="portal-logo" 
             onClick={() => setActiveTab('home')}
-            className="flex items-center space-x-3.5 cursor-pointer group select-none flex-shrink-0"
+            className="flex items-center space-x-2.5 sm:space-x-3.5 cursor-pointer group select-none min-w-0"
           >
             <img
               src={`${import.meta.env.BASE_URL}logo.png`}
               alt="Logo Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử"
               width={48}
               height={48}
-              className="w-12 h-12 flex-shrink-0 group-hover:scale-105 transition-transform"
+              className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 group-hover:scale-105 transition-transform"
             />
-            <div className="flex items-center space-x-2">
-              <span className="font-tech text-sm sm:text-base font-extrabold leading-tight tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors max-w-[190px] sm:max-w-[280px]">
+            <div className="flex items-center space-x-2 min-w-0">
+              <span className="font-tech text-[13px] sm:text-base font-extrabold leading-tight tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
                 Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
               </span>
-              <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-blue-100/80 text-blue-700 border border-blue-200">
+              <span className="hidden sm:inline px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30">
                 HCMUT
               </span>
             </div>
           </div>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center space-x-1.5 xl:space-x-2">
-            {navLinks.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  id={`nav-link-${item.id}`}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center space-x-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                      : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100/80'
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-500'}`} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-
           {/* Right Actions: QR Check-In, Notifications, Mobile Hamburger */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0 ml-2">
             
             {/* Quick QR Attendance Button */}
             <button
               id="header-qr-checkin-btn"
               onClick={onOpenQRScanner}
-              className="flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+              className="hidden sm:flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-blue-500/20 cursor-pointer"
             >
               <QrCode className="w-4 h-4" />
-              <span className="hidden sm:inline">Quét QR Điểm danh</span>
-              <span className="sm:hidden">Quét QR</span>
+              <span>Quét QR Điểm danh</span>
+            </button>
+
+            {/* Light / dark theme toggle */}
+            <button
+              id="header-theme-toggle"
+              onClick={toggleTheme}
+              className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+              aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+              title={theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
             {/* Notification Bell with Dropdown */}
@@ -226,7 +217,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setShowNotifications(!showNotifications);
                   if (unreadCount > 0) handleMarkAllRead();
                 }}
-                className="relative p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-all cursor-pointer"
+                className="relative p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
                 aria-label="Thông báo"
               >
                 <Bell className="w-4 h-4" />
@@ -241,16 +232,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               {showNotifications && (
                 <div 
                   id="notifications-popover" 
-                  className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2"
+                  className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2"
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center space-x-2">
-                      <Bell className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-bold text-slate-900">Thông báo từ Đoàn - Hội</span>
+                      <Bell className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Thông báo từ Đoàn - Hội</span>
                     </div>
                     <button 
                       onClick={handleMarkAllRead}
-                      className="text-xs text-blue-600 hover:underline flex items-center space-x-1 font-semibold cursor-pointer"
+                      className="text-xs text-blue-600 dark:text-blue-300 hover:underline flex items-center space-x-1 font-semibold cursor-pointer"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Đã đọc tất cả</span>
@@ -266,15 +257,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                           key={n.id}
                           className={`p-3.5 rounded-xl text-xs border transition-all ${
                             n.read 
-                              ? 'bg-slate-50/70 border-slate-200 text-slate-600' 
-                              : 'bg-blue-50/90 border-blue-200 text-slate-800 shadow-2xs'
+                              ? 'bg-slate-50/70 dark:bg-slate-950/70 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300' 
+                              : 'bg-blue-50/90 dark:bg-blue-950/40 border-blue-200 dark:border-blue-400/30 text-slate-800 dark:text-slate-100 shadow-2xs'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
-                            <span className="font-bold text-blue-900 text-xs">{n.title}</span>
+                            <span className="font-bold text-blue-900 dark:text-blue-200 text-xs">{n.title}</span>
                             <span className="text-[10px] text-slate-400 whitespace-nowrap">{n.timestamp}</span>
                           </div>
-                          <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">{n.message}</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">{n.message}</p>
                         </div>
                       ))
                     )}
@@ -287,18 +278,41 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200"
+              className="lg:hidden p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200 dark:border-slate-700"
               aria-label="Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
+
+        {/* Desktop Nav Links: own row under the brand so labels never wrap */}
+        <nav className="hidden lg:flex items-center gap-1.5 pb-3 overflow-x-auto">
+          {navLinks.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                id={`nav-link-${item.id}`}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl whitespace-nowrap text-sm font-semibold transition-all ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/80'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-500'}`} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div id="mobile-nav-drawer" className="lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-2 shadow-lg">
+        <div id="mobile-nav-drawer" className="lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-4 pt-2 pb-6 space-y-2 shadow-lg">
           {navLinks.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -311,23 +325,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-slate-700 hover:bg-slate-50'
+                    ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-950'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600 dark:text-blue-300' : 'text-slate-400'}`} />
                 <span>{item.label}</span>
               </button>
             );
           })}
 
-          <div className="pt-3 border-t border-slate-200 flex flex-col space-y-2">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex flex-col space-y-2">
             <button
               onClick={() => {
                 onOpenStudentLookup();
                 setMobileMenuOpen(false);
               }}
-              className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200"
+              className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30"
             >
               <GraduationCap className="w-4 h-4" />
               <span>Tra cứu Hoạt động & Vé QR cá nhân</span>

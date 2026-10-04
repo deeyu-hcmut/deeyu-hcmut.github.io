@@ -80,7 +80,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative w-full max-w-lg bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
         
         {/* Modal Top Header */}
         <div className="p-5 bg-blue-600 border-b border-blue-700 flex items-center justify-between text-white">
@@ -107,15 +107,15 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         </div>
 
         {/* Event Quick Info Banner */}
-        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 text-xs text-slate-700">
-          <p className="font-bold text-slate-900 text-xs line-clamp-1">{event.title}</p>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500">
+        <div className="px-5 py-3 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200">
+          <p className="font-bold text-slate-900 dark:text-slate-100 text-xs line-clamp-1">{event.title}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
             <span className="flex items-center">
-              <Calendar className="w-3 h-3 mr-1 text-blue-600" />
+              <Calendar className="w-3 h-3 mr-1 text-blue-600 dark:text-blue-300" />
               {event.eventDate} ({event.startTime})
             </span>
             <span className="flex items-center">
-              <MapPin className="w-3 h-3 mr-1 text-orange-600" />
+              <MapPin className="w-3 h-3 mr-1 text-orange-600 dark:text-orange-300" />
               {event.location}
             </span>
           </div>
@@ -125,15 +125,15 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4">
           
           {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start space-x-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 text-rose-700 dark:text-rose-300 text-xs flex items-start space-x-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-300 flex-shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {/* Full Name */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
               Họ và tên sinh viên <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -144,7 +144,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="VD: Nguyễn Văn An"
-                className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -152,7 +152,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {/* MSSV & Class Group */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
                 Mã số sinh viên (MSSV) <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -163,13 +163,13 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   value={mssv}
                   onChange={(e) => setMssv(e.target.value)}
                   placeholder="VD: 2211001"
-                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
                 Chi đoàn / Lớp <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -180,7 +180,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   value={classGroup}
                   onChange={(e) => setClassGroup(e.target.value)}
                   placeholder="VD: D22_DKTD01"
-                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -189,7 +189,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {/* Email & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
                 Email nhận vé QR <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -200,13 +200,13 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@student.edu.vn"
-                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
                 Số điện thoại liên hệ <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -217,7 +217,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="VD: 0912345678"
-                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
                 />
               </div>
             </div>
@@ -225,7 +225,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
           {/* Note */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
               Ghi chú hoặc câu hỏi cho Ban Tổ chức
             </label>
             <textarea
@@ -233,25 +233,25 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="VD: Mong muốn tham gia nhóm thiết kế mạch FPGA..."
-              className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           {/* Notice */}
-          <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-[11px] text-slate-600 flex items-start space-x-2">
-            <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-400/30 text-[11px] text-slate-600 dark:text-slate-300 flex items-start space-x-2">
+            <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-300 flex-shrink-0 mt-0.5" />
             <span>
               Sau khi bấm xác nhận, hệ thống sẽ tự động phát hành <strong>Mã Vé Điện Tử kèm QR Code</strong> và gửi email xác nhận. Vui lòng xuất trình mã QR khi đến sự kiện để điểm danh.
             </span>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-3 border-t border-slate-200 flex items-center justify-end space-x-3">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
             >
               Hủy bỏ
             </button>
