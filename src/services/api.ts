@@ -22,11 +22,11 @@ import {
 
 // Storage keys for client-side persistence (GitHub Pages static mode)
 const STORAGE_KEYS = {
-  EVENTS: 'fee_portal_events',
-  NEWS: 'fee_portal_news',
+  EVENTS: 'fee_portal_events_v2',
+  NEWS: 'fee_portal_news_v2',
   REGISTRATIONS: 'fee_portal_registrations_v2',
-  NOTIFICATIONS: 'fee_portal_notifications',
-  EMAIL_LOGS: 'fee_portal_email_logs',
+  NOTIFICATIONS: 'fee_portal_notifications_v2',
+  EMAIL_LOGS: 'fee_portal_email_logs_v2',
 };
 
 function getLocalData<T>(key: string, initialData: T): T {
