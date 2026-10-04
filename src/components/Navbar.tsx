@@ -169,18 +169,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Zap className="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300" />
               </div>
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-tech text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
-                  FEE PORTAL
-                </span>
-                <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-blue-100/80 text-blue-700 border border-blue-200">
-                  HCMUT
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium tracking-tight mt-0.5">
-                Đoàn - Hội Khoa Điện - Điện tử
-              </p>
+            <div className="flex items-center space-x-2">
+              <span className="font-tech text-sm sm:text-base font-extrabold leading-tight tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors max-w-[190px] sm:max-w-[280px]">
+                Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
+              </span>
+              <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-blue-100/80 text-blue-700 border border-blue-200">
+                HCMUT
+              </span>
             </div>
           </div>
 

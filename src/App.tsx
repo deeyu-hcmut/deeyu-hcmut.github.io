@@ -379,8 +379,8 @@ export default function App() {
                 <div className="p-2 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
                   <Zap className="w-5 h-5" />
                 </div>
-                <span className="font-tech text-lg font-extrabold text-white tracking-wide">
-                  PORTAL ĐOÀN - HỘI FEE
+                <span className="font-tech text-base font-extrabold text-white leading-tight">
+                  Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
                 </span>
               </div>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
