@@ -19,6 +19,7 @@ import {
 import { MemberGender, MemberRecord, MemberStatus } from '../types';
 import { api } from '../services/api';
 import type { MemberInput } from '../services/shared';
+import { normalizeKey as normalizeHeader, readFirstSheet, writeWorkbook, type XlsxModule } from '../utils/excel';
 
 const STATUS_LABELS: Record<MemberStatus, string> = {
   STUDYING: 'Đang học',
@@ -77,15 +78,6 @@ const COLUMNS: { field: keyof MemberInput; header: string; aliases: string[] }[]
 const DATE_FIELDS = new Set<keyof MemberInput>(['dateOfBirth', 'unionJoinDate']);
 const BOOL_FIELDS = new Set<keyof MemberInput>(['isUnionMember', 'isAssociationMember']);
 
-function normalizeHeader(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/gi, 'd')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
-}
-
 function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
@@ -95,8 +87,6 @@ function displayDate(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
 }
-
-type XlsxModule = typeof import('xlsx');
 
 function parseDate(value: unknown, XLSX: XlsxModule): string | undefined {
   if (typeof value === 'number') {
@@ -296,22 +286,15 @@ export const MemberManager: React.FC = () => {
     }
   };
 
-  const writeWorkbook = async (rows: Record<string, string>[], fileName: string) => {
-    // xlsx is ~400KB: load it only when a file is actually needed
-    const XLSX = await import('xlsx');
-    const sheet = XLSX.utils.json_to_sheet(rows, { header: COLUMNS.map(c => c.header) });
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, sheet, 'Danh_Sach');
-    XLSX.writeFile(workbook, fileName);
-  };
+  const headers = COLUMNS.map(c => c.header);
 
   const handleExport = async () => {
     const fileName = `Danh_Sach_Sinh_Vien_Doan_Vien_Hoi_Vien_${Date.now()}.xlsx`;
-    await writeWorkbook(filtered.map(toSheetRow), fileName);
+    await writeWorkbook(headers, filtered.map(toSheetRow), fileName);
     showNotice('success', `Đã xuất ${filtered.length} sinh viên ra file ${fileName}.`);
   };
 
-  const handleDownloadTemplate = () => writeWorkbook([], 'Mau_Nhap_Danh_Sach_Sinh_Vien.xlsx');
+  const handleDownloadTemplate = () => writeWorkbook(headers, [], 'Mau_Nhap_Danh_Sach_Sinh_Vien.xlsx');
 
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -319,10 +302,7 @@ export const MemberManager: React.FC = () => {
     if (!file) return;
     setImporting(true);
     try {
-      const XLSX = await import('xlsx');
-      const workbook = XLSX.read(await file.arrayBuffer());
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' });
+      const { XLSX, rows: rawRows } = await readFirstSheet(file);
 
       const rows: Partial<MemberInput>[] = [];
       const errors: string[] = [];

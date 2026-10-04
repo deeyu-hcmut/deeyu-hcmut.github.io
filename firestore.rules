@@ -47,9 +47,23 @@ service cloud.firestore {
       allow write: if canEditNews();
     }
 
+    // BCH / Đội CTV cards on the "Cơ cấu Tổ chức" page; public, so no phone number field
     match /bch/{memberId} {
       allow read: if true;
-      allow write: if isSuperAdmin();
+      allow delete: if canManageMembers();
+      allow create, update: if canManageMembers() && isValidBch();
+    }
+
+    function isValidBch() {
+      let b = request.resource.data;
+      return b.keys().hasOnly(['name', 'position', 'organization', 'email', 'classGroup', 'avatarUrl', 'bio',
+                               'department', 'order'])
+        && b.name is string && b.name.size() > 0 && b.name.size() <= 100
+        && b.organization in ['DOAN_KHOA', 'HOI_SINH_VIEN', 'DOI_CTV']
+        && b.order is int
+        && b.avatarUrl is string && b.avatarUrl.size() <= 300000
+        && (b.avatarUrl == '' || b.avatarUrl.matches('^(https://|data:image/).*'))
+        && b.bio is string && b.bio.size() <= 1000;
     }
 
     match /notifications/{notificationId} {

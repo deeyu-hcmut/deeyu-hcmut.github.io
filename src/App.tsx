@@ -379,6 +379,7 @@ export default function App() {
               currentRole={currentRole}
               setCurrentRole={setCurrentRole}
               onOpenQRScanner={() => setIsQRScannerOpen(true)}
+              onBchChange={() => api.getBCH().then(setBchMembers).catch(() => {})}
             />
           )}
         </Suspense>

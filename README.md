@@ -66,7 +66,7 @@ Trong [Firestore → Data](https://console.firebase.google.com/project/deeyu-hcm
 | `SUPER_ADMIN` | Ban Thường vụ | Toàn quyền, cấp quyền tài khoản (`admins`), sửa BCH |
 | `HC_TV` | Ban HC-TV | Tạo/sửa/xoá sự kiện, danh sách đăng ký, xuất Excel, nhắc nhở 24h |
 | `TT_SK` | Ban TT-SK | Như HC-TV, thêm đăng/sửa/xoá tin tức |
-| `QLNS_CTSV` | Ban QLNS-CTSV | Quản lý danh sách sinh viên, đoàn viên, hội viên (collection `members`) |
+| `QLNS_CTSV` | Ban QLNS-CTSV | BCH & Đội CTV trên trang Cơ cấu Tổ chức (collection `bch`), danh sách sinh viên, đoàn viên, hội viên (collection `members`) |
 
 Mọi vai trò trên đều quét QR điểm danh được. Tài khoản không có trong `admins` là sinh viên: không thấy nút quét QR.
 Giá trị cũ `EVENT_MANAGER` / `EDITOR` vẫn được hiểu là `HC_TV` / `TT_SK`.

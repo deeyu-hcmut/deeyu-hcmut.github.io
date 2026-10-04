@@ -22,7 +22,8 @@ import {
   Layers,
   ArrowUpRight,
   Database,
-  Contact
+  Contact,
+  UsersRound
 } from 'lucide-react';
 import { EventItem, RegistrationRecord, Role, EmailDispatchLog } from '../types';
 import { api } from '../services/api';
@@ -30,27 +31,31 @@ import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 import { ROLE_LABELS, canManageEvents, canManageMembers } from '../utils/roles';
 
 const MemberManager = lazy(() => import('./MemberManager').then(m => ({ default: m.MemberManager })));
+const BchManager = lazy(() => import('./BchManager').then(m => ({ default: m.BchManager })));
 
-type AdminTab = 'REGISTRATIONS' | 'AUTOMATION' | 'MEMBERS' | 'ROLES' | 'EMAIL_LOGS';
+type AdminTab = 'REGISTRATIONS' | 'AUTOMATION' | 'BCH' | 'MEMBERS' | 'ROLES' | 'EMAIL_LOGS';
 
 interface AdminDashboardProps {
   events: EventItem[];
   currentRole: Role;
   setCurrentRole: (role: Role) => void;
   onOpenQRScanner: () => void;
+  // Reloads the public BCH cards after an edit in the BCH tab
+  onBchChange: () => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   events,
   currentRole,
   setCurrentRole,
-  onOpenQRScanner
+  onOpenQRScanner,
+  onBchChange
 }) => {
   const eventAccess = canManageEvents(currentRole);
   const memberAccess = canManageMembers(currentRole);
   const visibleTabs: AdminTab[] = [
     ...(eventAccess ? ['REGISTRATIONS', 'AUTOMATION'] as const : []),
-    ...(memberAccess ? ['MEMBERS'] as const : []),
+    ...(memberAccess ? ['BCH', 'MEMBERS'] as const : []),
     'ROLES',
     ...(eventAccess ? ['EMAIL_LOGS'] as const : []),
   ];
@@ -163,8 +168,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     {
       role: 'QLNS_CTSV',
       title: 'Ban QLNS-CTSV',
-      desc: 'Quản lý hồ sơ sinh viên, đoàn viên và hội viên của khoa: thêm, sửa, xoá, nhập/xuất Excel danh sách.',
-      permissions: ['Quản lý danh sách sinh viên', 'Quản lý đoàn viên & hội viên', 'Nhập / xuất Excel thành viên', 'Quét QR điểm danh']
+      desc: 'Quản lý nhân sự: danh sách BCH & Đội CTV trên trang Cơ cấu Tổ chức, hồ sơ sinh viên, đoàn viên và hội viên của khoa.',
+      permissions: ['Cập nhật BCH & Đội CTV', 'Quản lý danh sách sinh viên', 'Quản lý đoàn viên & hội viên', 'Quét QR điểm danh']
     },
     {
       role: 'STUDENT',
@@ -256,6 +261,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <span>Tự động hóa Email & Push 24h</span>
           </button>
           </>)}
+
+          {memberAccess && (
+            <button
+              onClick={() => setActiveTab('BCH')}
+              className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
+                activeTab === 'BCH'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <UsersRound className="w-4 h-4" />
+              <span>BCH & Đội CTV</span>
+            </button>
+          )}
 
           {memberAccess && (
             <button
@@ -554,6 +573,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
           </div>
+        )}
+
+        {/* TAB: BCH / ĐỘI CTV CARDS ON THE PUBLIC "CƠ CẤU TỔ CHỨC" PAGE */}
+        {activeTab === 'BCH' && (
+          <Suspense fallback={<div className="py-16 text-center text-sm text-slate-500 dark:text-slate-400">Đang tải...</div>}>
+            <BchManager onChange={onBchChange} />
+          </Suspense>
         )}
 
         {/* TAB: STUDENT / MEMBER RECORDS (Ban QLNS-CTSV) */}

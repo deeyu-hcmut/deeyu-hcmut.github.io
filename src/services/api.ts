@@ -20,7 +20,10 @@ import {
   generateTicketCode,
   buildMember,
   memberIdOf,
-  type MemberInput
+  buildBch,
+  bchKeyOf,
+  type MemberInput,
+  type BchInput
 } from './shared';
 
 // Storage keys for client-side persistence (GitHub Pages static mode)
@@ -31,6 +34,7 @@ const STORAGE_KEYS = {
   NOTIFICATIONS: 'fee_portal_notifications_v2',
   EMAIL_LOGS: 'fee_portal_email_logs_v2',
   MEMBERS: 'fee_portal_members_v1',
+  BCH: 'fee_portal_bch_v1',
 };
 
 function getLocalData<T>(key: string, initialData: T): T {
@@ -353,8 +357,42 @@ const clientStorage = {
     };
   },
 
-  getBCH: (): BCHMember[] => {
-    return INITIAL_BCH;
+  // Stored in display order
+  getBCH: (): BCHMember[] => getLocalData<BCHMember[]>(STORAGE_KEYS.BCH, INITIAL_BCH),
+
+  saveBchMember: (input: BchInput, id?: string): BCHMember => {
+    const list = clientStorage.getBCH();
+    const member: BCHMember = { id: id || `bch-${Date.now()}`, ...buildBch(input) };
+    const index = list.findIndex(m => m.id === id);
+    if (index >= 0) list[index] = member;
+    else list.push(member);
+    setLocalData(STORAGE_KEYS.BCH, list);
+    return member;
+  },
+
+  deleteBchMember: (id: string): void => {
+    setLocalData(STORAGE_KEYS.BCH, clientStorage.getBCH().filter(m => m.id !== id));
+  },
+
+  reorderBch: (ids: string[]): void => {
+    const byId = new Map(clientStorage.getBCH().map(m => [m.id, m]));
+    setLocalData(STORAGE_KEYS.BCH, ids.map(id => byId.get(id)).filter((m): m is BCHMember => Boolean(m)));
+  },
+
+  importBch: (rows: Partial<BchInput>[]): { created: number; updated: number } => {
+    const list = clientStorage.getBCH();
+    let created = 0;
+    rows.forEach((row, i) => {
+      const index = list.findIndex(m => bchKeyOf(m) === bchKeyOf({ organization: row.organization || 'DOAN_KHOA', name: row.name || '' }));
+      if (index >= 0) {
+        list[index] = { id: list[index].id, ...buildBch(row, list[index]) };
+      } else {
+        list.push({ id: `bch-${Date.now()}-${i}`, ...buildBch(row) });
+        created++;
+      }
+    });
+    setLocalData(STORAGE_KEYS.BCH, list);
+    return { created, updated: rows.length - created };
   },
 
   getNotifications: (): NotificationItem[] => {
@@ -516,8 +554,19 @@ const localApi = {
     )) ?? clientStorage.sendReminder(eventId),
 
   // BCH
-  getBCH: async (): Promise<BCHMember[]> =>
-    (await fetchApi<BCHMember[]>('/api/bch')) ?? clientStorage.getBCH(),
+  getBCH: async (): Promise<BCHMember[]> => clientStorage.getBCH(),
+
+  // BCH / Đội CTV cards on the "Cơ cấu Tổ chức" page (Super Admin, Ban QLNS-CTSV)
+  saveBchMember: async (input: BchInput, id?: string): Promise<BCHMember> => clientStorage.saveBchMember(input, id),
+
+  deleteBchMember: async (id: string): Promise<void> => clientStorage.deleteBchMember(id),
+
+  // ids in the new display order
+  reorderBch: async (ids: string[]): Promise<void> => clientStorage.reorderBch(ids),
+
+  // Upsert by organization + name; cells left out keep the stored value
+  importBch: async (rows: Partial<BchInput>[]): Promise<{ created: number; updated: number }> =>
+    clientStorage.importBch(rows),
 
   // Notifications
   getNotifications: async (): Promise<NotificationItem[]> =>

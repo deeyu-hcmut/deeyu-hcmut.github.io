@@ -1,4 +1,4 @@
-import { EventItem, EventType, FacultyStats, MemberGender, MemberRecord, MemberStatus, NewsItem, RegistrationRecord } from '../types';
+import { BCHMember, BchOrganization, EventItem, EventType, FacultyStats, MemberGender, MemberRecord, MemberStatus, NewsItem, RegistrationRecord } from '../types';
 import { INITIAL_STATS } from '../data/mockData';
 
 // Logic shared by the localStorage backend (api.ts) and the Firestore backend (firebaseApi.ts).
@@ -152,6 +152,41 @@ export function buildMember(input: Partial<MemberInput>, previous?: MemberRecord
     note: text(merged.note, 500),
     updatedAt: new Date().toISOString(),
   };
+}
+
+export type BchInput = Omit<BCHMember, 'id'>;
+
+const BCH_ORGANIZATIONS: BchOrganization[] = ['DOAN_KHOA', 'HOI_SINH_VIEN', 'DOI_CTV'];
+
+// Uploaded avatars are ~256px JPEG data URLs (a few tens of KB); firestore.rules allows up to 300k chars
+export const MAX_AVATAR_CHARS = 300_000;
+
+export function buildBch(input: Partial<BchInput>, previous?: BCHMember): BchInput {
+  const merged = { ...previous, ...Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined)) };
+  const name = text(merged.name, 100);
+  if (!name) throw new Error('Thiếu họ tên.');
+  const avatarUrl = String(merged.avatarUrl ?? '').trim();
+  if (avatarUrl.length > MAX_AVATAR_CHARS) throw new Error(`Ảnh đại diện của ${name} quá lớn.`);
+  if (avatarUrl && !/^(https:\/\/|data:image\/)/.test(avatarUrl)) {
+    throw new Error(`Ảnh đại diện của ${name} phải là link https:// hoặc ảnh tải lên.`);
+  }
+  return {
+    name,
+    position: text(merged.position, 100),
+    organization: BCH_ORGANIZATIONS.includes(merged.organization as BchOrganization)
+      ? (merged.organization as BchOrganization)
+      : 'DOAN_KHOA',
+    email: text(merged.email, 100),
+    classGroup: text(merged.classGroup, 50),
+    avatarUrl,
+    bio: text(merged.bio, 1000),
+    department: text(merged.department, 100),
+  };
+}
+
+// Excel rows are matched to existing cards by organization + name
+export function bchKeyOf(m: { organization: string; name: string }): string {
+  return `${m.organization}|${m.name.trim().toLowerCase().replace(/\s+/g, ' ')}`;
 }
 
 export function filterRegistrations(records: RegistrationRecord[], eventId?: string, search?: string): RegistrationRecord[] {

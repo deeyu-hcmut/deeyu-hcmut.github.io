@@ -82,15 +82,17 @@ export interface RegistrationRecord {
   note?: string;
 }
 
+export type BchOrganization = 'DOAN_KHOA' | 'HOI_SINH_VIEN' | 'DOI_CTV';
+
+// Shown publicly on the "Cơ cấu Tổ chức" page, so no phone number is stored
 export interface BCHMember {
   id: string;
   name: string;
   position: string;
-  organization: 'DOAN_KHOA' | 'HOI_SINH_VIEN' | 'DOI_CTV';
+  organization: BchOrganization;
   email: string;
-  phone: string;
   classGroup: string;
-  avatarUrl: string;
+  avatarUrl: string; // https URL or a small JPEG data URL uploaded from the admin page
   bio: string;
   department: string;
 }

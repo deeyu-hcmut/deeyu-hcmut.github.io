@@ -40,12 +40,16 @@ import {
   generateTicketCode,
   buildMember,
   memberIdOf,
+  buildBch,
+  bchKeyOf,
+  type BchInput,
 } from './shared';
 
 /*
  * Firestore layout (access rules in /firestore.rules):
  *   events/{eventId}                   public read; staff write; public +1 on registration
- *   news/{newsId}, bch/{memberId}      public read; staff write
+ *   news/{newsId}                      public read; news staff write
+ *   bch/{memberId}                     public read; Super Admin / Ban QLNS-CTSV write; `order` sorts the cards
  *   registrations/{eventId}_{mssvKey}  ticket without contact info; public get, staff list/update
  *   registrationContacts/{same id}     email/phone/note; staff only
  *   students/{mssvKey}                 { eventIds } index for the public MSSV lookup
@@ -122,6 +126,16 @@ const loadEvents = () =>
   cachedList('events', async () =>
     (await getDocs(query(collection(db, 'events'), orderBy('createdAt', 'desc')))).docs.map(d => withId<StoredEvent>(d))
   );
+
+type StoredBch = BCHMember & { order: number };
+
+async function loadBch(): Promise<StoredBch[]> {
+  return (await getDocs(query(collection(db, 'bch'), orderBy('order')))).docs.map(d => withId<StoredBch>(d));
+}
+
+function nextOrder(list: StoredBch[]): number {
+  return list.reduce((max, m) => Math.max(max, m.order ?? 0), -1) + 1;
+}
 
 const loadNews = () =>
   cachedList('news', async () =>
@@ -431,11 +445,61 @@ const rawFirebaseApi: Api = {
     };
   },
 
-  getBCH: async () =>
-    (await getDocs(query(collection(db, 'bch'), orderBy('order')))).docs.map(d => {
-      const { order: _order, ...member } = withId<BCHMember & { order: number }>(d);
-      return member;
-    }),
+  getBCH: async () => (await loadBch()).map(({ order: _order, ...member }) => member),
+
+  saveBchMember: async (input, id) => {
+    const member = buildBch(input);
+    const batch = writeBatch(db);
+    if (id) {
+      const ref = doc(db, 'bch', id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) throw new Error('Thành viên không còn tồn tại.');
+      batch.set(ref, { ...member, order: snap.data().order ?? 0 });
+      await batch.commit();
+      return { id, ...member };
+    }
+    const existing = await loadBch();
+    const ref = doc(collection(db, 'bch'));
+    batch.set(ref, { ...member, order: nextOrder(existing) });
+    await batch.commit();
+    return { id: ref.id, ...member };
+  },
+
+  deleteBchMember: async id => {
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'bch', id));
+    await batch.commit();
+  },
+
+  reorderBch: async ids => {
+    const batch = writeBatch(db);
+    ids.forEach((id, order) => batch.update(doc(db, 'bch', id), { order }));
+    await batch.commit();
+  },
+
+  importBch: async rows => {
+    const existing = await loadBch();
+    const byKey = new Map(existing.map(m => [bchKeyOf(m), m]));
+    let order = nextOrder(existing);
+    let created = 0;
+    const writes: { id: string; data: BchInput & { order: number } }[] = [];
+    rows.forEach(row => {
+      const key = bchKeyOf({ organization: row.organization || 'DOAN_KHOA', name: row.name || '' });
+      const previous = byKey.get(key);
+      const id = previous?.id ?? doc(collection(db, 'bch')).id;
+      const data = { ...buildBch(row, previous), order: previous?.order ?? order++ };
+      if (!previous) created++;
+      const stored = { id, ...data };
+      byKey.set(key, stored);
+      writes.push({ id, data });
+    });
+    for (let i = 0; i < writes.length; i += 450) {
+      const batch = writeBatch(db);
+      writes.slice(i, i + 450).forEach(w => batch.set(doc(db, 'bch', w.id), w.data));
+      await batch.commit();
+    }
+    return { created, updated: rows.length - created };
+  },
 
   getNotifications: async () => {
     const readAt = readNotificationsReadAt();
