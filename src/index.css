@@ -100,6 +100,17 @@
   .hero-title { font-size: min(calc((100vw - 4.5rem) / 17.8), 3.75rem); }
 }
 
+/* "BAN CHẤP HÀNH & ĐỘI CỘNG TÁC VIÊN" on one line, same width ratio as .hero-title */
+.org-title {
+  font-size: min(calc((100vw - 2.5rem) / 17.8), 3rem);
+}
+@media (min-width: 640px) {
+  .org-title { font-size: min(calc((100vw - 3.5rem) / 17.8), 3rem); }
+}
+@media (min-width: 1024px) {
+  .org-title { font-size: min(calc((100vw - 4.5rem) / 17.8), 3rem); }
+}
+
 /* Custom Circuit & Tech Background Effects for Light Theme */
 .bg-grid-pattern {
   background-size: 36px 36px;

@@ -22,11 +22,12 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
       <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <h2 className="font-tech text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+        <div className="text-center mb-10">
+          {/* One line at every width: the size scales with the viewport (see .org-title) */}
+          <h2 className="org-title font-tech whitespace-nowrap font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
             BAN CHẤP HÀNH & ĐỘI CỘNG TÁC VIÊN
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+          <p className="mt-3 max-w-3xl mx-auto text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
             Đại diện tiếng nói, quyền lợi hợp pháp và đồng hành cùng sinh viên Khoa Điện - Điện tử trong mọi chặng đường học tập và rèn luyện.
           </p>
 
