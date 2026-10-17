@@ -368,13 +368,13 @@ export const QRCheckInScanner: React.FC<QRCheckInScannerProps> = ({
                   onChange={(e) => setTicketInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handlePerformCheckIn(ticketInput)}
                   placeholder="VD: TECH-88392 hoặc 2211001..."
-                  className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-slate-100 uppercase font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 min-w-0 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-slate-100 uppercase font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
                 <button
                   id="submit-checkin-btn"
                   onClick={() => handlePerformCheckIn(ticketInput)}
                   disabled={loading || !ticketInput.trim()}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition-all flex items-center space-x-1.5 shadow-sm"
+                  className="flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap bg-blue-600 text-white hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition-all flex items-center space-x-1.5 shadow-sm"
                 >
                   {loading ? (
                     <RefreshCw className="w-4 h-4 animate-spin" />
