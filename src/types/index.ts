@@ -103,12 +103,25 @@ export const BCH_LEVEL_LABELS: Record<BchLevel, string> = {
   UY_VIEN: 'Ủy viên',
 };
 
+// Hội Sinh viên calls the top two tiers by different titles than Đoàn Thanh niên.
+const BCH_LEVEL_LABELS_HOI_SINH_VIEN: Partial<Record<BchLevel, string>> = {
+  BI_THU: 'Liên Chi hội trưởng',
+  PHO_BI_THU: 'Liên Chi hội phó',
+};
+
+export function bchLevelLabel(level: BchLevel, organization: BchOrganization): string {
+  if (organization === 'HOI_SINH_VIEN') return BCH_LEVEL_LABELS_HOI_SINH_VIEN[level] ?? BCH_LEVEL_LABELS[level];
+  return BCH_LEVEL_LABELS[level];
+}
+
 // Best-effort guess from free-text `position` for members saved before the
 // `level` field existed, or whenever an admin leaves it unset.
 export function inferBchLevel(position: string): BchLevel {
   const p = position.toLowerCase();
   if (p.includes('phó bí thư')) return 'PHO_BI_THU';
   if (p.includes('bí thư')) return 'BI_THU';
+  if (p.includes('liên chi hội phó') || p.includes('phó liên chi hội')) return 'PHO_BI_THU';
+  if (p.includes('liên chi hội')) return 'BI_THU';
   if (p.includes('thường vụ') || p.includes('btv')) return 'UY_VIEN_BTV';
   if (p.includes('phó ban') || p.includes('phó trưởng ban')) return 'PHO_BAN';
   if (p.includes('trưởng ban')) return 'TRUONG_BAN';

@@ -207,6 +207,22 @@ export type BchInput = Omit<BCHMember, 'id'>;
 
 const BCH_ORGANIZATIONS: BchOrganization[] = ['DOAN_KHOA', 'HOI_SINH_VIEN', 'DOI_CTV'];
 
+// The committee has exactly 3 bans (Hậu cần - Tài vụ / Truyền thông - Sự kiện /
+// Quản lý nhân sự - Công tác sinh viên); Trưởng/Phó ban admins may type the
+// code, half the name, or the abbreviation used elsewhere on the site
+// (TT-SK covers both "Truyền thông" and "Sự kiện" as ONE ban, not two).
+// Canonicalize so the public page groups them correctly regardless of spelling.
+const BAN_ALIASES: { match: RegExp; label: string }[] = [
+  { match: /tt[\s-]?sk|truyền thông|sự kiện/i, label: 'Truyền thông - Sự kiện' },
+  { match: /hc[\s-]?tv|hậu cần|tài vụ/i, label: 'Hậu cần - Tài vụ' },
+  { match: /qlns[\s-]?ctsv|quản lý nhân sự|công tác sinh viên/i, label: 'Quản lý nhân sự - Công tác sinh viên' },
+];
+
+export function canonicalizeDepartment(department: string): string {
+  const alias = BAN_ALIASES.find(({ match }) => match.test(department));
+  return alias ? alias.label : department;
+}
+
 // Uploaded avatars are ~256px JPEG data URLs (a few tens of KB); firestore.rules allows up to 300k chars
 export const MAX_AVATAR_CHARS = 300_000;
 
@@ -231,7 +247,7 @@ export function buildBch(input: Partial<BchInput>, previous?: BCHMember): BchInp
     classGroup: text(merged.classGroup, 50),
     avatarUrl,
     bio: text(merged.bio, 1000),
-    department: text(merged.department, 100),
+    department: canonicalizeDepartment(text(merged.department, 100)),
   };
 }
 

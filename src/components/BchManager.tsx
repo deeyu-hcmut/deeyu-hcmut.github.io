@@ -11,7 +11,7 @@ import {
   ImagePlus,
   UserRound,
 } from 'lucide-react';
-import { BCHMember, BchLevel, BchOrganization, BCH_LEVEL_LABELS, BCH_LEVEL_ORDER, inferBchLevel } from '../types';
+import { BCHMember, BchLevel, BchOrganization, BCH_LEVEL_ORDER, bchLevelLabel, inferBchLevel } from '../types';
 import { api } from '../services/api';
 import type { BchInput } from '../services/shared';
 import { imageFileToDataUrl } from '../utils/image';
@@ -154,7 +154,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
       'Tổ chức': ORGANIZATION_LABELS[m.organization],
       'Họ và tên': m.name,
       'Chức vụ': m.position,
-      'Cấp bậc': BCH_LEVEL_LABELS[m.level ?? inferBchLevel(m.position)],
+      'Cấp bậc': bchLevelLabel(m.level ?? inferBchLevel(m.position), m.organization),
       'Ban/Bộ phận': m.department,
       'Email': m.email,
       'Giới thiệu': m.bio,
@@ -252,7 +252,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
                 <p className="text-[11px] text-orange-600 dark:text-orange-400 font-semibold truncate">{m.position || '—'}</p>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                   {ORGANIZATION_LABELS[m.organization]}
-                  {' • '}{BCH_LEVEL_LABELS[m.level ?? inferBchLevel(m.position)]}
+                  {' • '}{bchLevelLabel(m.level ?? inferBchLevel(m.position), m.organization)}
                   {m.department && ` • ${m.department}`}
                   {m.classGroup && ` • ${m.classGroup}`}
                 </p>
@@ -335,13 +335,13 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
                   <label className={labelClass}>Cấp bậc * (dùng để sắp xếp trên trang Cơ cấu Tổ chức)</label>
                   <select value={form.level} onChange={e => setField('level', e.target.value as BchLevel)} className={inputClass}>
                     {BCH_LEVEL_ORDER.map(level => (
-                      <option key={level} value={level}>{BCH_LEVEL_LABELS[level]}</option>
+                      <option key={level} value={level}>{bchLevelLabel(level, form.organization)}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass}>Ban / Bộ phận {(form.level === 'TRUONG_BAN' || form.level === 'PHO_BAN') && '(bắt buộc: tên ban mà người này đứng đầu/phó)'}</label>
-                  <input maxLength={100} value={form.department} onChange={e => setField('department', e.target.value)} placeholder="VD: Ban Thường vụ, Ban TT-SK..." className={inputClass} />
+                  <input maxLength={100} value={form.department} onChange={e => setField('department', e.target.value)} placeholder="VD: Truyền thông - Sự kiện, Hậu cần - Tài vụ..." className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Chi đoàn</label>

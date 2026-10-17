@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, CircuitBoard, UserRound } from 'lucide-react';
-import { BCHMember, BCH_LEVEL_LABELS, BchOrganization, inferBchLevel } from '../types';
+import { BCHMember, BchOrganization, bchLevelLabel, inferBchLevel } from '../types';
+import { canonicalizeDepartment } from '../services/shared';
 import { sizedImage } from '../utils/image';
 
 interface AboutOrgSectionProps {
@@ -103,12 +104,13 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
 
   // Trưởng ban and Phó ban are grouped together, by the specific ban they lead,
   // not lumped into one flat "Trưởng/Phó ban" list.
+  const banDeptOf = (m: BCHMember) => canonicalizeDepartment(m.department || 'Khác') || 'Khác';
   const banLeaders = [...byLevel('TRUONG_BAN'), ...byLevel('PHO_BAN')];
-  const departments = Array.from(new Set(banLeaders.map(m => m.department || 'Khác'))).sort((a, b) => a.localeCompare(b, 'vi'));
+  const departments = Array.from(new Set(banLeaders.map(banDeptOf))).sort((a, b) => a.localeCompare(b, 'vi'));
   const banGroups = departments.map(department => ({
     department,
     members: banLeaders
-      .filter(m => (m.department || 'Khác') === department)
+      .filter(m => banDeptOf(m) === department)
       .sort((a, b) => ((a.level ?? inferBchLevel(a.position)) === 'TRUONG_BAN' ? 0 : 1) - ((b.level ?? inferBchLevel(b.position)) === 'TRUONG_BAN' ? 0 : 1)),
   }));
 
@@ -166,19 +168,19 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
             <div className="space-y-12">
               {biThu.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{BCH_LEVEL_LABELS.BI_THU}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('BI_THU', selectedOrgFilter)}</h3>
                   <MemberGrid members={biThu} />
                 </div>
               )}
               {phoBiThu.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{BCH_LEVEL_LABELS.PHO_BI_THU}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('PHO_BI_THU', selectedOrgFilter)}</h3>
                   <MemberGrid members={phoBiThu} />
                 </div>
               )}
               {uyVienBtv.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{BCH_LEVEL_LABELS.UY_VIEN_BTV}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('UY_VIEN_BTV', selectedOrgFilter)}</h3>
                   <MemberGrid members={uyVienBtv} />
                 </div>
               )}
@@ -197,7 +199,7 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
               )}
               {uyVien.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{BCH_LEVEL_LABELS.UY_VIEN}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('UY_VIEN', selectedOrgFilter)}</h3>
                   <MemberGrid members={uyVien} />
                 </div>
               )}
