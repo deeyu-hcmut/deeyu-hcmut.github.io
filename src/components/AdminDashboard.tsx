@@ -571,7 +571,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 {/* Email Footer */}
                 <div className="border-t pt-3 text-[11px] text-slate-400 text-center">
-                  Văn phòng Đoàn - Hội Khoa Điện - Điện tử • Email: doanhoi.fee@university.edu.vn
+                  Văn phòng Đoàn - Hội Khoa Điện - Điện tử • Email: dtn-ddt@hcmut.edu.vn
                 </div>
               </div>
             </div>

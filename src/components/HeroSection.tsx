@@ -20,18 +20,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 }) => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 dark:from-blue-950/30 via-white dark:via-slate-900/60 to-slate-50/60 dark:to-slate-950 pt-10 pb-16 sm:pt-16 sm:pb-24">
-      {/* Ambient Soft Glows */}
-      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      
+      {/* Oversized brand-mark watermark, replacing the generic ambient gradient blobs */}
+      <img
+        src={`${import.meta.env.BASE_URL}logo.png`}
+        alt=""
+        aria-hidden="true"
+        className="absolute -top-16 -right-24 w-[420px] sm:w-[560px] opacity-[0.05] dark:opacity-[0.07] pointer-events-none select-none"
+      />
+
       {/* Bottom seamless fade */}
       <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-50/80 dark:from-slate-950 to-transparent pointer-events-none" />
 
       <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         <div>
           <div className="max-w-6xl mx-auto space-y-6 text-center">
-            
+
+            {/* Brand mark */}
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt="Youth Union DEE"
+              width={72}
+              height={72}
+              className="w-16 h-16 sm:w-[72px] sm:h-[72px] mx-auto"
+            />
+
             {/* Top Badges */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-100/90 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-400/30 text-blue-800 dark:text-blue-200 text-xs font-bold shadow-2xs">

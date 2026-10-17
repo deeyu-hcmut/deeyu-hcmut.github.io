@@ -49,7 +49,7 @@ export function buildEvent(eventData: Partial<EventItem>): Omit<EventItem, 'id'>
     currentParticipants: 0,
     bannerUrl: eventData.bannerUrl || 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
     organizer: eventData.organizer || 'Đoàn - Hội Khoa Điện - Điện tử',
-    contactEmail: eventData.contactEmail || 'doanhoi.fee@university.edu.vn',
+    contactEmail: eventData.contactEmail || 'dtn-ddt@hcmut.edu.vn',
     requirements: eventData.requirements || ['Thẻ sinh viên', 'Áo Đoàn / Đồng phục'],
     isMandatoryCheckIn: true
   };

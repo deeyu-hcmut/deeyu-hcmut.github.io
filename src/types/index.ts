@@ -64,6 +64,11 @@ export interface EventItem {
   isMandatoryCheckIn: boolean;
 }
 
+// Admins set status manually and the deadline is never auto-applied to it, so a
+// stale "REGISTRATION_OPEN" status must still be checked against the real deadline.
+export const isRegistrationOpen = (evt: Pick<EventItem, 'status' | 'registrationDeadline'>): boolean =>
+  evt.status === 'REGISTRATION_OPEN' && new Date() <= new Date(evt.registrationDeadline);
+
 export interface RegistrationRecord {
   id: string;
   eventId: string;

@@ -21,6 +21,7 @@ import {
   BCHMember,
   EmailDispatchLog,
   EventItem,
+  isRegistrationOpen,
   MemberRecord,
   NewsItem,
   StaffAccount,
@@ -289,7 +290,7 @@ const rawFirebaseApi: Api = {
       const [eventSnap, regSnap, studentSnap] = await Promise.all([tx.get(eventRef), tx.get(regRef), tx.get(studentRef)]);
       if (!eventSnap.exists()) throw new Error('Sự kiện không tồn tại');
       const event = withId<StoredEvent>(eventSnap);
-      if (event.status !== 'REGISTRATION_OPEN') throw new Error('Sự kiện hiện không mở đăng ký');
+      if (!isRegistrationOpen(event)) throw new Error('Sự kiện hiện không mở đăng ký hoặc đã quá hạn đăng ký');
       if (event.currentParticipants >= event.maxParticipants) throw new Error('Sự kiện đã đủ số lượng đăng ký tối đa');
       if (regSnap.exists()) {
         throw new Error(`MSSV ${mssv} đã đăng ký sự kiện này trước đó với mã vé #${regSnap.data().ticketCode}`);

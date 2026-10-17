@@ -23,7 +23,7 @@ import {
   RefreshCw,
   Pencil
 } from 'lucide-react';
-import { EventItem, EventStatus, EventType, Role, RegistrationRecord } from '../types';
+import { EventItem, EventStatus, EventType, Role, RegistrationRecord, isRegistrationOpen } from '../types';
 import { EventDetailModal } from './EventDetailModal';
 import { sizedImage } from '../utils/image';
 import { canManageEvents as roleCanManageEvents } from '../utils/roles';
@@ -257,7 +257,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
       bannerUrl: newBanner.trim() || undefined,
       status: 'REGISTRATION_OPEN',
       organizer: 'Đoàn - Hội Khoa Điện - Điện tử',
-      contactEmail: 'doanhoi.fee@university.edu.vn',
+      contactEmail: 'dtn-ddt@hcmut.edu.vn',
       requirements: ['Mang theo Thẻ sinh viên', 'Điểm danh qua mã QR']
     });
 
@@ -448,7 +448,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     >
                       Chi tiết
                     </button>
-                    {evt.status === 'REGISTRATION_OPEN' ? (
+                    {isRegistrationOpen(evt) ? (
                       <button
                         id={`register-btn-${evt.id}`}
                         onClick={() => setRegisteringEvent(evt)}
@@ -458,7 +458,9 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                         <span>Đăng ký</span>
                       </button>
                     ) : (
-                      <span className="text-xs text-slate-400 px-3 py-2">Đóng đăng ký</span>
+                      <span className="text-xs text-slate-400 px-3 py-2">
+                        {evt.status === 'REGISTRATION_OPEN' ? 'Đã hết hạn đăng ký' : 'Đóng đăng ký'}
+                      </span>
                     )}
                     {canManageEvents && (
                       <button
@@ -526,7 +528,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     >
                       Xem
                     </button>
-                    {evt.status === 'REGISTRATION_OPEN' && (
+                    {isRegistrationOpen(evt) && (
                       <button
                         onClick={() => setRegisteringEvent(evt)}
                         className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
@@ -678,7 +680,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                           Xem chi tiết
                         </button>
 
-                        {evt.status === 'REGISTRATION_OPEN' ? (
+                        {isRegistrationOpen(evt) ? (
                           <button
                             id={`register-card-btn-${evt.id}`}
                             onClick={() => setRegisteringEvent(evt)}
@@ -692,7 +694,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                             disabled
                             className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed text-center"
                           >
-                            {evt.status === 'COMPLETED' ? 'Đã kết thúc' : 'Hết slot'}
+                            {evt.status === 'COMPLETED'
+                              ? 'Đã kết thúc'
+                              : evt.status === 'REGISTRATION_OPEN'
+                              ? 'Đã hết hạn đăng ký'
+                              : 'Hết slot'}
                           </button>
                         )}
                       </div>

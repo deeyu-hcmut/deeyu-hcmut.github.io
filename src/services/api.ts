@@ -1,4 +1,4 @@
-import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats, MemberRecord, Role, StaffAccount, StudentProfilePatch } from '../types';
+import { EventItem, NewsItem, RegistrationRecord, BCHMember, NotificationItem, EmailDispatchLog, FacultyStats, MemberRecord, Role, StaffAccount, StudentProfilePatch, isRegistrationOpen } from '../types';
 import { 
   INITIAL_EVENTS, 
   INITIAL_NEWS, 
@@ -177,8 +177,8 @@ const clientStorage = {
       throw new Error('Sự kiện không tồn tại');
     }
 
-    if (event.status !== 'REGISTRATION_OPEN') {
-      throw new Error('Sự kiện hiện không mở đăng ký');
+    if (!isRegistrationOpen(event)) {
+      throw new Error('Sự kiện hiện không mở đăng ký hoặc đã quá hạn đăng ký');
     }
 
     if (event.currentParticipants >= event.maxParticipants) {

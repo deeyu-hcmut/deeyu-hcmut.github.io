@@ -22,7 +22,7 @@ import {
   CircuitBoard,
   CheckCircle2
 } from 'lucide-react';
-import { Role, EventItem, NewsItem, BCHMember, RegistrationRecord, MemberRecord } from './types';
+import { Role, EventItem, NewsItem, BCHMember, RegistrationRecord, MemberRecord, isRegistrationOpen } from './types';
 import { api } from './services/api';
 import { FIREBASE_ENABLED } from './services/firebaseConfig';
 import type { StaffSession } from './services/auth';
@@ -314,7 +314,7 @@ export default function App() {
         {activeTab === 'home' && (
           <div className="relative">
             <HeroSection
-              upcomingEvent={events.find(e => e.status === 'REGISTRATION_OPEN') || events[0]}
+              upcomingEvent={events.find(isRegistrationOpen) || events[0]}
               onExploreEvents={() => setActiveTab('events')}
               onOpenLookup={() => setActiveTab('lookup')}
               onOpenQRScanner={openQRScanner}
