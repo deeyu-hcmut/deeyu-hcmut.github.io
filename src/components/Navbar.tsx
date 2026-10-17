@@ -195,9 +195,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* Notification Popover */}
               {showNotifications && (
-                <div 
-                  id="notifications-popover" 
-                  className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2"
+                <div
+                  id="notifications-popover"
+                  className="fixed left-4 right-4 top-[4.5rem] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-3 sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2"
                 >
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center space-x-2">
@@ -270,7 +270,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {showAccount && (
                   <div
                     id="account-popover"
-                    className="absolute right-0 mt-3 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2"
+                    className="fixed left-4 right-4 top-[4.5rem] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-3 sm:w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2"
                   >
                     {session ? (
                       <>
