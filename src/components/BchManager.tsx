@@ -11,7 +11,7 @@ import {
   ImagePlus,
   UserRound,
 } from 'lucide-react';
-import { BCHMember, BchOrganization } from '../types';
+import { BCHMember, BchLevel, BchOrganization, BCH_LEVEL_LABELS, BCH_LEVEL_ORDER, inferBchLevel } from '../types';
 import { api } from '../services/api';
 import type { BchInput } from '../services/shared';
 import { imageFileToDataUrl } from '../utils/image';
@@ -29,6 +29,7 @@ const EMPTY_FORM: BchInput = {
   name: '',
   position: '',
   organization: 'DOAN_KHOA',
+  level: 'UY_VIEN',
   email: '',
   classGroup: '',
   avatarUrl: '',
@@ -37,8 +38,8 @@ const EMPTY_FORM: BchInput = {
 };
 
 // The list itself is kept in Google Sheet (tools/google-sheet-sync/bch); Excel is export only,
-// with the sheet's columns plus the two that only live on the website
-const EXPORT_HEADERS = ['Tổ chức', 'Họ và tên', 'Chức vụ', 'Ban/Bộ phận', 'Email', 'Giới thiệu', 'Chi đoàn', 'Ảnh (link)'];
+// with the sheet's columns plus the fields that only live on the website
+const EXPORT_HEADERS = ['Tổ chức', 'Họ và tên', 'Chức vụ', 'Cấp bậc', 'Ban/Bộ phận', 'Email', 'Giới thiệu', 'Chi đoàn', 'Ảnh (link)'];
 
 const inputClass =
   'w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500';
@@ -95,7 +96,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
   const openForm = (member?: BCHMember) => {
     if (member) {
       const { id: _id, ...input } = member;
-      setForm({ ...EMPTY_FORM, ...input });
+      setForm({ ...EMPTY_FORM, ...input, level: input.level ?? inferBchLevel(input.position) });
       setEditingId(member.id);
     } else {
       setForm({ ...EMPTY_FORM, organization: orgFilter === 'ALL' ? 'DOAN_KHOA' : orgFilter });
@@ -153,6 +154,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
       'Tổ chức': ORGANIZATION_LABELS[m.organization],
       'Họ và tên': m.name,
       'Chức vụ': m.position,
+      'Cấp bậc': BCH_LEVEL_LABELS[m.level ?? inferBchLevel(m.position)],
       'Ban/Bộ phận': m.department,
       'Email': m.email,
       'Giới thiệu': m.bio,
@@ -250,6 +252,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
                 <p className="text-[11px] text-orange-600 dark:text-orange-400 font-semibold truncate">{m.position || '—'}</p>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                   {ORGANIZATION_LABELS[m.organization]}
+                  {' • '}{BCH_LEVEL_LABELS[m.level ?? inferBchLevel(m.position)]}
                   {m.department && ` • ${m.department}`}
                   {m.classGroup && ` • ${m.classGroup}`}
                 </p>
@@ -329,7 +332,15 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
                   <input maxLength={100} value={form.position} onChange={e => setField('position', e.target.value)} placeholder="VD: Bí thư Đoàn khoa, Trưởng ban..." className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>Ban / Bộ phận</label>
+                  <label className={labelClass}>Cấp bậc * (dùng để sắp xếp trên trang Cơ cấu Tổ chức)</label>
+                  <select value={form.level} onChange={e => setField('level', e.target.value as BchLevel)} className={inputClass}>
+                    {BCH_LEVEL_ORDER.map(level => (
+                      <option key={level} value={level}>{BCH_LEVEL_LABELS[level]}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Ban / Bộ phận {(form.level === 'TRUONG_BAN' || form.level === 'PHO_BAN') && '(bắt buộc: tên ban mà người này đứng đầu/phó)'}</label>
                   <input maxLength={100} value={form.department} onChange={e => setField('department', e.target.value)} placeholder="VD: Ban Thường vụ, Ban TT-SK..." className={inputClass} />
                 </div>
                 <div>

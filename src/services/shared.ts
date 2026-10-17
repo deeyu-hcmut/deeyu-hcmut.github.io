@@ -1,4 +1,4 @@
-import { BCHMember, BchOrganization, EventItem, EventType, FacultyStats, MemberGender, MemberRecord, MemberStatus, NewsItem, RegistrationRecord, StudentProfilePatch } from '../types';
+import { BCHMember, BCH_LEVEL_ORDER, BchLevel, BchOrganization, EventItem, EventType, FacultyStats, inferBchLevel, MemberGender, MemberRecord, MemberStatus, NewsItem, RegistrationRecord, StudentProfilePatch } from '../types';
 import { INITIAL_STATS } from '../data/mockData';
 
 // Logic shared by the localStorage backend (api.ts) and the Firestore backend (firebaseApi.ts).
@@ -219,12 +219,14 @@ export function buildBch(input: Partial<BchInput>, previous?: BCHMember): BchInp
   if (avatarUrl && !/^(https:\/\/|data:image\/)/.test(avatarUrl)) {
     throw new Error(`Ảnh đại diện của ${name} phải là link https:// hoặc ảnh tải lên.`);
   }
+  const position = text(merged.position, 100);
   return {
     name,
-    position: text(merged.position, 100),
+    position,
     organization: BCH_ORGANIZATIONS.includes(merged.organization as BchOrganization)
       ? (merged.organization as BchOrganization)
       : 'DOAN_KHOA',
+    level: BCH_LEVEL_ORDER.includes(merged.level as BchLevel) ? (merged.level as BchLevel) : inferBchLevel(position),
     email: text(merged.email, 100),
     classGroup: text(merged.classGroup, 50),
     avatarUrl,

@@ -88,12 +88,41 @@ export interface RegistrationRecord {
 
 export type BchOrganization = 'DOAN_KHOA' | 'HOI_SINH_VIEN' | 'DOI_CTV';
 
+// Hierarchy rank used to group the public org chart, highest first.
+// TRUONG_BAN/PHO_BAN are further grouped by `department` (which "ban" they lead).
+export type BchLevel = 'BI_THU' | 'PHO_BI_THU' | 'UY_VIEN_BTV' | 'TRUONG_BAN' | 'PHO_BAN' | 'UY_VIEN';
+
+export const BCH_LEVEL_ORDER: BchLevel[] = ['BI_THU', 'PHO_BI_THU', 'UY_VIEN_BTV', 'TRUONG_BAN', 'PHO_BAN', 'UY_VIEN'];
+
+export const BCH_LEVEL_LABELS: Record<BchLevel, string> = {
+  BI_THU: 'Bí thư',
+  PHO_BI_THU: 'Phó Bí thư',
+  UY_VIEN_BTV: 'Ủy viên Ban Thường vụ',
+  TRUONG_BAN: 'Trưởng ban',
+  PHO_BAN: 'Phó ban',
+  UY_VIEN: 'Ủy viên',
+};
+
+// Best-effort guess from free-text `position` for members saved before the
+// `level` field existed, or whenever an admin leaves it unset.
+export function inferBchLevel(position: string): BchLevel {
+  const p = position.toLowerCase();
+  if (p.includes('phó bí thư')) return 'PHO_BI_THU';
+  if (p.includes('bí thư')) return 'BI_THU';
+  if (p.includes('thường vụ') || p.includes('btv')) return 'UY_VIEN_BTV';
+  if (p.includes('phó ban') || p.includes('phó trưởng ban')) return 'PHO_BAN';
+  if (p.includes('trưởng ban')) return 'TRUONG_BAN';
+  return 'UY_VIEN';
+}
+
 // Shown publicly on the "Cơ cấu Tổ chức" page, so no phone number is stored
 export interface BCHMember {
   id: string;
   name: string;
   position: string;
   organization: BchOrganization;
+  // Optional: absent on members saved before this field existed (see inferBchLevel)
+  level?: BchLevel;
   email: string;
   classGroup: string;
   avatarUrl: string; // https URL or a small JPEG data URL uploaded from the admin page
