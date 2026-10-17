@@ -111,14 +111,6 @@
   .org-title { font-size: min(calc((100vw - 4.5rem) / 17.8), 3rem); }
 }
 
-/* Custom Circuit & Tech Background Effects for Light Theme */
-.bg-grid-pattern {
-  background-size: 36px 36px;
-  background-image: 
-    linear-gradient(to right, color-mix(in oklab, var(--color-blue-600) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--color-blue-600) 5%, transparent) 1px, transparent 1px);
-}
-
 .bg-dots-pattern {
   background-image: radial-gradient(color-mix(in oklab, var(--color-blue-600) 12%, transparent) 1.5px, transparent 1.5px);
   background-size: 24px 24px;
@@ -164,11 +156,6 @@
 
 
 /* Dark mode counterparts of the hand-written effects above */
-.dark .bg-grid-pattern {
-  background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--color-blue-300) 6%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--color-blue-300) 6%, transparent) 1px, transparent 1px);
-}
 .dark .bg-dots-pattern {
   background-image: radial-gradient(color-mix(in oklab, var(--color-blue-300) 14%, transparent) 1.5px, transparent 1.5px);
 }

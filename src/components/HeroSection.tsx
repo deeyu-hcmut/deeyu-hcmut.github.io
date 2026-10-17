@@ -19,7 +19,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onReadNews
 }) => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 dark:from-blue-950/30 via-white dark:via-slate-900/60 to-slate-50/60 dark:to-slate-950 pt-10 pb-16 sm:pt-16 sm:pb-24 bg-grid-pattern">
+    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 dark:from-blue-950/30 via-white dark:via-slate-900/60 to-slate-50/60 dark:to-slate-950 pt-10 pb-16 sm:pt-16 sm:pb-24">
       {/* Ambient Soft Glows */}
       <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -49,7 +49,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Always exactly two lines: each line is nowrap and the size scales with the viewport */}
             <h1 className="font-tech hero-title font-extrabold tracking-tight text-slate-950 dark:text-slate-100 leading-[1.15]">
               <span className="block whitespace-nowrap">
-                TUỔI TRẺ <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 dark:from-blue-300 dark:via-blue-200 dark:to-indigo-300 bg-clip-text text-transparent">ĐIỆN - ĐIỆN TỬ</span>
+                TUỔI TRẺ <span className="text-blue-700 dark:text-blue-300">ĐIỆN - ĐIỆN TỬ</span>
               </span>
               <span className="block whitespace-nowrap">KHAI PHÓNG - TIÊN PHONG - SÁNG TẠO</span>
             </h1>
