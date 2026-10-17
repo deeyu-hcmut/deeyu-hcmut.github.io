@@ -98,7 +98,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({
             {/* Top faculty badge */}
             <div className="text-[10px] uppercase font-bold tracking-widest text-blue-700 dark:text-blue-300 flex items-center justify-center space-x-1 mb-1">
               <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
-              <span>KHOA ĐIỆN - ĐIỆN TỬ • PORTAL 2026</span>
+              <span>KHOA ĐIỆN - ĐIỆN TỬ</span>
             </div>
 
             <h3 className="font-tech text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight mt-1">
