@@ -35,6 +35,8 @@ const TicketModal = lazy(() => import('./TicketModal').then(m => ({ default: m.T
 interface EventsHubProps {
   events: EventItem[];
   currentRole: Role;
+  // Signed-in student's tickets; events found here show "Xem vé QR" instead of "Đăng ký"
+  myRegistrations?: RegistrationRecord[];
   onRegisterSuccess: (record: RegistrationRecord, updatedEvent: EventItem) => void;
   onCreateEvent: (eventData: Partial<EventItem>) => void;
   onDeleteEvent: (event: EventItem) => Promise<void>;
@@ -45,6 +47,7 @@ interface EventsHubProps {
 export const EventsHub: React.FC<EventsHubProps> = ({
   events,
   currentRole,
+  myRegistrations = [],
   onRegisterSuccess,
   onCreateEvent,
   onDeleteEvent,
@@ -66,6 +69,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const canManageEvents = roleCanManageEvents(currentRole);
+  const ticketOf = (evt: EventItem) => myRegistrations.find(r => r.eventId === evt.id);
+  const showTicket = (evt: EventItem) => {
+    const record = ticketOf(evt);
+    if (record) setActiveTicket({ record, event: evt });
+  };
 
   const closeDeleteDialog = () => {
     if (deleteBusy) return;
@@ -457,7 +465,15 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     >
                       Chi tiết
                     </button>
-                    {isRegistrationOpen(evt) ? (
+                    {ticketOf(evt) ? (
+                      <button
+                        onClick={() => showTicket(evt)}
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center space-x-1"
+                      >
+                        <QrCode className="w-3.5 h-3.5" />
+                        <span>Xem vé QR</span>
+                      </button>
+                    ) : isRegistrationOpen(evt) ? (
                       <button
                         id={`register-btn-${evt.id}`}
                         onClick={() => setRegisteringEvent(evt)}
@@ -537,7 +553,14 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     >
                       Xem
                     </button>
-                    {isRegistrationOpen(evt) && (
+                    {ticketOf(evt) ? (
+                      <button
+                        onClick={() => showTicket(evt)}
+                        className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
+                      >
+                        Xem vé QR
+                      </button>
+                    ) : isRegistrationOpen(evt) && (
                       <button
                         onClick={() => setRegisteringEvent(evt)}
                         className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
@@ -691,7 +714,15 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                           Xem chi tiết
                         </button>
 
-                        {isRegistrationOpen(evt) ? (
+                        {ticketOf(evt) ? (
+                          <button
+                            onClick={() => showTicket(evt)}
+                            className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm active:scale-95 transition-all text-center flex items-center justify-center space-x-1.5 cursor-pointer"
+                          >
+                            <QrCode className="w-4 h-4" />
+                            <span>Xem vé QR</span>
+                          </button>
+                        ) : isRegistrationOpen(evt) ? (
                           <button
                             id={`register-card-btn-${evt.id}`}
                             onClick={() => setRegisteringEvent(evt)}
@@ -750,6 +781,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
           <EventDetailModal
             event={viewingEvent}
             onClose={() => setViewingEvent(null)}
+            onShowTicket={ticketOf(viewingEvent) ? () => {
+              const target = viewingEvent;
+              setViewingEvent(null);
+              showTicket(target);
+            } : undefined}
             onOpenRegister={() => {
               const target = viewingEvent;
               setViewingEvent(null);

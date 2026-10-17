@@ -134,6 +134,21 @@ export default function App() {
     };
   }, [hcmutEmail, isStudentRole]);
 
+  // Tickets of the signed-in student, so registered events show "Xem vé QR" instead of "Đăng ký"
+  const [myRegistrations, setMyRegistrations] = useState<RegistrationRecord[]>([]);
+  const myMssv = myProfile?.mssv;
+  useEffect(() => {
+    setMyRegistrations([]);
+    if (!myMssv) return;
+    let cancelled = false;
+    api.lookupStudent(myMssv)
+      .then(res => { if (!cancelled) setMyRegistrations(res.history); })
+      .catch(err => console.error('Failed to load my registrations', err));
+    return () => {
+      cancelled = true;
+    };
+  }, [myMssv]);
+
   const closeProfileModal = () => {
     setProfileModalOpen(false);
     if (hcmutEmail && !myProfile?.profileCompletedAt) {
@@ -202,6 +217,7 @@ export default function App() {
 
   const handleRegisterSuccess = (record: RegistrationRecord, updatedEvent: EventItem) => {
     setEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
+    if (myMssv && record.mssv.toLowerCase() === myMssv.toLowerCase()) setMyRegistrations(prev => [...prev, record]);
     showToast(`Đăng ký thành công vé #${record.ticketCode}! Hãy lưu lại mã QR để điểm danh.`);
   };
 
@@ -343,6 +359,7 @@ export default function App() {
                 <EventsHub
                   events={events.slice(0, 3)}
                   currentRole={currentRole}
+                  myRegistrations={myRegistrations}
                   onRegisterSuccess={handleRegisterSuccess}
                   onCreateEvent={handleCreateEvent}
                   onDeleteEvent={handleDeleteEvent}
@@ -401,6 +418,7 @@ export default function App() {
           <EventsHub
             events={events}
             currentRole={currentRole}
+            myRegistrations={myRegistrations}
             onRegisterSuccess={handleRegisterSuccess}
             onCreateEvent={handleCreateEvent}
             onDeleteEvent={handleDeleteEvent}

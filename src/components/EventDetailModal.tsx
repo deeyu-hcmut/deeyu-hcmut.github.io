@@ -12,23 +12,27 @@ import {
   Mail, 
   Share2, 
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  QrCode
 } from 'lucide-react';
-import { EventItem } from '../types';
+import { EventItem, isRegistrationOpen as isOpenForRegistration } from '../types';
 
 interface EventDetailModalProps {
   event: EventItem;
   onClose: () => void;
   onOpenRegister: () => void;
+  // Set when the signed-in student already holds a ticket for this event
+  onShowTicket?: () => void;
 }
 
 export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   event,
   onClose,
-  onOpenRegister
+  onOpenRegister,
+  onShowTicket
 }) => {
   const percentage = Math.min(100, Math.round((event.currentParticipants / event.maxParticipants) * 100));
-  const isRegistrationOpen = event.status === 'REGISTRATION_OPEN';
+  const isRegistrationOpen = isOpenForRegistration(event);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
@@ -153,7 +157,15 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 Đóng
               </button>
 
-              {isRegistrationOpen ? (
+              {onShowTicket ? (
+                <button
+                  onClick={onShowTicket}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 shadow-sm flex items-center space-x-1.5 transition-all"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>Xem vé QR</span>
+                </button>
+              ) : isRegistrationOpen ? (
                 <button
                   onClick={onOpenRegister}
                   className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-600/20 flex items-center space-x-1.5 transition-all"
