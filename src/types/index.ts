@@ -200,7 +200,8 @@ export interface EmailDispatchLog {
   subject: string;
   type: 'REGISTRATION_CONFIRMATION' | 'REMINDER_24H' | 'ATTENDANCE_SUCCESS' | 'GENERAL_ANNOUNCEMENT';
   sentAt: string;
-  status: 'DELIVERED' | 'SENT' | 'QUEUED';
+  // QUEUED until the email Apps Script (tools/google-sheet-sync/email) sends it
+  status: 'DELIVERED' | 'SENT' | 'QUEUED' | 'FAILED';
   ticketCode?: string;
 }
 

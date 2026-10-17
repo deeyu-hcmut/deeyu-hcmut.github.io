@@ -88,3 +88,51 @@ collection `bch` (tab **BCH & Trưởng, phó ban CTV** trong trang Quản trị
 
 Giống mục [Cài đặt](#cài-đặt-một-lần) ở trên, nhưng làm trong **file Google Sheet BCH** và dán nội dung
 [`bch/Code.gs`](bch/Code.gs) (file `appsscript.json` dùng chung bản ở thư mục này).
+
+---
+
+# Gửi email tự động
+
+Script riêng [`email/Code.gs`](email/Code.gs) gửi email bằng **Gmail của người cài đặt** (miễn phí, không cần gói Blaze).
+Không gắn vào sheet nào: tạo một project Apps Script độc lập.
+
+## Email nào được gửi
+
+| Khi nào | Nội dung |
+|---|---|
+| Sinh viên đăng ký sự kiện trên web | Xác nhận đăng ký, mã vé, thời gian, địa điểm |
+| Ban Tổ chức quét QR điểm danh | Ghi nhận điểm danh thành công |
+| Admin bấm gửi nhắc lịch 24h | Nhắc sự kiện sắp diễn ra |
+
+- Script chạy **mỗi 5 phút**, nên email đến chậm tối đa khoảng 5 phút.
+- Kết quả xem ở **Quản trị → Nhật ký Email**: `Đang chờ` → `Đã gửi`, hoặc `Lỗi` nếu địa chỉ email sai (không gửi lại).
+- **Giới hạn của Google:** Gmail cá nhân ~**100 email/ngày**, tài khoản Google Workspace ~**1.500 email/ngày**.
+  Hết hạn mức thì phần còn lại tự gửi vào hôm sau. Email gửi đi mang địa chỉ của người cài script, tên hiển thị
+  `Đoàn - Hội Khoa Điện - Điện tử`. Nên dùng một tài khoản Gmail chung của Đoàn - Hội thay vì Gmail cá nhân.
+- Chỉ gửi cho đăng ký **sau khi** bật tự động; các đăng ký cũ không nhận email.
+
+## Cài đặt (một lần)
+
+1. Đăng nhập tài khoản Google sẽ dùng để gửi email. Tài khoản này phải là **Owner hoặc Editor của project Firebase
+   `deeyu-hcmut`** (Firebase console → ⚙ Project settings → Users and permissions → Add member).
+2. Vào <https://script.google.com> → **Dự án mới**. Đặt tên, ví dụ `Email cổng thông tin`.
+3. **⚙ Cài đặt dự án** → tích **Hiển thị tệp kê khai "appsscript.json" trong trình chỉnh sửa**.
+4. Quay lại **Trình chỉnh sửa**:
+   - Mở `Code.gs`, xoá hết, dán toàn bộ nội dung [`email/Code.gs`](email/Code.gs).
+   - Mở `appsscript.json`, xoá hết, dán nội dung [`email/appsscript.json`](email/appsscript.json)
+     (khác bản dùng cho sheet, vì cần quyền gửi email).
+   - Bấm 💾 Lưu.
+5. Trên thanh công cụ chọn hàm **`guiThu`** → bấm **▶ Chạy**. Lần đầu Google hỏi quyền:
+   **Xem lại quyền** → chọn tài khoản → **Nâng cao → Đi tới … (không an toàn)** (đây là script của chính bạn) → **Cho phép**.
+   Kiểm tra hộp thư của bạn có email "Gửi thử email từ cổng thông tin".
+6. Chọn hàm **`batTuDong`** → **▶ Chạy**. Xong, từ giờ email tự gửi mỗi 5 phút.
+7. Thử: đăng ký một sự kiện trên web bằng email của bạn, đợi vài phút là có email xác nhận.
+
+Tắt: chọn hàm **`tatTuDong`** → **▶ Chạy**.
+
+## Khi có lỗi
+
+- Xem nhật ký: Apps Script → **Lần thực thi** (Executions). Mỗi lần chạy ghi `Xác nhận đăng ký: …, Email chờ gửi: …, Còn … email hôm nay`.
+- `Firestore trả lỗi 403 … PERMISSION_DENIED`: tài khoản chưa có quyền trên project `deeyu-hcmut` (bước 1).
+- Email rơi vào thư rác: nhắc sinh viên đánh dấu "Không phải thư rác"; dùng Gmail chung của Đoàn - Hội giúp ít bị chặn hơn.
+- Đổi tài khoản gửi: người cũ chạy `tatTuDong`, người mới làm lại từ bước 1.

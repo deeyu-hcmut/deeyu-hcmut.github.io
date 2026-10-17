@@ -33,6 +33,13 @@ const MemberManager = lazy(() => import('./MemberManager').then(m => ({ default:
 const BchManager = lazy(() => import('./BchManager').then(m => ({ default: m.BchManager })));
 const StaffAccountsManager = lazy(() => import('./StaffAccountsManager').then(m => ({ default: m.StaffAccountsManager })));
 
+const EMAIL_STATUS: Record<EmailDispatchLog['status'], { label: string; className: string }> = {
+  SENT: { label: 'Đã gửi', className: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-400/30' },
+  DELIVERED: { label: 'Đã gửi', className: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-400/30' },
+  QUEUED: { label: 'Đang chờ', className: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-400/30' },
+  FAILED: { label: 'Lỗi', className: 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-400/30' },
+};
+
 type AdminTab = 'REGISTRATIONS' | 'AUTOMATION' | 'BCH' | 'MEMBERS' | 'ROLES' | 'EMAIL_LOGS';
 
 interface AdminDashboardProps {
@@ -646,7 +653,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="mt-6">
             <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mb-4 flex items-center justify-between shadow-sm">
               <span className="text-xs text-slate-700 dark:text-slate-200 font-semibold">
-                Nhật ký các email tự động đã gửi qua SMTP / Resend Simulation
+                Nhật ký email tự động (gửi qua Gmail bằng Apps Script, mỗi 5 phút)
               </span>
               <button
                 onClick={loadData}
@@ -687,8 +694,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         {new Date(log.sentAt).toLocaleString('vi-VN')}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-400/30">
-                          {log.status}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${EMAIL_STATUS[log.status]?.className ?? EMAIL_STATUS.SENT.className}`}>
+                          {EMAIL_STATUS[log.status]?.label ?? log.status}
                         </span>
                       </td>
                     </tr>
