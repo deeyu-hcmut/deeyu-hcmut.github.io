@@ -406,53 +406,6 @@ const rawFirebaseApi: Api = {
     return filterRegistrations(records, undefined, search);
   },
 
-  sendReminder: async eventId => {
-    const eventSnap = await getDoc(doc(db, 'events', eventId));
-    if (!eventSnap.exists()) throw new Error('Sự kiện không tồn tại');
-    const event = withId<EventItem>(eventSnap);
-
-    const [regSnap, contacts] = await Promise.all([
-      getDocs(query(collection(db, 'registrations'), where('eventId', '==', eventId))),
-      loadContacts(),
-    ]);
-    const recipients = regSnap.docs
-      .map(d => ({ data: d.data(), contact: contacts.get(d.id) }))
-      .filter(r => r.contact?.email);
-
-    // A batch holds at most 500 writes; keep one slot for the notification
-    const sentAt = new Date().toISOString();
-    for (let i = 0; i < recipients.length || i === 0; i += 499) {
-      const batch = writeBatch(db);
-      recipients.slice(i, i + 499).forEach(({ data, contact }) => {
-        batch.set(doc(collection(db, 'emailLogs')), {
-          recipientEmail: contact!.email,
-          recipientName: data.fullName,
-          subject: `[Nhắc nhở 24h] Sự kiện "${event.title}" sắp diễn ra tại ${event.location}`,
-          type: 'REMINDER_24H',
-          sentAt,
-          status: 'QUEUED',
-          ticketCode: data.ticketCode,
-        } satisfies Omit<EmailDispatchLog, 'id'>);
-      });
-      if (i + 499 >= recipients.length) {
-        // Same marker the email Apps Script sets, so it does not remind this event again
-        batch.update(eventSnap.ref, { reminderFor: `${event.eventDate} ${event.startTime || '00:00'}` });
-        queueNotification(batch, {
-          title: 'Đã gửi thông báo nhắc nhở 24h',
-          message: `Đã xếp hàng email nhắc nhở kèm mã vé QR cho ${recipients.length} sinh viên tham gia sự kiện "${event.title}".`,
-          type: 'REMINDER',
-        });
-      }
-      await batch.commit();
-    }
-
-    return {
-      success: true,
-      message: `Đã xếp hàng email nhắc nhở 24h cho ${recipients.length} sinh viên.`,
-      sentCount: recipients.length,
-    };
-  },
-
   getStaffAccounts: async () =>
     (await getDocs(collection(db, 'admins'))).docs
       .map(d => ({ email: d.id, role: normalizeRole(d.data().role), updatedAt: d.data().updatedAt }) as StaffAccount)

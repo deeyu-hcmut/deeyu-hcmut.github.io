@@ -102,7 +102,7 @@ Không gắn vào sheet nào: tạo một project Apps Script độc lập.
 |---|---|
 | Sinh viên đăng ký sự kiện trên web | Xác nhận đăng ký, mã vé, thời gian, địa điểm |
 | Ban Tổ chức quét QR điểm danh | Ghi nhận điểm danh thành công |
-| **Trong vòng 24 giờ trước giờ bắt đầu** sự kiện (tự động; admin bấm gửi nhắc trên web cũng được) | Nhắc sự kiện sắp diễn ra, kèm mã vé |
+| **Trong vòng 24 giờ trước giờ bắt đầu** sự kiện | Nhắc sự kiện sắp diễn ra, kèm mã vé |
 
 - Script chạy **mỗi 5 phút**, nên email đến chậm tối đa khoảng 5 phút.
 - Kết quả xem ở **Quản trị → Nhật ký Email**: `Đang chờ` → `Đã gửi`, hoặc `Lỗi` nếu địa chỉ email sai (không gửi lại).

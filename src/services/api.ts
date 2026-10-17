@@ -304,52 +304,6 @@ const clientStorage = {
   getRegistrations: (eventId?: string, search?: string): RegistrationRecord[] =>
     filterRegistrations(getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS), eventId, search),
 
-  sendReminder: (eventId: string) => {
-    const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
-    const registrations = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
-    const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
-    const emailLogs = getLocalData<EmailDispatchLog[]>(STORAGE_KEYS.EMAIL_LOGS, []);
-
-    const event = events.find(e => e.id === eventId);
-    if (!event) {
-      throw new Error('Sự kiện không tồn tại');
-    }
-
-    const participants = registrations.filter(r => r.eventId === eventId);
-    let sentCount = 0;
-
-    participants.forEach(p => {
-      emailLogs.unshift({
-        id: `email-${Date.now()}-${Math.random()}`,
-        recipientEmail: p.email,
-        recipientName: p.fullName,
-        subject: `[Nhắc nhở 24h] Sự kiện "${event.title}" sắp diễn ra tại ${event.location}`,
-        type: 'REMINDER_24H',
-        sentAt: new Date().toISOString(),
-        status: 'DELIVERED',
-        ticketCode: p.ticketCode
-      });
-      sentCount++;
-    });
-    setLocalData(STORAGE_KEYS.EMAIL_LOGS, emailLogs);
-
-    notifications.unshift({
-      id: `notif-${Date.now()}`,
-      title: `Đã gửi thông báo nhắc nhở 24h`,
-      message: `Hệ thống đã tự động gửi email nhắc nhở kèm mã vé QR đến ${sentCount} sinh viên tham gia sự kiện "${event.title}".`,
-      type: 'REMINDER',
-      timestamp: 'Vừa xong',
-      read: false
-    });
-    setLocalData(STORAGE_KEYS.NOTIFICATIONS, notifications);
-
-    return {
-      success: true,
-      message: `Đã tự động gửi email nhắc nhở 24h đến ${sentCount} sinh viên thành công!`,
-      sentCount
-    };
-  },
-
   getStaffAccounts: (): StaffAccount[] =>
     getLocalData<StaffAccount[]>(STORAGE_KEYS.ADMINS, []).sort((a, b) => a.email.localeCompare(b.email)),
 
@@ -540,13 +494,6 @@ const localApi = {
     return (await fetchApi<RegistrationRecord[]>(`/api/registrations?${params.toString()}`)) ??
       clientStorage.getRegistrations(eventId, search);
   },
-
-  // Reminder trigger
-  sendReminder: async (eventId: string): Promise<{ success: boolean; message: string; sentCount: number }> =>
-    (await fetchApi<{ success: boolean; message: string; sentCount: number }>(
-      '/api/notifications/send-reminder',
-      postJson({ eventId })
-    )) ?? clientStorage.sendReminder(eventId),
 
   // BCH
   getBCH: async (): Promise<BCHMember[]> => clientStorage.getBCH(),

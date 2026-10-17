@@ -11,7 +11,6 @@ import {
   Search, 
   Filter,
   FileSpreadsheet,
-  Bell,
   Clock,
   Sparkles, 
   RefreshCw, 
@@ -75,7 +74,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [registrations, setRegistrations] = useState<RegistrationRecord[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailDispatchLog[]>([]);
   const [loading, setLoading] = useState(false);
-  const [sendingReminder, setSendingReminder] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   // Email Template Preview State
@@ -139,21 +137,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setTimeout(() => setActionNotice(null), 4000);
   };
 
-  // Trigger 24h Automated Email Reminder to all registered participants
-  const handleTrigger24hReminder = async (eventId: string) => {
-    setSendingReminder(true);
-    try {
-      const res = await api.sendReminder(eventId);
-      setActionNotice(res.message);
-      loadData();
-      setTimeout(() => setActionNotice(null), 5000);
-    } catch (err: any) {
-      setActionNotice(`Lỗi: ${err.message}`);
-    } finally {
-      setSendingReminder(false);
-    }
-  };
-
   const rolesList: { role: Role; title: string; desc: string; permissions: string[] }[] = [
     {
       role: 'SUPER_ADMIN',
@@ -202,7 +185,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 TRUNG TÂM QUẢN TRỊ & TỰ ĐỘNG HÓA
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                Quản lý người tham gia, xuất file Excel, tự động hóa Email/Push 24h và kiểm soát phân quyền RBAC
+                Quản lý người tham gia, xuất file Excel, email tự động và kiểm soát phân quyền RBAC
               </p>
             </div>
           </div>
@@ -436,41 +419,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {activeTab === 'AUTOMATION' && (
           <div className="mt-6 space-y-6">
             
-            {/* Quick 24h Reminder Dispatcher */}
+            {/* Emails go out from the email Apps Script (tools/google-sheet-sync/email), nothing to trigger here */}
             <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="font-tech text-base font-bold text-slate-900 dark:text-slate-100 mb-2 flex items-center space-x-2">
                 <Send className="w-5 h-5 text-blue-600 dark:text-blue-300" />
-                <span>Gửi Email & Push Notification Nhắc Nhở 24h Trước Sự Kiện</span>
+                <span>Email tự động</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-4">
-                Hệ thống tự động quét danh sách người đăng ký và gửi email kèm mã vé QR nhắc nhở trước giờ khai mạc.
+                Hệ thống tự gửi qua Gmail mỗi 5 phút, không cần thao tác. Kết quả xem ở tab Nhật ký Email.
               </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {events.filter(e => e.status !== 'COMPLETED').map(evt => (
-                  <div key={evt.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase">{evt.typeName}</span>
-                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs mt-1 line-clamp-1">{evt.title}</h4>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        📅 {evt.eventDate} ({evt.startTime}) • 📍 {evt.location}
-                      </p>
-                      <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-2 font-mono">
-                        Số lượng đã đăng ký: <strong className="text-blue-700 dark:text-blue-300 font-bold">{evt.currentParticipants} sinh viên</strong>
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => handleTrigger24hReminder(evt.id)}
-                      disabled={sendingReminder}
-                      className="mt-4 w-full py-2 rounded-xl text-xs font-bold bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-600 text-blue-700 dark:text-blue-300 hover:text-white border border-blue-200 dark:border-blue-400/30 transition-all flex items-center justify-center space-x-1.5"
-                    >
-                      <Bell className="w-3.5 h-3.5" />
-                      <span>Kích hoạt Gửi Nhắc Nhở 24h</span>
-                    </button>
-                  </div>
+              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                {[
+                  { title: 'Xác nhận đăng ký', desc: 'Ngay sau khi sinh viên đăng ký, kèm mã vé.' },
+                  { title: 'Nhắc nhở 24h', desc: 'Trong vòng 24 giờ trước giờ bắt đầu sự kiện.' },
+                  { title: 'Điểm danh thành công', desc: 'Sau khi Ban Tổ chức quét QR.' },
+                ].map(item => (
+                  <li key={item.title} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700">
+                    <p className="font-bold text-slate-900 dark:text-slate-100">{item.title}</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">{item.desc}</p>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
 
             {/* Email Template Previewer */}

@@ -5,7 +5,7 @@
  * Mỗi lần chạy (mặc định mỗi 5 phút):
  *   1. Đăng ký mới trên web (`registrations`) → gửi email xác nhận kèm mã vé, ghi vào `emailLogs` (SENT).
  *   2. Sự kiện bắt đầu trong vòng 24 giờ tới → xếp email nhắc cho mọi người đã đăng ký (một lần cho mỗi
- *      ngày giờ bắt đầu; đổi giờ sự kiện thì nhắc lại). Admin bấm gửi nhắc trên web cũng được tính.
+ *      ngày giờ bắt đầu; đổi giờ sự kiện thì nhắc lại).
  *   3. Email đang chờ trong `emailLogs` (status QUEUED: điểm danh thành công, nhắc lịch 24h) → gửi, đổi thành SENT.
  * Địa chỉ không gửi được thì đánh dấu FAILED, không thử lại (tránh tốn hạn mức gửi mỗi ngày).
  *

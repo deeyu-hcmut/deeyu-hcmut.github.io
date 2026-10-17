@@ -374,47 +374,6 @@ async function startServer() {
     res.json(filtered);
   });
 
-  // 9. Automated Email Reminder trigger
-  app.post('/api/notifications/send-reminder', (req: Request, res: Response) => {
-    const { eventId } = req.body;
-    const event = events.find(e => e.id === eventId);
-    if (!event) {
-      return res.status(404).json({ error: 'Sự kiện không tồn tại' });
-    }
-
-    const participants = registrations.filter(r => r.eventId === eventId);
-    let sentCount = 0;
-
-    participants.forEach(p => {
-      emailLogs.unshift({
-        id: `email-${Date.now()}-${Math.random()}`,
-        recipientEmail: p.email,
-        recipientName: p.fullName,
-        subject: `[Nhắc nhở 24h] Sự kiện "${event.title}" sắp diễn ra tại ${event.location}`,
-        type: 'REMINDER_24H',
-        sentAt: new Date().toISOString(),
-        status: 'DELIVERED',
-        ticketCode: p.ticketCode
-      });
-      sentCount++;
-    });
-
-    notifications.unshift({
-      id: `notif-${Date.now()}`,
-      title: `Đã gửi thông báo nhắc nhở 24h`,
-      message: `Hệ thống đã tự động gửi email nhắc nhở kèm mã vé QR đến ${sentCount} sinh viên tham gia sự kiện "${event.title}".`,
-      type: 'REMINDER',
-      timestamp: 'Vừa xong',
-      read: false
-    });
-
-    res.json({
-      success: true,
-      message: `Đã tự động gửi email nhắc nhở 24h đến ${sentCount} sinh viên thành công!`,
-      sentCount
-    });
-  });
-
   // 10. BCH Members
   app.get('/api/bch', (req: Request, res: Response) => {
     res.json(INITIAL_BCH);
