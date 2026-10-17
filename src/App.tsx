@@ -314,7 +314,7 @@ export default function App() {
         {activeTab === 'home' && (
           <div className="relative">
             <HeroSection
-              upcomingEvent={events.find(isRegistrationOpen) || events[0]}
+              upcomingEvent={events.find(isRegistrationOpen)}
               onExploreEvents={() => setActiveTab('events')}
               onOpenLookup={() => setActiveTab('lookup')}
               onOpenQRScanner={openQRScanner}

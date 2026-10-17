@@ -66,19 +66,6 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Body paragraphs are justified; in centred blocks the last (or only) line stays centred */
-  p {
-    text-align: justify;
-  }
-
-  .text-center p {
-    text-align-last: center;
-  }
-
-  .text-right p {
-    text-align-last: right;
-  }
-
   /* Titles in Cabin, body text in Open Sans */
   h1, h2, h3, h4, .font-tech {
     font-family: 'Cabin', 'Open Sans', sans-serif;

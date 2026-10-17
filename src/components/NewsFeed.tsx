@@ -119,7 +119,6 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
     { id: 'CUOC_THI_NCKH', label: 'Cuộc thi & NCKH' },
     { id: 'PHONG_TRAO_SINH_VIEN', label: 'Phong trào & Tình nguyện' },
     { id: 'HOC_BONG_DOANH_NGHIEP', label: 'Học bổng & Doanh nghiệp' },
-    { id: 'THONG_BAO_HOC_THUAT', label: 'Thông báo Học vụ' },
   ];
 
   // Extract all unique tags
@@ -577,12 +576,12 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
               </div>
 
               {/* Summary block */}
-              <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 text-sm font-medium leading-relaxed text-justify">
+              <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 text-sm font-medium leading-relaxed">
                 {selectedNews.summary}
               </div>
 
               {/* Article Body */}
-              <div className="text-slate-700 dark:text-slate-200 text-sm sm:text-base leading-relaxed space-y-4 whitespace-pre-line text-justify">
+              <div className="text-slate-700 dark:text-slate-200 text-sm sm:text-base leading-relaxed space-y-4 whitespace-pre-line">
                 {selectedNews.content}
               </div>
 
@@ -686,7 +685,6 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
                     <option value="CUOC_THI_NCKH">Cuộc thi & NCKH</option>
                     <option value="PHONG_TRAO_SINH_VIEN">Phong trào & Tình nguyện</option>
                     <option value="HOC_BONG_DOANH_NGHIEP">Học bổng & Doanh nghiệp</option>
-                    <option value="THONG_BAO_HOC_THUAT">Thông báo Học vụ</option>
                   </select>
                 </div>
 

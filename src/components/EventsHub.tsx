@@ -146,10 +146,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
 
   const eventTypes = [
     { id: 'ALL', label: 'Tất cả loại sự kiện' },
-    { id: 'ACADEMIC_CONTEST', label: 'Học thuật & Robocon' },
-    { id: 'SEMINAR_WORKSHOP', label: 'Hội thảo & Vi mạch' },
-    { id: 'SPORTS_CULTURE', label: 'Thể thao & Văn nghệ' },
-    { id: 'VOLUNTEER', label: 'Tình nguyện & Xã hội' },
+    { id: 'ACADEMIC_CONTEST', label: 'Học thuật' },
+    { id: 'VOLUNTEER', label: 'Tình nguyện' },
+    { id: 'SPORTS_CULTURE', label: 'Thể thao' },
+    { id: 'UNION_CONFERENCE', label: 'Đoàn thể' },
+    { id: 'SEMINAR_WORKSHOP', label: 'Sinh viên' },
   ];
 
   const statusFilters = [
@@ -171,13 +172,21 @@ export const EventsHub: React.FC<EventsHubProps> = ({
     return matchesType && matchesStatus && matchesSearch;
   });
 
-  const getStatusBadge = (status: EventStatus, current: number, max: number) => {
+  const getStatusBadge = (evt: EventItem) => {
+    const { status, currentParticipants: current, maxParticipants: max } = evt;
+    if (status === 'REGISTRATION_OPEN' && !isRegistrationOpen(evt)) {
+      return (
+        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          Đã hết hạn đăng ký
+        </span>
+      );
+    }
     if (status === 'REGISTRATION_OPEN') {
       const isAlmostFull = current / max >= 0.85;
       return (
         <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border flex items-center space-x-1 ${
-          isAlmostFull 
-            ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-400/30 animate-pulse' 
+          isAlmostFull
+            ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-400/30 animate-pulse'
             : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-400/30'
         }`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isAlmostFull ? 'bg-orange-600' : 'bg-emerald-600'}`} />
@@ -413,7 +422,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
 
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
+                        {getStatusBadge(evt)}
                         <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">{evt.typeName}</span>
                       </div>
 
@@ -505,7 +514,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     />
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
-                        {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
+                        {getStatusBadge(evt)}
                         <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold">{evt.typeName}</span>
                       </div>
                       <h4 
@@ -587,27 +596,29 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                       
                       {/* Top Badges */}
                       <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                        {getStatusBadge(evt.status, evt.currentParticipants, evt.maxParticipants)}
-                        {canManageEvents && (
-                      <button
-                        onClick={() => openEditEvent(evt)}
-                        className="p-2 rounded-xl bg-slate-900/80 text-blue-300 hover:bg-blue-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
-                        aria-label={`Sửa sự kiện ${evt.title}`}
-                        title="Sửa sự kiện"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                    )}
-                    {canManageEvents && (
-                      <button
-                        onClick={() => setDeletingEvent(evt)}
-                        className="p-2 rounded-xl bg-slate-900/80 text-rose-300 hover:bg-rose-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
-                        aria-label={`Xoá sự kiện ${evt.title}`}
-                        title="Xoá sự kiện"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                        {getStatusBadge(evt)}
+                        <div className="flex items-center gap-2">
+                          {canManageEvents && (
+                            <button
+                              onClick={() => openEditEvent(evt)}
+                              className="p-2 rounded-xl bg-slate-900/80 text-blue-300 hover:bg-blue-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
+                              aria-label={`Sửa sự kiện ${evt.title}`}
+                              title="Sửa sự kiện"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                          )}
+                          {canManageEvents && (
+                            <button
+                              onClick={() => setDeletingEvent(evt)}
+                              className="p-2 rounded-xl bg-slate-900/80 text-rose-300 hover:bg-rose-600 hover:text-white border border-white/20 backdrop-blur-md transition-colors"
+                              aria-label={`Xoá sự kiện ${evt.title}`}
+                              title="Xoá sự kiện"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {/* Date & Time pill bottom */}
@@ -829,10 +840,11 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     onChange={(e) => setNewType(e.target.value as EventType)}
                     className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="ACADEMIC_CONTEST">Học thuật & Robocon</option>
-                    <option value="SEMINAR_WORKSHOP">Hội thảo & Vi mạch</option>
-                    <option value="SPORTS_CULTURE">Thể thao & Văn nghệ</option>
-                    <option value="VOLUNTEER">Tình nguyện & Xã hội</option>
+                    <option value="ACADEMIC_CONTEST">Học thuật</option>
+                    <option value="VOLUNTEER">Tình nguyện</option>
+                    <option value="SPORTS_CULTURE">Thể thao</option>
+                    <option value="UNION_CONFERENCE">Đoàn thể</option>
+                    <option value="SEMINAR_WORKSHOP">Sinh viên</option>
                   </select>
                 </div>
 

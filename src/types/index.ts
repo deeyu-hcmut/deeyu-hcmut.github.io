@@ -14,10 +14,9 @@ export interface UserProfile {
   academicYear?: string;
 }
 
-export type NewsCategory = 
-  | 'HOAT_DONG_KHOA' 
-  | 'PHONG_TRAO_SINH_VIEN' 
-  | 'THONG_BAO_HOC_THUAT' 
+export type NewsCategory =
+  | 'HOAT_DONG_KHOA'
+  | 'PHONG_TRAO_SINH_VIEN'
   | 'CUOC_THI_NCKH'
   | 'HOC_BONG_DOANH_NGHIEP';
 
