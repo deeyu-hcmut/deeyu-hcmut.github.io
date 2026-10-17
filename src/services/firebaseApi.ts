@@ -114,22 +114,56 @@ function queueNotification(batch: WriteBatch, notification: Omit<StoredNotificat
 const listCache = new Map<string, { at: number; promise: Promise<unknown[]> }>();
 const LIST_CACHE_MS = 10_000;
 
-function cachedList<T>(name: string, load: () => Promise<T[]>): Promise<T[]> {
+// Public lists are also kept in localStorage, so reloads and repeat visits within PERSIST_MS
+// cost no reads (the free plan allows 50,000 reads a day for the whole site).
+const PERSIST_MS = 5 * 60_000;
+const persistKey = (name: string) => `fee_cache_${name}`;
+
+function cachedList<T>(name: string, load: () => Promise<T[]>, persist = false): Promise<T[]> {
   const hit = listCache.get(name);
   if (hit && Date.now() - hit.at < LIST_CACHE_MS) return hit.promise as Promise<T[]>;
-  const promise = load();
+  if (persist) {
+    try {
+      const stored = JSON.parse(localStorage.getItem(persistKey(name)) || 'null') as { at: number; data: T[] } | null;
+      if (stored && Date.now() - stored.at < PERSIST_MS) {
+        const promise = Promise.resolve(stored.data);
+        listCache.set(name, { at: Date.now(), promise });
+        return promise;
+      }
+    } catch {
+      // ignore: storage blocked or corrupt, fall through to Firestore
+    }
+  }
+  const promise = load().then(data => {
+    if (persist) {
+      try {
+        localStorage.setItem(persistKey(name), JSON.stringify({ at: Date.now(), data }));
+      } catch {
+        // ignore: storage full or blocked
+      }
+    }
+    return data;
+  });
   listCache.set(name, { at: Date.now(), promise });
   promise.catch(() => listCache.delete(name));
   return promise;
 }
 
 function invalidate(...names: string[]) {
-  names.forEach(name => listCache.delete(name));
+  names.forEach(name => {
+    listCache.delete(name);
+    try {
+      localStorage.removeItem(persistKey(name));
+    } catch {
+      // ignore
+    }
+  });
 }
 
 const loadEvents = () =>
   cachedList('events', async () =>
-    (await getDocs(query(collection(db, 'events'), orderBy('createdAt', 'desc')))).docs.map(d => withId<StoredEvent>(d))
+    (await getDocs(query(collection(db, 'events'), orderBy('createdAt', 'desc')))).docs.map(d => withId<StoredEvent>(d)),
+    true
   );
 
 type StoredBch = BCHMember & { order: number };
@@ -144,10 +178,16 @@ function nextOrder(list: StoredBch[]): number {
 
 const loadNews = () =>
   cachedList('news', async () =>
-    (await getDocs(query(collection(db, 'news'), orderBy('publishedAt', 'desc')))).docs.map(d => withId<NewsItem>(d))
+    (await getDocs(query(collection(db, 'news'), orderBy('publishedAt', 'desc')))).docs.map(d => withId<NewsItem>(d)),
+    true
   );
 
-async function loadContacts(): Promise<Map<string, ContactInfo>> {
+// With ids, reads only those contacts instead of every contact of every event
+async function loadContacts(ids?: string[]): Promise<Map<string, ContactInfo>> {
+  if (ids) {
+    const snaps = await Promise.all(ids.map(id => getDoc(doc(db, 'registrationContacts', id))));
+    return new Map(snaps.filter(s => s.exists()).map(s => [s.id, s.data() as ContactInfo]));
+  }
   const snap = await getDocs(collection(db, 'registrationContacts'));
   return new Map(snap.docs.map(d => [d.id, d.data() as ContactInfo]));
 }
@@ -399,7 +439,8 @@ const rawFirebaseApi: Api = {
   getRegistrations: async (eventId, search) => {
     const registrations = collection(db, 'registrations');
     const regQuery = eventId && eventId !== 'ALL' ? query(registrations, where('eventId', '==', eventId)) : registrations;
-    const [regSnap, contacts] = await Promise.all([getDocs(regQuery), loadContacts()]);
+    const regSnap = await getDocs(regQuery);
+    const contacts = await loadContacts(eventId && eventId !== 'ALL' ? regSnap.docs.map(d => d.id) : undefined);
     const records = regSnap.docs
       .map(d => toRecord(d.id, d.data(), contacts.get(d.id)))
       .sort((a, b) => b.registeredAt.localeCompare(a.registeredAt));
@@ -427,7 +468,7 @@ const rawFirebaseApi: Api = {
     await batch.commit();
   },
 
-  getBCH: async () => (await loadBch()).map(({ order: _order, ...member }) => member),
+  getBCH: async () => (await cachedList('bch', loadBch, true)).map(({ order: _order, ...member }) => member),
 
   saveBchMember: async (input, id) => {
     const member = buildBch(input);
@@ -438,12 +479,14 @@ const rawFirebaseApi: Api = {
       if (!snap.exists()) throw new Error('Thành viên không còn tồn tại.');
       batch.set(ref, { ...member, order: snap.data().order ?? 0 });
       await batch.commit();
+      invalidate('bch');
       return { id, ...member };
     }
     const existing = await loadBch();
     const ref = doc(collection(db, 'bch'));
     batch.set(ref, { ...member, order: nextOrder(existing) });
     await batch.commit();
+    invalidate('bch');
     return { id: ref.id, ...member };
   },
 
@@ -451,6 +494,7 @@ const rawFirebaseApi: Api = {
     const batch = writeBatch(db);
     batch.delete(doc(db, 'bch', id));
     await batch.commit();
+    invalidate('bch');
   },
 
 
@@ -474,7 +518,7 @@ const rawFirebaseApi: Api = {
   },
 
   getEmailLogs: async () =>
-    (await getDocs(query(collection(db, 'emailLogs'), orderBy('sentAt', 'desc'), limit(200)))).docs.map(d =>
+    (await getDocs(query(collection(db, 'emailLogs'), orderBy('sentAt', 'desc'), limit(50)))).docs.map(d =>
       withId<EmailDispatchLog>(d)
     ),
 

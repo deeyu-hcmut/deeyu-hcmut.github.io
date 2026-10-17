@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { EventItem, RegistrationRecord, Role, EmailDispatchLog } from '../types';
 import { api } from '../services/api';
+import { filterRegistrations } from '../services/shared';
 import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 import { ROLE_LABELS, canManageEvents, canManageMembers } from '../utils/roles';
 
@@ -79,17 +80,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Email Template Preview State
   const [previewType, setPreviewType] = useState<'TICKET' | 'REMINDER' | 'CHECKIN'>('TICKET');
 
+  // Each tab reads Firestore only while it is open (the free plan allows 50,000 reads a day)
   const loadData = async () => {
     // Registrations and email logs are readable by event staff only
     if (!eventAccess) return;
     setLoading(true);
     try {
-      const [regs, logs] = await Promise.all([
-        api.getRegistrations(selectedEventId !== 'ALL' ? selectedEventId : undefined, searchQuery),
-        api.getEmailLogs()
-      ]);
-      setRegistrations(regs);
-      setEmailLogs(logs);
+      setRegistrations(await api.getRegistrations(selectedEventId !== 'ALL' ? selectedEventId : undefined));
     } catch (err) {
       console.error('Failed to load admin data', err);
     } finally {
@@ -97,20 +94,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [selectedEventId, eventAccess]);
-
-  const handleSearch = () => {
-    loadData();
+  const loadEmailLogs = async () => {
+    try {
+      setEmailLogs(await api.getEmailLogs());
+    } catch (err) {
+      console.error('Failed to load email logs', err);
+    }
   };
+
+  useEffect(() => {
+    if (activeTab === 'REGISTRATIONS') loadData();
+  }, [selectedEventId, eventAccess, activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'EMAIL_LOGS' && eventAccess) loadEmailLogs();
+  }, [activeTab, eventAccess]);
+
+  // Search filters what is already loaded instead of reading Firestore again
+  const [appliedSearch, setAppliedSearch] = useState('');
+  const handleSearch = () => setAppliedSearch(searchQuery);
+  const shownRegistrations = filterRegistrations(registrations, undefined, appliedSearch);
 
   // Export to Excel XLSX file
   const handleExportExcel = async () => {
     // xlsx is ~400KB: load it only when an export is actually requested
     const XLSX = await import('xlsx');
 
-    const dataToExport = registrations.map((r, index) => ({
+    const dataToExport = shownRegistrations.map((r, index) => ({
       'STT': index + 1,
       'Mã vé': r.ticketCode,
       'Họ và tên': r.fullName,
@@ -366,14 +376,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {registrations.length === 0 ? (
+                    {shownRegistrations.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
                           Chưa có dữ liệu đăng ký nào phù hợp.
                         </td>
                       </tr>
                     ) : (
-                      registrations.map(r => (
+                      shownRegistrations.map(r => (
                         <tr key={r.id} className="hover:bg-blue-50/40 dark:hover:bg-blue-950/40 transition-colors">
                           <td className="px-4 py-3 font-mono font-bold text-blue-700 dark:text-blue-300">
                             #{r.ticketCode}
@@ -625,7 +635,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 Nhật ký email tự động (gửi qua Gmail bằng Apps Script, mỗi 5 phút)
               </span>
               <button
-                onClick={loadData}
+                onClick={loadEmailLogs}
                 className="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
