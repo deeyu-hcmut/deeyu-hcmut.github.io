@@ -317,7 +317,6 @@ export default function App() {
               upcomingEvent={events.find(isRegistrationOpen)}
               onExploreEvents={() => setActiveTab('events')}
               onOpenLookup={() => setActiveTab('lookup')}
-              onOpenQRScanner={openQRScanner}
               onReadNews={() => setActiveTab('news')}
             />
 
@@ -425,7 +424,7 @@ export default function App() {
 
         <Suspense fallback={<TabFallback />}>
           {activeTab === 'lookup' && (
-            <StudentPortalLookup events={events} />
+            <StudentPortalLookup events={events} initialMssv={isStudentRole ? myProfile?.mssv : undefined} />
           )}
 
           {activeTab === 'admin' && FIREBASE_ENABLED && currentRole === 'STUDENT' && (
@@ -453,7 +452,6 @@ export default function App() {
               events={events}
               currentRole={currentRole}
               setCurrentRole={setCurrentRole}
-              onOpenQRScanner={() => setIsQRScannerOpen(true)}
               onBchChange={() => api.getBCH().then(setBchMembers).catch(() => {})}
               currentEmail={session?.email}
             />

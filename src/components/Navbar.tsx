@@ -42,7 +42,8 @@ interface NavbarProps {
   session: StaffSession | null;
   onSignIn: () => void;
   onSignOut: () => void;
-  // Undefined hides the button: only staff may run the check-in station
+  // One QR button per interface: staff check in attendees, everyone else views
+  // their own registered-event QR tickets. Undefined means staff check-in.
   onOpenQRScanner?: () => void;
   onOpenStudentLookup: () => void;
   // Set for @hcmut.edu.vn accounts: opens the student profile form
@@ -150,17 +151,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Actions: QR Check-In, Notifications, Mobile Hamburger */}
           <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0 ml-2">
             
-            {/* Quick QR Attendance Button */}
-            {onOpenQRScanner && (
+            {/* Quick QR Button: check-in for staff, "my ticket" for everyone else */}
             <button
               id="header-qr-checkin-btn"
-              onClick={onOpenQRScanner}
+              onClick={onOpenQRScanner ?? onOpenStudentLookup}
               className="hidden sm:flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-blue-500/20 cursor-pointer"
             >
               <QrCode className="w-4 h-4" />
-              <span>Quét QR Điểm danh</span>
+              <span>{onOpenQRScanner ? 'Quét QR Điểm danh' : 'Vé QR của tôi'}</span>
             </button>
-            )}
 
             {/* Light / dark theme toggle */}
             <button
@@ -394,16 +393,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               <span>{theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}</span>
-            </button>
-            <button
-              onClick={() => {
-                onOpenStudentLookup();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30"
-            >
-              <GraduationCap className="w-4 h-4" />
-              <span>Tra cứu Hoạt động & Vé QR cá nhân</span>
             </button>
           </div>
         </div>

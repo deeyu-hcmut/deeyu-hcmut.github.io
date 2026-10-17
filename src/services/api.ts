@@ -79,21 +79,10 @@ const clientStorage = {
 
   createNews: (newsData: Partial<NewsItem>): NewsItem => {
     const news = getLocalData<NewsItem[]>(STORAGE_KEYS.NEWS, INITIAL_NEWS);
-    const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 
     const newArticle: NewsItem = { id: `news-${Date.now()}`, ...buildNews(newsData) };
     news.unshift(newArticle);
     setLocalData(STORAGE_KEYS.NEWS, news);
-
-    notifications.unshift({
-      id: `notif-${Date.now()}`,
-      title: `Tin mới: ${newArticle.title}`,
-      message: newArticle.summary,
-      type: 'NEWS',
-      timestamp: 'Vừa xong',
-      read: false
-    });
-    setLocalData(STORAGE_KEYS.NOTIFICATIONS, notifications);
 
     return newArticle;
   },
@@ -117,21 +106,23 @@ const clientStorage = {
 
   createEvent: (eventData: Partial<EventItem>): EventItem => {
     const events = getLocalData<EventItem[]>(STORAGE_KEYS.EVENTS, INITIAL_EVENTS);
-    const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 
     const newEvt: EventItem = { id: `evt-${Date.now()}`, ...buildEvent(eventData) };
     events.unshift(newEvt);
     setLocalData(STORAGE_KEYS.EVENTS, events);
 
-    notifications.unshift({
-      id: `notif-${Date.now()}`,
-      title: `Sự kiện mới: ${newEvt.title}`,
-      message: `Đang mở đăng ký tham gia. Hạn chót: ${newEvt.registrationDeadline.split('T')[0]}.`,
-      type: 'EVENT',
-      timestamp: 'Vừa xong',
-      read: false
-    });
-    setLocalData(STORAGE_KEYS.NOTIFICATIONS, notifications);
+    if (isRegistrationOpen(newEvt)) {
+      const notifications = getLocalData<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
+      notifications.unshift({
+        id: `notif-${Date.now()}`,
+        title: `Sự kiện mới: ${newEvt.title}`,
+        message: `Đang mở đăng ký tham gia. Hạn chót: ${newEvt.registrationDeadline.split('T')[0]}.`,
+        type: 'EVENT',
+        timestamp: 'Vừa xong',
+        read: false
+      });
+      setLocalData(STORAGE_KEYS.NOTIFICATIONS, notifications);
+    }
 
     return newEvt;
   },

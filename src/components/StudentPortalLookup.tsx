@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   GraduationCap, 
   Search, 
@@ -20,10 +20,13 @@ import { TicketModal } from './TicketModal';
 
 interface StudentPortalLookupProps {
   events: EventItem[];
+  // Set for a logged-in student: auto-looks up their own MSSV so the single
+  // QR nav button can take them straight to their ticket list.
+  initialMssv?: string;
 }
 
-export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events }) => {
-  const [mssvInput, setMssvInput] = useState('');
+export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events, initialMssv }) => {
+  const [mssvInput, setMssvInput] = useState(initialMssv || '');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<{
     mssv: string;
@@ -49,6 +52,12 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (initialMssv) handleLookup(initialMssv);
+    // Only run for the MSSV the student logged in with, not on every re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMssv]);
 
   const handleViewTicket = (record: RegistrationRecord) => {
     const matchedEvent = events.find(e => e.id === record.eventId) || {

@@ -184,7 +184,6 @@ const rawFirebaseApi: Api = {
     const article = buildNews(newsData);
     const batch = writeBatch(db);
     batch.set(ref, article);
-    queueNotification(batch, { title: `Tin mới: ${article.title}`, message: article.summary, type: 'NEWS' });
     await batch.commit();
     invalidate('news');
     return { id: ref.id, ...article };
@@ -216,11 +215,13 @@ const rawFirebaseApi: Api = {
     const event = buildEvent(eventData);
     const batch = writeBatch(db);
     batch.set(ref, { ...event, checkedInCount: 0, createdAt: new Date().toISOString() });
-    queueNotification(batch, {
-      title: `Sự kiện mới: ${event.title}`,
-      message: `Đang mở đăng ký tham gia. Hạn chót: ${event.registrationDeadline.split('T')[0]}.`,
-      type: 'EVENT',
-    });
+    if (isRegistrationOpen(event)) {
+      queueNotification(batch, {
+        title: `Sự kiện mới: ${event.title}`,
+        message: `Đang mở đăng ký tham gia. Hạn chót: ${event.registrationDeadline.split('T')[0]}.`,
+        type: 'EVENT',
+      });
+    }
     await batch.commit();
     invalidate('events');
     return { id: ref.id, ...event };

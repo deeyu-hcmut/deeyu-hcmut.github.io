@@ -1,10 +1,11 @@
 import React from 'react';
-import { Zap, Calendar, Newspaper, Users, QrCode, GraduationCap } from 'lucide-react';
+import { Zap, Calendar, Newspaper, QrCode, GraduationCap } from 'lucide-react';
 
 interface MobileBottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  // Undefined hides the check-in button (students cannot scan)
+  // One QR action per device: staff scan tickets to check in, everyone else
+  // views their own registered-event QR tickets. Undefined means staff check-in.
   onOpenQRScanner?: () => void;
 }
 
@@ -16,9 +17,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   const items = [
     { id: 'home', label: 'Trang chủ', icon: Zap },
     { id: 'events', label: 'Sự kiện', icon: Calendar },
-    ...(onOpenQRScanner
-      ? [{ id: 'scan', label: 'Điểm danh', icon: QrCode, isAction: true }]
-      : [{ id: 'about', label: 'Tổ chức', icon: Users }]),
+    {
+      id: 'scan',
+      label: onOpenQRScanner ? 'Điểm danh' : 'Vé QR',
+      icon: QrCode,
+      isAction: true,
+      onClick: onOpenQRScanner ?? (() => setActiveTab('lookup')),
+    },
     { id: 'news', label: 'Bản tin', icon: Newspaper },
     { id: 'lookup', label: 'Tra cứu', icon: GraduationCap },
   ];
@@ -35,7 +40,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               <button
                 key={item.id}
                 id="mobile-bottom-qr-btn"
-                onClick={onOpenQRScanner}
+                onClick={item.onClick}
                 className="flex flex-col items-center justify-center -mt-5"
               >
                 <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30 active:scale-95 transition-transform border-2 border-white text-white">

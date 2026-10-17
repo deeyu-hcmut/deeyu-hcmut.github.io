@@ -9,11 +9,10 @@ import {
   CheckCircle2, 
   AlertCircle, 
   Search, 
-  Filter, 
-  FileSpreadsheet, 
-  Bell, 
-  QrCode, 
-  Clock, 
+  Filter,
+  FileSpreadsheet,
+  Bell,
+  Clock,
   Sparkles, 
   RefreshCw, 
   Trash2,
@@ -40,7 +39,6 @@ interface AdminDashboardProps {
   events: EventItem[];
   currentRole: Role;
   setCurrentRole: (role: Role) => void;
-  onOpenQRScanner: () => void;
   // Reloads the public BCH cards after an edit in the BCH tab
   onBchChange: () => void;
   // Signed-in account (undefined in the demo build)
@@ -51,7 +49,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   events,
   currentRole,
   setCurrentRole,
-  onOpenQRScanner,
   onBchChange,
   currentEmail
 }) => {
@@ -204,17 +201,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Every staff role may scan tickets */}
-            {currentRole !== 'STUDENT' && (
-              <button
-                onClick={onOpenQRScanner}
-                className="flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm"
-              >
-                <QrCode className="w-4 h-4" />
-                <span>Mở Trạm Quét QR</span>
-              </button>
-            )}
-
             {/* Role badge */}
             <div className="flex items-center space-x-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Quyền hiện tại:</span>

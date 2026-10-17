@@ -1,13 +1,11 @@
 import React from 'react';
-import { Calendar, ArrowRight, Cpu, QrCode, GraduationCap, Flame } from 'lucide-react';
+import { Calendar, ArrowRight, Cpu, GraduationCap, Flame } from 'lucide-react';
 import { EventItem } from '../types';
 
 interface HeroSectionProps {
   upcomingEvent?: EventItem;
   onExploreEvents: () => void;
   onOpenLookup: () => void;
-  // Undefined hides the button: only staff may run the check-in station
-  onOpenQRScanner?: () => void;
   onReadNews: () => void;
 }
 
@@ -15,7 +13,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   upcomingEvent,
   onExploreEvents,
   onOpenLookup,
-  onOpenQRScanner,
   onReadNews
 }) => {
   return (
@@ -92,17 +89,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-300" />
                 <span>Tra cứu Hoạt động</span>
               </button>
-
-              {onOpenQRScanner && (
-              <button
-                id="hero-qr-checkin-btn"
-                onClick={onOpenQRScanner}
-                className="flex items-center space-x-2 px-5 py-4 rounded-xl font-bold text-sm bg-white dark:bg-slate-900 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-400/30 hover:bg-orange-50/70 dark:hover:bg-orange-950/40 active:scale-95 transition-all shadow-xs cursor-pointer"
-              >
-                <QrCode className="w-4 h-4 text-orange-600 dark:text-orange-300" />
-                <span>Quét QR Điểm danh</span>
-              </button>
-              )}
             </div>
 
             {/* Live Highlight Event Banner */}
