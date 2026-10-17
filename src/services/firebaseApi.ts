@@ -435,6 +435,8 @@ const rawFirebaseApi: Api = {
         } satisfies Omit<EmailDispatchLog, 'id'>);
       });
       if (i + 499 >= recipients.length) {
+        // Same marker the email Apps Script sets, so it does not remind this event again
+        batch.update(eventSnap.ref, { reminderFor: `${event.eventDate} ${event.startTime || '00:00'}` });
         queueNotification(batch, {
           title: 'Đã gửi thông báo nhắc nhở 24h',
           message: `Đã xếp hàng email nhắc nhở kèm mã vé QR cho ${recipients.length} sinh viên tham gia sự kiện "${event.title}".`,

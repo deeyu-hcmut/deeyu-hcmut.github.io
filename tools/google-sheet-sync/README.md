@@ -102,14 +102,15 @@ Không gắn vào sheet nào: tạo một project Apps Script độc lập.
 |---|---|
 | Sinh viên đăng ký sự kiện trên web | Xác nhận đăng ký, mã vé, thời gian, địa điểm |
 | Ban Tổ chức quét QR điểm danh | Ghi nhận điểm danh thành công |
-| Admin bấm gửi nhắc lịch 24h | Nhắc sự kiện sắp diễn ra |
+| **Trong vòng 24 giờ trước giờ bắt đầu** sự kiện (tự động; admin bấm gửi nhắc trên web cũng được) | Nhắc sự kiện sắp diễn ra, kèm mã vé |
 
 - Script chạy **mỗi 5 phút**, nên email đến chậm tối đa khoảng 5 phút.
 - Kết quả xem ở **Quản trị → Nhật ký Email**: `Đang chờ` → `Đã gửi`, hoặc `Lỗi` nếu địa chỉ email sai (không gửi lại).
 - **Giới hạn của Google:** Gmail cá nhân ~**100 email/ngày**, tài khoản Google Workspace ~**1.500 email/ngày**.
   Hết hạn mức thì phần còn lại tự gửi vào hôm sau. Email gửi đi mang địa chỉ của người cài script, tên hiển thị
   `Đoàn - Hội Khoa Điện - Điện tử`. Nên dùng một tài khoản Gmail chung của Đoàn - Hội thay vì Gmail cá nhân.
-- Chỉ gửi cho đăng ký **sau khi** bật tự động; các đăng ký cũ không nhận email.
+- Chỉ gửi xác nhận cho đăng ký **sau khi** bật tự động; các đăng ký cũ không nhận email xác nhận (nhưng vẫn nhận nhắc 24h).
+- Mỗi sự kiện chỉ nhắc một lần. Đổi ngày/giờ bắt đầu thì nhắc lại theo giờ mới.
 
 ## Cài đặt (một lần)
 

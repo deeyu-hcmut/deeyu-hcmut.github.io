@@ -4,7 +4,9 @@
  *
  * Mỗi lần chạy (mặc định mỗi 5 phút):
  *   1. Đăng ký mới trên web (`registrations`) → gửi email xác nhận kèm mã vé, ghi vào `emailLogs` (SENT).
- *   2. Email đang chờ trong `emailLogs` (status QUEUED: điểm danh thành công, nhắc lịch 24h) → gửi, đổi thành SENT.
+ *   2. Sự kiện bắt đầu trong vòng 24 giờ tới → xếp email nhắc cho mọi người đã đăng ký (một lần cho mỗi
+ *      ngày giờ bắt đầu; đổi giờ sự kiện thì nhắc lại). Admin bấm gửi nhắc trên web cũng được tính.
+ *   3. Email đang chờ trong `emailLogs` (status QUEUED: điểm danh thành công, nhắc lịch 24h) → gửi, đổi thành SENT.
  * Địa chỉ không gửi được thì đánh dấu FAILED, không thử lại (tránh tốn hạn mức gửi mỗi ngày).
  *
  * Script chạy bằng tài khoản Google của người cài đặt; tài khoản đó phải là Owner/Editor
@@ -53,8 +55,9 @@ function guiEmail() {
   if (!lock.tryLock(5000)) return;
   try {
     const confirmed = sendRegistrationConfirmations();
+    const reminders = queueReminders();
     const queued = sendQueued();
-    console.log(`Xác nhận đăng ký: ${confirmed}. Email chờ gửi: ${queued}. Còn ${MailApp.getRemainingDailyQuota()} email hôm nay.`);
+    console.log(`Xác nhận đăng ký: ${confirmed}. Xếp nhắc 24h: ${reminders}. Email chờ gửi: ${queued}. Còn ${MailApp.getRemainingDailyQuota()} email hôm nay.`);
   } finally {
     lock.releaseLock();
   }
@@ -98,6 +101,52 @@ function sendRegistrationConfirmations() {
   }
   commitAll(logs);
   return sent;
+}
+
+// Queues REMINDER_24H emails (sent by sendQueued, within the daily quota) for events starting in the next 24h.
+// `reminderFor` on the event holds the start it was sent for, so a rescheduled event is reminded again.
+function queueReminders() {
+  const now = new Date();
+  const today = Utilities.formatDate(now, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+  const tomorrow = Utilities.formatDate(new Date(now.getTime() + 86400000), 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+  const events = runQuery({
+    from: [{ collectionId: 'events' }],
+    where: { compositeFilter: { op: 'AND', filters: [
+      { fieldFilter: { field: { fieldPath: 'eventDate' }, op: 'GREATER_THAN_OR_EQUAL', value: { stringValue: today } } },
+      { fieldFilter: { field: { fieldPath: 'eventDate' }, op: 'LESS_THAN_OR_EQUAL', value: { stringValue: tomorrow } } },
+    ] } },
+  });
+
+  let queued = 0;
+  for (const evt of events) {
+    const e = evt.data;
+    const startKey = `${e.eventDate} ${e.startTime || '00:00'}`;
+    const start = new Date(`${e.eventDate}T${e.startTime || '00:00'}:00+07:00`);
+    if (e.reminderFor === startKey || start <= now || start - now > 86400000) continue;
+
+    const regs = runQuery({
+      from: [{ collectionId: 'registrations' }],
+      where: { fieldFilter: { field: { fieldPath: 'eventId' }, op: 'EQUAL', value: { stringValue: evt.id } } },
+    });
+    const writes = [];
+    regs.forEach(reg => {
+      const contact = getDoc(`registrationContacts/${reg.id}`);
+      if (!contact || !contact.email) return;
+      writes.push(createWrite('emailLogs', {
+        recipientEmail: contact.email,
+        recipientName: reg.data.fullName,
+        subject: `[Nhắc nhở 24h] Sự kiện "${e.title}" sắp diễn ra tại ${e.location}`,
+        type: 'REMINDER_24H',
+        sentAt: now.toISOString(),
+        status: 'QUEUED',
+        ticketCode: reg.data.ticketCode,
+      }));
+    });
+    writes.push(updateWrite(`events/${evt.id}`, { reminderFor: startKey }));
+    commitAll(writes);
+    queued += writes.length - 1;
+  }
+  return queued;
 }
 
 function sendQueued() {
