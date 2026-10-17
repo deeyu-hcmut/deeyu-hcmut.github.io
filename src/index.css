@@ -152,3 +152,29 @@
 .dark ::-webkit-scrollbar-thumb {
   background: var(--color-slate-700);
 }
+
+/* Printing a ticket: only the ticket card, on one page. Without this the whole site behind the modal prints. */
+@media print {
+  body:has(> .ticket-modal) > *:not(.ticket-modal) {
+    display: none !important;
+  }
+  .ticket-modal {
+    visibility: hidden;
+    background: none !important;
+    backdrop-filter: none !important;
+  }
+  .ticket-modal #printable-ticket-card,
+  .ticket-modal #printable-ticket-card * {
+    visibility: visible;
+  }
+  .ticket-modal #printable-ticket-card {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90mm;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
