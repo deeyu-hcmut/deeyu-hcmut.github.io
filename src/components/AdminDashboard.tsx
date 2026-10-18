@@ -512,11 +512,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 {/* Email Body */}
                 <div className="py-5 text-sm space-y-3 text-slate-700 dark:text-slate-200">
-                  <p>Xin chào <strong>Nguyễn Văn An</strong> (MSSV: <strong>2211001</strong>),</p>
+                  <p><em><u>Thân gửi:</u></em> <strong>Nguyễn Văn An - 2211001</strong>;</p>
                   
                   {previewType === 'TICKET' && (
                     <>
-                      <p>Bạn đã đăng ký tham gia thành công sự kiện <strong>EE TECH DAY 2026: Triển lãm Đồ án & Ngày hội Tuyển dụng</strong>.</p>
+                      <p>Xác nhận đăng ký tham gia thành công sự kiện <strong>EE TECH DAY 2026: Triển lãm Đồ án & Ngày hội Tuyển dụng</strong>.</p>
                       
                       <div className="my-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-center">
                         <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">MÃ VÉ ĐIỆN TỬ CỦA BẠN</p>

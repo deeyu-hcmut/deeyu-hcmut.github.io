@@ -203,6 +203,9 @@ export interface EmailDispatchLog {
   // QUEUED until the email Apps Script (tools/google-sheet-sync/email) sends it
   status: 'DELIVERED' | 'SENT' | 'QUEUED' | 'FAILED';
   ticketCode?: string;
+  // Shown in the email greeting / body
+  mssv?: string;
+  eventTitle?: string;
 }
 
 export interface FacultyStats {

@@ -428,6 +428,8 @@ const rawFirebaseApi: Api = {
         sentAt: checkedInAt,
         status: 'QUEUED',
         ticketCode: data.ticketCode,
+        mssv: data.mssv,
+        eventTitle: data.eventTitle,
       } satisfies Omit<EmailDispatchLog, 'id'>);
     }
     await batch.commit();
