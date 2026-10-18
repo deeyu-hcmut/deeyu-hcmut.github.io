@@ -3,7 +3,7 @@
 > Cổng thông tin chính thức của **Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử, Trường Đại học Bách khoa - ĐHQG-HCM**:
 > tin tức, sự kiện, đăng ký, vé điện tử QR, điểm danh và quản lý Đoàn viên - Hội viên.
 
-🌐 **Trang web:** <https://deeyu-hcmut.github.io/> · 📄 [Chính sách quyền riêng tư](https://deeyu-hcmut.github.io/privacy.html) · 🔖 Phiên bản **1.0.0** ([CHANGELOG](CHANGELOG.md))
+🌐 **Trang web:** <https://deeyu-hcmut.github.io/> · 📄 [Chính sách quyền riêng tư](https://deeyu-hcmut.github.io/privacy.html) · 🔖 Phiên bản **1.0.1** ([CHANGELOG](CHANGELOG.md))
 
 ---
 
@@ -97,8 +97,8 @@ Mỗi lần push lên `main`, workflow [`deploy.yml`](.github/workflows/deploy.y
 Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/); lịch sử thay đổi ở [CHANGELOG.md](CHANGELOG.md). Push tag dạng `vX.Y.Z` để workflow [`release.yml`](.github/workflows/release.yml) kiểm tra, build và tạo bản **GitHub Release** kèm gói `dist`:
 
 ```bash
-git tag -a v1.0.0 -m "v1.0.0"
-git push origin v1.0.0
+git tag -a v1.0.1 -m "v1.0.1"
+git push origin v1.0.1
 ```
 
 ## Bảo mật

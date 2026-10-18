@@ -2,7 +2,7 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/), phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
-## [Unreleased]
+## [1.0.1] - 2026-10-18
 
 ### Sửa
 - Firestore Rules: cho phép trường `level` (cấp bậc) khi lưu BCH, trước đây mọi lần thêm/sửa BCH trên web bị báo "không có quyền".
@@ -32,4 +32,5 @@ Bản phát hành đầu tiên của cổng thông tin.
 ### Hiệu năng / gói miễn phí
 - Cache danh sách (sự kiện, tin tức 3 phút; BCH, thông báo 15 phút), hiển thị dữ liệu cũ khi hết hạn mức, tin tức tải 10 bài kèm "Xem thêm", danh sách đăng ký admin cache trong bộ nhớ.
 
+[1.0.1]: https://github.com/deeyu-hcmut/deeyu-hcmut.github.io/releases/tag/v1.0.1
 [1.0.0]: https://github.com/deeyu-hcmut/deeyu-hcmut.github.io/releases/tag/v1.0.0
