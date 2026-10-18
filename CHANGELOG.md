@@ -2,6 +2,11 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/), phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [Unreleased]
+
+### Sửa
+- Firestore Rules: cho phép trường `level` (cấp bậc) khi lưu BCH, trước đây mọi lần thêm/sửa BCH trên web bị báo "không có quyền".
+
 ## [1.0.0] - 2026-10-18
 
 Bản phát hành đầu tiên của cổng thông tin.

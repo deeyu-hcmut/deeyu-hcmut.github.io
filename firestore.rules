@@ -76,10 +76,11 @@ service cloud.firestore {
 
     function isValidBch() {
       let b = request.resource.data;
-      return b.keys().hasOnly(['name', 'position', 'organization', 'email', 'classGroup', 'avatarUrl', 'bio',
+      return b.keys().hasOnly(['name', 'position', 'organization', 'level', 'email', 'classGroup', 'avatarUrl', 'bio',
                                'department', 'order'])
         && b.name is string && b.name.size() > 0 && b.name.size() <= 100
         && b.organization in ['DOAN_KHOA', 'HOI_SINH_VIEN', 'DOI_CTV']
+        && b.get('level', 'UY_VIEN') in ['BI_THU', 'PHO_BI_THU', 'UY_VIEN_BTV', 'TRUONG_BAN', 'PHO_BAN', 'UY_VIEN']
         && b.order is int
         && b.avatarUrl is string && b.avatarUrl.size() <= 300000
         && (b.avatarUrl == '' || b.avatarUrl.matches('^(https://|data:image/).*'))
