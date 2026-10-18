@@ -19,6 +19,7 @@ import { RegistrationRecord, EventItem } from '../types';
 import { TicketModal } from './TicketModal';
 import { useSessionInfo } from '../session';
 import { FIREBASE_ENABLED } from '../services/firebaseConfig';
+import { isStaff } from '../utils/roles';
 
 interface StudentPortalLookupProps {
   events: EventItem[];
@@ -26,9 +27,10 @@ interface StudentPortalLookupProps {
 
 export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events }) => {
   // With Firebase the page shows the signed-in student's own tickets (the MSSV comes from the linked
-  // profile, no typing); only the demo build keeps the MSSV box.
+  // profile, no typing). The MSSV box stays for staff (firestore.rules lets them read any ticket) and the demo build.
   const { session, role, myProfile, signIn, openProfile } = useSessionInfo();
   const ownMssv = FIREBASE_ENABLED ? myProfile?.mssv : undefined;
+  const canSearch = !FIREBASE_ENABLED || isStaff(role);
   const [mssvInput, setMssvInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,12 +69,10 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ownMssv]);
 
-  const gate = !FIREBASE_ENABLED || ownMssv
+  const gate = canSearch || ownMssv
     ? null
     : !session
     ? { title: 'Đăng nhập để xem vé của bạn', text: 'Sự kiện đã đăng ký, lịch sử điểm danh và mã vé QR hiển thị tự động theo tài khoản @hcmut.edu.vn của bạn.', action: 'Đăng nhập bằng Google', onClick: signIn }
-    : role === 'SUPER_ADMIN'
-    ? { title: 'Tài khoản quản trị không có vé sinh viên', text: 'Hãy đăng nhập bằng tài khoản sinh viên @hcmut.edu.vn để xem vé.', action: 'Đổi tài khoản', onClick: signIn }
     : openProfile
     ? { title: 'Liên kết hồ sơ sinh viên', text: 'Nhập MSSV và họ tên một lần để hệ thống hiển thị vé và lịch sử điểm danh của bạn.', action: 'Liên kết hồ sơ', onClick: openProfile }
     : { title: 'Cần tài khoản @hcmut.edu.vn', text: 'Tài khoản đang đăng nhập không phải email sinh viên HCMUT. Hãy đăng nhập lại bằng tài khoản @hcmut.edu.vn.', action: 'Đăng nhập lại', onClick: signIn };
@@ -122,8 +122,8 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
           </p>
         </div>
 
-        {/* Search Bar (demo build only) */}
-        {!FIREBASE_ENABLED && (
+        {/* Search Bar (staff and demo build only) */}
+        {canSearch && (
         <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-md mb-10">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
