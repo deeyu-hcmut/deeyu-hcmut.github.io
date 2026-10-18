@@ -95,6 +95,21 @@ function compareCohorts(a: string, b: string): number {
   return b.localeCompare(a, 'vi', { numeric: true });
 }
 
+const UNKNOWN_CLASS = 'Chưa rõ';
+
+// Lớp / Chi đoàn blocks inside one Khóa, A→Z; records without a class go last
+function byClass(items: MemberRecord[]): { name: string; items: MemberRecord[] }[] {
+  const map = new Map<string, MemberRecord[]>();
+  items.forEach(m => {
+    const key = m.classGroup.trim().toUpperCase();
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(m);
+  });
+  return [...map.entries()]
+    .sort(([a], [b]) => (!a || !b ? (a ? -1 : b ? 1 : 0) : a.localeCompare(b, 'vi', { numeric: true })))
+    .map(([name, list]) => ({ name: name || UNKNOWN_CLASS, items: list }));
+}
+
 const inputClass =
   'w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500';
 const labelClass = 'block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1';
@@ -451,6 +466,7 @@ export const MemberManager: React.FC = () => {
         <div className="space-y-3">
           {groups.map(group => {
             const open = isGroupOpen(group.cohort);
+            const classes = open ? byClass(group.items) : [];
             return (
               <div key={group.cohort || '__none__'} className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
                 <button
@@ -485,13 +501,23 @@ export const MemberManager: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                          {group.items.slice(0, MAX_ROWS).map(renderRow)}
+                          {classes.map(cls => (
+                            <React.Fragment key={cls.name}>
+                              <tr className="bg-slate-50 dark:bg-slate-950/60">
+                                <td colSpan={7} className="px-4 py-2 text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                                  Lớp {cls.name}
+                                  <span className="ml-2 font-semibold text-blue-700 dark:text-blue-300">{cls.items.length} sinh viên</span>
+                                </td>
+                              </tr>
+                              {cls.items.slice(0, MAX_ROWS).map(renderRow)}
+                            </React.Fragment>
+                          ))}
                         </tbody>
                       </table>
                     </div>
-                    {group.items.length > MAX_ROWS && (
+                    {classes.some(cls => cls.items.length > MAX_ROWS) && (
                       <p className="px-4 py-3 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
-                        Đang hiển thị {MAX_ROWS}/{group.items.length} sinh viên của khóa này. Dùng ô tìm kiếm hoặc bộ lọc để thu hẹp; nút Xuất Excel vẫn xuất đủ.
+                        Mỗi lớp chỉ hiển thị tối đa {MAX_ROWS} sinh viên. Dùng ô tìm kiếm hoặc bộ lọc để thu hẹp; nút Xuất Excel vẫn xuất đủ.
                       </p>
                     )}
                   </div>
