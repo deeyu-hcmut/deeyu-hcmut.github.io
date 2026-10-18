@@ -658,6 +658,9 @@ export default function App() {
           <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
             <p className="text-slate-400">© 2026 Đoàn - Hội Khoa Điện - Điện tử (HCMUT). All rights reserved.</p>
             <div className="flex items-center space-x-4">
+              <a href={`${import.meta.env.BASE_URL}privacy.html`} target="_blank" rel="noopener" className="text-slate-400 hover:text-white">
+                Chính sách quyền riêng tư
+              </a>
               <button onClick={scrollToTop} className="text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer">
                 <span>Về đầu trang</span>
                 <ArrowUp className="w-3.5 h-3.5" />
