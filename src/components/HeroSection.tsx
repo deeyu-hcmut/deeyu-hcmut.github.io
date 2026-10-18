@@ -66,7 +66,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             
             {/* Subtitle */}
             {/* One line at every width: the font shrinks with the viewport on phones */}
-            <p className="whitespace-nowrap text-[clamp(0.55rem,2.5vw,1.125rem)] text-slate-600 dark:text-slate-300 leading-relaxed mx-auto font-normal">
+            <p className="whitespace-nowrap text-[clamp(0.5rem,2.2vw,1.125rem)] text-slate-600 dark:text-slate-300 leading-relaxed mx-auto font-normal">
               Cổng thông tin chính thức của Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử
             </p>
 

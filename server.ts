@@ -149,7 +149,7 @@ async function startServer() {
       registrationDeadline: req.body.registrationDeadline || new Date(Date.now() + 86400000 * 6).toISOString(),
       maxParticipants: Number(req.body.maxParticipants) || 200,
       currentParticipants: 0,
-      bannerUrl: req.body.bannerUrl || 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
+      bannerUrl: req.body.bannerUrl || '', // empty: the logo is shown
       organizer: req.body.organizer || 'Đoàn - Hội Khoa Điện - Điện tử',
       contactEmail: req.body.contactEmail || 'doanhoi.fee@university.edu.vn',
       requirements: req.body.requirements || ['Thẻ sinh viên', 'Áo Đoàn / Đồng phục'],

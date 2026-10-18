@@ -2,6 +2,15 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/), phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [Unreleased]
+
+### Thêm
+- Tài liệu hướng dẫn: GIF + kịch bản clip cho sinh viên, PDF hướng dẫn cho cán bộ (`docs/huong-dan`).
+
+### Sửa
+- Dòng mô tả trang chủ không còn tràn khỏi màn hình điện thoại.
+- Bản demo cục bộ: sự kiện không có ảnh bìa dùng logo như bản thật.
+
 ## [1.0.0] - 2026-10-18
 
 Bản phát hành đầu tiên của cổng thông tin.

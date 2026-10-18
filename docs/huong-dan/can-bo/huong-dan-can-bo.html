@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<title>Hướng dẫn sử dụng cho cán bộ - Cổng thông tin Đoàn - Hội khoa Điện - Điện tử</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Noto Sans', 'Open Sans', Arial, sans-serif; color: #1e293b; font-size: 10.5pt; line-height: 1.55; margin: 0; }
+  h1 { color: #180c5e; font-size: 22pt; margin: 0 0 6px; }
+  h2 { color: #180c5e; font-size: 15pt; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 2px solid #4e4ecc; break-after: avoid; }
+  h3 { color: #4e4ecc; font-size: 11.5pt; margin: 14px 0 4px; break-after: avoid; }
+  p, li { margin: 4px 0; }
+  ol, ul { padding-left: 20px; }
+  .section { break-before: page; }
+  .cover { height: 250mm; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .cover img { width: 130px; }
+  .badge { display: inline-block; background: #4e4ecc; color: #fff; font-weight: 700; font-size: 9pt; letter-spacing: 1px; padding: 4px 14px; border-radius: 999px; margin: 18px 0 10px; }
+  .muted { color: #64748b; font-size: 9pt; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 9.5pt; break-inside: avoid; }
+  th, td { border: 1px solid #cbd5e1; padding: 5px 7px; text-align: left; vertical-align: top; }
+  th { background: #eef0ff; color: #180c5e; }
+  td.c { text-align: center; }
+  figure { margin: 10px 0; break-inside: avoid; }
+  figure img { width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; }
+  figcaption { font-size: 8.5pt; color: #64748b; text-align: center; margin-top: 3px; }
+  .note { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; border-radius: 6px; padding: 7px 10px; margin: 8px 0; font-size: 9.5pt; break-inside: avoid; }
+  .tip { background: #eef0ff; border: 1px solid #c7cdfa; color: #180c5e; border-radius: 6px; padding: 7px 10px; margin: 8px 0; font-size: 9.5pt; break-inside: avoid; }
+  .who { display: inline-block; font-size: 8.5pt; font-weight: 700; color: #4e4ecc; border: 1px solid #c7cdfa; border-radius: 999px; padding: 1px 9px; margin-bottom: 6px; }
+  .toc li { margin: 3px 0; }
+  code { background: #f1f5f9; padding: 0 4px; border-radius: 3px; font-size: 9pt; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <img src="anh/logo.png" alt="Logo Đoàn - Hội khoa Điện - Điện tử" />
+  <span class="badge">ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ</span>
+  <h1>HƯỚNG DẪN SỬ DỤNG<br />DÀNH CHO CÁN BỘ</h1>
+  <p>Cổng thông tin chính thức của Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử</p>
+  <p><b>https://deeyu-hcmut.github.io</b></p>
+  <p class="muted" style="margin-top:40px">Phiên bản web 1.0.0 · Tháng 10/2026<br />Ảnh minh hoạ chụp từ bản demo với dữ liệu hư cấu.</p>
+</div>
+
+<div class="section">
+  <h2>Mục lục</h2>
+  <ol class="toc">
+    <li>Đăng nhập và vai trò</li>
+    <li>Quản lý sự kiện <span class="muted">(Super Admin, Ban HC-TV, Ban TT-SK)</span></li>
+    <li>Điểm danh bằng QR <span class="muted">(mọi vai trò cán bộ)</span></li>
+    <li>Danh sách đăng ký, xuất Excel, email tự động <span class="muted">(Super Admin, Ban HC-TV, Ban TT-SK)</span></li>
+    <li>Tin tức <span class="muted">(Super Admin, Ban TT-SK)</span></li>
+    <li>Tra cứu hoạt động của sinh viên <span class="muted">(mọi vai trò cán bộ)</span></li>
+    <li>BCH, Đội CTV và danh sách sinh viên <span class="muted">(Super Admin, Ban QLNS-CTSV)</span></li>
+    <li>Phân quyền tài khoản <span class="muted">(Super Admin)</span></li>
+    <li>Lưu ý bảo mật và hạn mức miễn phí</li>
+    <li>Xử lý sự cố thường gặp</li>
+  </ol>
+
+  <h2 style="margin-top:22px">1. Đăng nhập và vai trò</h2>
+  <ol>
+    <li>Mở <b>deeyu-hcmut.github.io</b>, bấm biểu tượng tài khoản ở góc trên phải → <b>Đăng nhập với Google</b>.</li>
+    <li>Chọn tài khoản <b>@hcmut.edu.vn</b>. Tài khoản Gmail cá nhân bị từ chối, kể cả khi bạn là cán bộ.</li>
+    <li>Nếu tài khoản đã được Super Admin cấp quyền, thanh menu hiện thêm <b>Quản trị &amp; Tự động hóa</b> và nút <b>Quét QR Điểm danh</b>. Menu tài khoản hiển thị tên vai trò của bạn.</li>
+  </ol>
+  <table>
+    <tr><th>Chức năng</th><th>Super Admin</th><th>Ban HC-TV</th><th>Ban TT-SK</th><th>Ban QLNS-CTSV</th></tr>
+    <tr><td>Quét QR điểm danh, tra cứu hoạt động SV</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td></tr>
+    <tr><td>Tạo / sửa / xoá sự kiện</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td><td class="c">–</td></tr>
+    <tr><td>Danh sách đăng ký, xuất Excel, nhật ký email</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td><td class="c">–</td></tr>
+    <tr><td>Đăng / sửa / xoá tin tức</td><td class="c">✔</td><td class="c">–</td><td class="c">✔</td><td class="c">–</td></tr>
+    <tr><td>BCH &amp; Đội CTV, danh sách sinh viên</td><td class="c">✔</td><td class="c">–</td><td class="c">–</td><td class="c">✔</td></tr>
+    <tr><td>Phân quyền tài khoản</td><td class="c">✔</td><td class="c">–</td><td class="c">–</td><td class="c">–</td></tr>
+  </table>
+  <div class="tip">Cán bộ cũng là sinh viên: muốn tự đăng ký sự kiện, bạn cần liên kết hồ sơ sinh viên giống mọi sinh viên khác (menu tài khoản → <b>Hồ sơ sinh viên</b>). Riêng Super Admin không có hồ sơ sinh viên.</div>
+</div>
+
+<div class="section">
+  <h2>2. Quản lý sự kiện</h2>
+  <span class="who">Super Admin · Ban HC-TV · Ban TT-SK</span>
+  <h3>Tạo sự kiện mới</h3>
+  <ol>
+    <li>Vào mục <b>Sự kiện &amp; Đăng ký</b> → bấm <b>Tạo Sự kiện mới</b>.</li>
+    <li>Điền các ô có dấu <span style="color:#dc2626"><b>*</b></span> đỏ: tên, loại sự kiện, ngày diễn ra, <b>số lượng tối đa</b>, địa điểm, mô tả. Điền thêm hạn chót đăng ký và giờ bắt đầu / kết thúc.</li>
+    <li><b>Ảnh bìa</b> (không bắt buộc): bấm chọn ảnh từ máy, ảnh được thu nhỏ tự động. Không chọn ảnh thì sự kiện hiển thị logo Đoàn - Hội.</li>
+    <li>Bấm <b>Đăng sự kiện</b>. Sự kiện mở đăng ký sẽ tự tạo một thông báo trên chuông thông báo.</li>
+  </ol>
+  <figure><img src="anh/su-kien-tao-moi.jpg" alt="Form tạo sự kiện" /><figcaption>Form tạo sự kiện</figcaption></figure>
+  <h3>Sửa, đổi trạng thái, xoá</h3>
+  <ul>
+    <li>Trên thẻ sự kiện có nút <b>bút</b> (sửa) và <b>thùng rác</b> (xoá).</li>
+    <li>Khi sửa, chọn trạng thái: <i>Đang mở đăng ký</i>, <i>Sắp diễn ra</i>, <i>Đã đóng đăng ký</i>, <i>Đã kết thúc</i>. Sự kiện đủ chỗ sẽ tự chuyển sang đóng đăng ký.</li>
+    <li>Không giảm được số lượng tối đa xuống dưới số người đã đăng ký.</li>
+  </ul>
+  <div class="note"><b>Xoá sự kiện là vĩnh viễn:</b> mọi vé, thông tin liên hệ và lịch sử điểm danh của sự kiện bị xoá theo. Hãy <b>xuất Excel</b> danh sách đăng ký trước khi xoá.</div>
+  <figure><img src="anh/su-kien-quan-tri.jpg" alt="Trang sự kiện khi đăng nhập cán bộ" /><figcaption>Trang Sự kiện với quyền cán bộ: nút Tạo sự kiện mới, nút sửa / xoá trên từng thẻ</figcaption></figure>
+</div>
+
+<div class="section">
+  <h2>3. Điểm danh bằng QR</h2>
+  <span class="who">Mọi vai trò cán bộ</span>
+  <ol>
+    <li>Bấm <b>Quét QR Điểm danh</b> (máy tính: góc trên; điện thoại: nút <b>Điểm danh</b> ở giữa thanh dưới).</li>
+    <li>Chọn sự kiện đang tổ chức ở ô trên cùng.</li>
+    <li>Bấm <b>Bật camera quét QR</b> và đưa vé QR của sinh viên vào khung. Trên điện thoại có nút đổi camera trước / sau.</li>
+    <li>Không quét được? Nhập <b>mã vé</b> (ví dụ <code>EVT-84525</code>) hoặc <b>MSSV</b> vào ô nhập tay → <b>Check-in</b>.</li>
+    <li>Màn hình báo <b>Điểm danh thành công</b> kèm tên, MSSV. Vé đã điểm danh trước đó sẽ hiện cảnh báo kèm giờ điểm danh cũ. Sinh viên nhận email xác nhận trong vài phút.</li>
+  </ol>
+  <figure><img src="anh/qr-diem-danh.jpg" alt="Trạm điểm danh" /><figcaption>Trạm điểm danh: chọn sự kiện, bật camera hoặc nhập mã vé</figcaption></figure>
+  <figure><img src="anh/qr-diem-danh-thanh-cong.jpg" alt="Điểm danh thành công" /><figcaption>Kết quả điểm danh thành công và lịch sử điểm danh của phiên</figcaption></figure>
+  <div class="tip">Dùng trình duyệt Chrome / Safari và cho phép truy cập camera khi được hỏi. Nếu camera lỗi, bấm <b>Thử bật camera lại</b> hoặc nhập mã tay.</div>
+</div>
+
+<div class="section">
+  <h2>4. Danh sách đăng ký, xuất Excel, email tự động</h2>
+  <span class="who">Super Admin · Ban HC-TV · Ban TT-SK</span>
+  <h3>Danh sách đăng ký</h3>
+  <ol>
+    <li>Vào <b>Quản trị &amp; Tự động hóa</b> → tab <b>Đăng ký sự kiện</b>. Mặc định hiển thị sự kiện mới nhất; chọn sự kiện khác ở ô chọn.</li>
+    <li>Tìm theo tên, MSSV, mã vé, email ở ô tìm kiếm rồi bấm <b>Lọc</b>.</li>
+    <li>Bấm <b>Xuất file Excel (.xlsx)</b> để tải danh sách đang hiển thị (gồm email, SĐT, trạng thái điểm danh).</li>
+  </ol>
+  <figure><img src="anh/admin-dang-ky.jpg" alt="Danh sách đăng ký" /><figcaption>Tab Đăng ký sự kiện</figcaption></figure>
+  <div class="note">Chọn <b>Tất cả sự kiện</b> sẽ tải toàn bộ vé của mọi sự kiện, tốn nhiều lượt đọc của gói miễn phí. Chỉ dùng khi thật cần xuất tổng hợp.</div>
+  <h3>Email tự động</h3>
+  <p>Hệ thống tự gửi bằng Gmail của Đoàn - Hội, khoảng 5 phút một lần, không cần thao tác:</p>
+  <ul>
+    <li><b>Xác nhận đăng ký</b> (kèm mã QR) ngay sau khi sinh viên đăng ký;</li>
+    <li><b>Nhắc nhở 24h</b> trước giờ bắt đầu sự kiện (gửi một lần, đổi giờ sự kiện thì nhắc lại);</li>
+    <li><b>Xác nhận điểm danh</b> sau khi quét vé.</li>
+  </ul>
+  <p>Tab <b>Nhắc nhở 24h</b> cho xem trước giao diện từng loại email. Tab <b>Nhật ký thư</b> liệt kê email: <i>Đang chờ</i> (chờ lượt gửi kế tiếp), <i>Đã gửi</i>, <i>Lỗi</i> (địa chỉ sai, không gửi lại). Bấm <b>Làm mới</b> để cập nhật.</p>
+  <figure><img src="anh/admin-nhat-ky.jpg" alt="Nhật ký email" /><figcaption>Tab Nhật ký thư</figcaption></figure>
+  <div class="tip">Gmail giới hạn số email mỗi ngày (khoảng 100 với Gmail thường, khoảng 1.500 với tài khoản Workspace). Hết hạn mức thì phần còn lại tự gửi vào hôm sau.</div>
+</div>
+
+<div class="section">
+  <h2>5. Tin tức</h2>
+  <span class="who">Super Admin · Ban TT-SK</span>
+  <ol>
+    <li>Vào <b>Bản tin &amp; Hoạt động</b> → bấm <b>Đăng tin mới</b>.</li>
+    <li>Điền tiêu đề, chuyên mục, tóm tắt ngắn, nội dung chi tiết (dấu <span style="color:#dc2626"><b>*</b></span> đỏ là bắt buộc), thẻ tag cách nhau bằng dấu phẩy và link ảnh bìa.</li>
+    <li>Bấm <b>Đăng bản tin</b>. Sửa / xoá: mở bài viết → nút bút hoặc thùng rác ở góc trên.</li>
+  </ol>
+  <figure><img src="anh/tin-tuc-tao-moi.jpg" alt="Form đăng tin" /><figcaption>Form đăng tin tức</figcaption></figure>
+  <p class="muted">Trang tin hiển thị 10 bài mới nhất, bài cũ hơn nằm sau nút "Xem thêm tin cũ hơn".</p>
+
+  <h2 style="margin-top:20px">6. Tra cứu hoạt động của sinh viên</h2>
+  <span class="who">Mọi vai trò cán bộ</span>
+  <p>Vào mục <b>Tra cứu Hoạt động</b>, nhập MSSV → <b>Tra cứu ngay</b> để xem số sự kiện đã đăng ký, đã điểm danh, tỷ lệ chuyên cần và các vé của sinh viên đó. Sinh viên thường chỉ xem được vé của chính mình.</p>
+  <figure><img src="anh/tra-cuu-can-bo.jpg" alt="Tra cứu theo MSSV" /><figcaption>Cán bộ tra cứu theo MSSV</figcaption></figure>
+</div>
+
+<div class="section">
+  <h2>7. BCH, Đội CTV và danh sách sinh viên</h2>
+  <span class="who">Super Admin · Ban QLNS-CTSV</span>
+  <h3>BCH &amp; Trưởng, phó ban Đội CTV (trang Cơ cấu Tổ chức)</h3>
+  <ul>
+    <li>Tab <b>BCH &amp; Trưởng, phó ban CTV</b>: <b>Thêm người</b>, sửa (bút), xoá (thùng rác), <b>Xuất Excel</b>, lọc theo Đoàn / Hội / Đội CTV.</li>
+    <li>Mỗi người có tổ chức, họ tên, chức vụ, cấp bậc (Bí thư, Phó Bí thư, Ủy viên BTV, Trưởng ban, Phó ban, Ủy viên), ban, email, ảnh đại diện (<b>Tải ảnh lên</b>), giới thiệu.</li>
+    <li>Trang công khai tự sắp xếp: Bí thư ở giữa, Phó Bí thư căn giữa, Ủy viên thẻ nhỏ; ở Đội CTV, Trưởng ban nằm trên Phó ban của từng ban.</li>
+    <li>Nếu dùng Google Sheet BCH: sửa trong Sheet, script tự đồng bộ lên web; ảnh đại diện vẫn sửa trên web.</li>
+  </ul>
+  <figure><img src="anh/admin-bch.jpg" alt="Quản lý BCH" /><figcaption>Tab BCH &amp; Trưởng, phó ban CTV</figcaption></figure>
+  <h3>Danh sách sinh viên / Đoàn viên / Hội viên</h3>
+  <ul>
+    <li>Tab <b>Sinh viên</b>: danh sách chia theo <b>khóa</b>, trong mỗi khóa chia theo <b>lớp</b> (chưa có lớp thì xếp vào "Chưa rõ"). Có ô tìm kiếm, lọc Đoàn viên / Hội viên / trạng thái / khóa, <b>Thêm sinh viên</b>, <b>Xuất Excel</b>.</li>
+    <li>Nguồn dữ liệu chính là <b>Google Sheet sinh viên</b>; thêm / sửa / xoá trên web được ghi vào cả Sheet lẫn hệ thống. Thêm sinh viên cần có tab cùng tên khóa trong Sheet (ví dụ <code>K24</code>).</li>
+    <li>Sinh viên tự liên kết tài khoản <code>@hcmut.edu.vn</code> và bổ sung hồ sơ ở lần đăng nhập đầu. Liên kết nhầm: mở <b>Sửa</b> sinh viên đó → bấm <b>Gỡ liên kết</b> → <b>Lưu thay đổi</b>.</li>
+    <li>Sinh viên báo "MSSV chưa có trong danh sách" → thêm MSSV và họ tên vào Sheet (hoặc nút Thêm sinh viên) rồi nhờ sinh viên thử lại.</li>
+  </ul>
+  <figure><img src="anh/admin-sinh-vien.jpg" alt="Danh sách sinh viên" /><figcaption>Tab Sinh viên</figcaption></figure>
+</div>
+
+<div class="section">
+  <h2>8. Phân quyền tài khoản</h2>
+  <span class="who">Super Admin</span>
+  <ol>
+    <li>Tab <b>Phân quyền</b> → nhập email <b>@hcmut.edu.vn</b> của cán bộ, chọn vai trò → <b>Cấp quyền</b>.</li>
+    <li>Đổi vai trò: chọn vai trò mới ở dòng của tài khoản. Thu hồi: bấm thùng rác.</li>
+    <li>Super Admin không tự đổi hay thu hồi quyền của chính mình (tránh khoá mất tài khoản quản trị cuối cùng).</li>
+  </ol>
+  <figure><img src="anh/admin-phan-quyen.jpg" alt="Phân quyền" /><figcaption>Tab Phân quyền</figcaption></figure>
+  <div class="tip">Hết nhiệm kỳ hoặc cán bộ nghỉ: thu hồi quyền ngay. Mỗi vai trò chỉ cấp cho người thật sự cần.</div>
+
+  <h2 style="margin-top:20px">9. Lưu ý bảo mật và hạn mức miễn phí</h2>
+  <ul>
+    <li>Không chia sẻ tài khoản; đăng xuất khi dùng máy tính chung. Bật xác minh 2 bước cho tài khoản Google.</li>
+    <li>File Excel xuất ra chứa email, số điện thoại của sinh viên: chỉ lưu ở nơi an toàn, không đăng lên nhóm công khai.</li>
+    <li>Hệ thống chạy trên gói Firebase miễn phí (giới hạn lượt đọc mỗi ngày). Tránh tải lại liên tục và tránh chọn "Tất cả sự kiện" khi không cần. Dữ liệu công khai có thể chậm cập nhật tối đa khoảng 3 phút trên máy người khác.</li>
+    <li>Quy định chi tiết về dữ liệu cá nhân: <b>deeyu-hcmut.github.io/privacy.html</b>.</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>10. Xử lý sự cố thường gặp</h2>
+  <table>
+    <tr><th style="width:38%">Hiện tượng</th><th>Cách xử lý</th></tr>
+    <tr><td>Đăng nhập xong bị đẩy ra, báo chỉ nhận @hcmut.edu.vn</td><td>Đăng nhập lại bằng email trường, không dùng Gmail cá nhân.</td></tr>
+    <tr><td>Không thấy mục Quản trị / nút Quét QR</td><td>Tài khoản chưa được cấp quyền: nhờ Super Admin cấp ở tab Phân quyền, rồi tải lại trang.</td></tr>
+    <tr><td>Sinh viên không đăng ký được</td><td>Sinh viên chưa liên kết hồ sơ, hoặc MSSV chưa có trong danh sách sinh viên của khoa (xem mục 7). Kiểm tra sự kiện còn mở đăng ký và còn chỗ.</td></tr>
+    <tr><td>Sinh viên không nhận được email</td><td>Xem tab Nhật ký thư: <i>Đang chờ</i> thì đợi tối đa 5–10 phút; <i>Lỗi</i> là địa chỉ email sai; <i>Đã gửi</i> thì nhờ kiểm tra thư rác.</td></tr>
+    <tr><td>Camera không quét được QR</td><td>Cho phép camera trong trình duyệt, tăng độ sáng màn hình vé, hoặc nhập mã vé / MSSV bằng tay.</td></tr>
+    <tr><td>Vừa tạo sự kiện nhưng máy khác chưa thấy</td><td>Dữ liệu được lưu tạm trên trình duyệt tối đa khoảng 3 phút, đợi rồi tải lại trang.</td></tr>
+    <tr><td>Web báo lỗi tải dữ liệu hoặc hiện dữ liệu cũ cả ngày</td><td>Có thể đã hết hạn mức đọc miễn phí trong ngày; hệ thống tự phục hồi sau nửa đêm (giờ Thái Bình Dương). Báo Super Admin nếu lặp lại.</td></tr>
+  </table>
+  <p style="margin-top:16px"><b>Liên hệ hỗ trợ kỹ thuật:</b> dtn-ddt@hcmut.edu.vn · Fanpage dee.yu.hcmut</p>
+</div>
+
+</body>
+</html>

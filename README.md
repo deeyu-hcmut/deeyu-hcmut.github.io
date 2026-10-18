@@ -35,6 +35,11 @@ Giao diện sáng/tối luôn theo thiết bị. Dùng được trên điện th
 
 Mọi vai trò cán bộ đều quét được QR. Chỉ tài khoản `@hcmut.edu.vn` đăng nhập được.
 
+## Tài liệu hướng dẫn
+
+- **Sinh viên:** GIF từng bước và kịch bản dựng clip trong [`docs/huong-dan/sinh-vien`](docs/huong-dan/sinh-vien/kich-ban.md).
+- **Cán bộ (theo vai trò):** [`docs/huong-dan/huong-dan-can-bo.pdf`](docs/huong-dan/huong-dan-can-bo.pdf) (nguồn HTML để sửa: [`docs/huong-dan/can-bo`](docs/huong-dan/can-bo/huong-dan-can-bo.html)).
+
 ## Kiến trúc
 
 ```
