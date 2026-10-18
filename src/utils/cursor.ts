@@ -1,5 +1,5 @@
 // Logo cursor for mouse users: tilted like an arrow normally, upright and slightly larger over
-// clickable elements, with a ripple on click. Text fields keep the native I-beam.
+// clickable elements, with a ripple on click. Text fields and selects keep the native cursor.
 // Touch devices never start it, and if this script fails the native cursor is still there.
 
 const SIZE = 32;
@@ -17,6 +17,7 @@ export function initLogoCursor() {
   style.textContent = `
     html.logo-cursor, html.logo-cursor * { cursor: none !important; }
     html.logo-cursor :is(${TEXT}):not(:is(${CLICKABLE})) { cursor: text !important; }
+    html.logo-cursor select { cursor: default !important; }
     .logo-cursor-el {
       position: fixed; left: 0; top: 0; z-index: 2147483647; pointer-events: none;
       width: ${SIZE}px; height: ${SIZE}px; margin: -${TIP_Y}px 0 0 -${TIP_X}px;
@@ -71,19 +72,14 @@ export function initLogoCursor() {
 
     if (!(e.target instanceof Element)) return;
     const onClickable = e.target.closest(CLICKABLE);
-    const inText = !onClickable && !!e.target.closest(TEXT);
+    // A native <select> list draws its own OS cursor, so selects keep the native one too.
+    const inText = (!onClickable && !!e.target.closest(TEXT)) || !!e.target.closest('select');
     const clickable = !!onClickable && !onClickable.matches(':disabled');
     el.classList.toggle('visible', !inText);
     el.classList.toggle('hover', clickable);
   }, { passive: true });
 
   document.addEventListener('mousedown', (e) => {
-    // A native <select> list draws its own OS cursor and stops mousemove, so the logo would sit
-    // frozen beside it; hide it until the mouse moves again.
-    if (e.target instanceof Element && e.target.closest('select')) {
-      el.classList.remove('visible');
-      return;
-    }
     el.classList.add('down');
     const ripple = document.createElement('div');
     ripple.className = 'logo-cursor-ripple';
