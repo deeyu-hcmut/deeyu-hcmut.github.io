@@ -16,6 +16,7 @@ import {
   QrCode
 } from 'lucide-react';
 import { EventItem, isRegistrationOpen as isOpenForRegistration } from '../types';
+import { EventBanner } from './EventBanner';
 
 interface EventDetailModalProps {
   event: EventItem;
@@ -40,13 +41,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         
         {/* Header with image */}
         <div className="relative h-48 sm:h-64 overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800">
-          <img 
-            src={event.bannerUrl} 
-            alt={event.title}
-            referrerPolicy="no-referrer"
-            decoding="async"
-            className="w-full h-full object-cover"
-          />
+          <EventBanner url={event.bannerUrl} alt={event.title} width={1200} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
           
           <button

@@ -3,6 +3,7 @@ import { GraduationCap, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-reac
 import { MemberGender, MemberRecord, MemberStatus } from '../types';
 import { api } from '../services/api';
 import { CLASS_GROUP_PATTERN } from '../services/shared';
+import { Req } from './Required';
 
 const STATUS_OPTIONS: { value: MemberStatus; label: string }[] = [
   { value: 'STUDYING', label: 'Đang học' },
@@ -171,11 +172,11 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
           /* Step 1: link the account */
           <form onSubmit={handleFind} className="space-y-4">
             <div>
-              <label className={labelClass}>MSSV *</label>
+              <label className={labelClass}>MSSV<Req /></label>
               <input required value={mssv} onChange={e => setMssv(e.target.value)} inputMode="numeric" autoFocus className={`${inputClass} font-mono`} />
             </div>
             <div>
-              <label className={labelClass}>Họ và tên (có dấu) *</label>
+              <label className={labelClass}>Họ và tên (có dấu)<Req /></label>
               <input required value={fullName} onChange={e => setFullName(e.target.value)} className={inputClass} />
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -203,7 +204,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Giới tính *</label>
+                <label className={labelClass}>Giới tính<Req /></label>
                 <select required value={gender} onChange={e => setGender(e.target.value as MemberGender)} className={inputClass}>
                   <option value="">— Chọn —</option>
                   <option value="NAM">Nam</option>
@@ -212,11 +213,11 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Ngày sinh *</label>
+                <label className={labelClass}>Ngày sinh<Req /></label>
                 <input required type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Lớp / Chi đoàn *</label>
+                <label className={labelClass}>Lớp / Chi đoàn<Req /></label>
                 <input
                   required
                   maxLength={8}
@@ -230,36 +231,36 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
                 <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Đúng 8 ký tự, ví dụ DD23KSTN</p>
               </div>
               <div>
-                <label className={labelClass}>Số điện thoại *</label>
+                <label className={labelClass}>Số điện thoại<Req /></label>
                 <input required type="tel" maxLength={20} value={phone} onChange={e => setPhone(e.target.value)} className={inputClass} />
               </div>
             </div>
 
             <div>
-              <label className={labelClass}>Email liên hệ *</label>
+              <label className={labelClass}>Email liên hệ<Req /></label>
               <input required type="email" maxLength={100} value={email} onChange={e => setEmail(e.target.value)} className={inputClass} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Bạn là Đoàn viên? *</label>
+                <label className={labelClass}>Bạn là Đoàn viên?<Req /></label>
                 <YesNo name="union" value={isUnionMember} onChange={setIsUnionMember} />
               </div>
               <div>
-                <label className={labelClass}>Bạn là Hội viên? *</label>
+                <label className={labelClass}>Bạn là Hội viên?<Req /></label>
                 <YesNo name="association" value={isAssociationMember} onChange={setIsAssociationMember} />
               </div>
             </div>
 
             {isUnionMember && (
               <div>
-                <label className={labelClass}>Ngày vào Đoàn *</label>
+                <label className={labelClass}>Ngày vào Đoàn<Req /></label>
                 <input required type="date" value={unionJoinDate} onChange={e => setUnionJoinDate(e.target.value)} className={inputClass} />
               </div>
             )}
 
             <div>
-              <label className={labelClass}>Trạng thái học tập *</label>
+              <label className={labelClass}>Trạng thái học tập<Req /></label>
               <select required value={status} onChange={e => setStatus(e.target.value as MemberStatus)} className={inputClass}>
                 <option value="">— Chọn —</option>
                 {STATUS_OPTIONS.map(option => (

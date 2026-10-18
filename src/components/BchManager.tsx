@@ -16,6 +16,7 @@ import { api } from '../services/api';
 import type { BchInput } from '../services/shared';
 import { imageFileToDataUrl } from '../utils/image';
 import { writeWorkbook } from '../utils/excel';
+import { Req } from './Required';
 
 export const ORGANIZATION_LABELS: Record<BchOrganization, string> = {
   DOAN_KHOA: 'Đoàn Thanh niên',
@@ -316,7 +317,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className={labelClass}>Tổ chức *</label>
+                  <label className={labelClass}>Tổ chức<Req /></label>
                   <select value={form.organization} onChange={e => setField('organization', e.target.value as BchOrganization)} className={inputClass}>
                     {ORGANIZATIONS.map(org => (
                       <option key={org} value={org}>{ORGANIZATION_LABELS[org]}</option>
@@ -324,7 +325,7 @@ export const BchManager: React.FC<BchManagerProps> = ({ onChange }) => {
                   </select>
                 </div>
                 <div>
-                  <label className={labelClass}>Họ và tên *</label>
+                  <label className={labelClass}>Họ và tên<Req /></label>
                   <input required maxLength={100} value={form.name} onChange={e => setField('name', e.target.value)} placeholder="VD: Đ/c Nguyễn Văn A" className={inputClass} />
                 </div>
                 <div>

@@ -20,6 +20,7 @@ import {
 import { NewsItem, NewsCategory, Role } from '../types';
 import { sizedImage } from '../utils/image';
 import { canEditNews as roleCanEditNews } from '../utils/roles';
+import { Req } from './Required';
 
 interface NewsFeedProps {
   newsList: NewsItem[];
@@ -692,7 +693,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
 
             <form onSubmit={handleCreateSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tiêu đề bài viết *</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tiêu đề bài viết<Req /></label>
                 <input
                   type="text"
                   required
@@ -705,7 +706,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Chuyên mục *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Chuyên mục<Req /></label>
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value as NewsCategory)}
@@ -731,7 +732,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tóm tắt ngắn gọn *</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tóm tắt ngắn gọn<Req /></label>
                 <textarea
                   rows={2}
                   required
@@ -743,7 +744,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Nội dung chi tiết *</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Nội dung chi tiết<Req /></label>
                 <textarea
                   rows={5}
                   required

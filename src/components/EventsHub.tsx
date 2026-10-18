@@ -25,7 +25,9 @@ import {
 } from 'lucide-react';
 import { EventItem, EventStatus, EventType, Role, RegistrationRecord, isRegistrationOpen } from '../types';
 import { EventDetailModal } from './EventDetailModal';
-import { sizedImage } from '../utils/image';
+import { imageFileToBannerDataUrl } from '../utils/image';
+import { EventBanner } from './EventBanner';
+import { Req } from './Required';
 import { canManageEvents as roleCanManageEvents } from '../utils/roles';
 
 // Modals load on first open, keeping qrcode out of the initial bundle
@@ -99,13 +101,13 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newType, setNewType] = useState<EventType>('ACADEMIC_CONTEST');
-  const [newLocation, setNewLocation] = useState('Hội trường A Khoa Điện - Điện tử');
+  const [newLocation, setNewLocation] = useState('');
   const [newEventDate, setNewEventDate] = useState('');
   const [newStartTime, setNewStartTime] = useState('08:00');
   const [newEndTime, setNewEndTime] = useState('11:30');
   const [newDeadline, setNewDeadline] = useState('');
-  const [newMax, setNewMax] = useState(300);
-  const [newBanner, setNewBanner] = useState('https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80');
+  const [newMax, setNewMax] = useState<number | ''>('');
+  const [newBanner, setNewBanner] = useState('');
   const [newStatus, setNewStatus] = useState<EventStatus>('REGISTRATION_OPEN');
   // The create form doubles as the edit form when this is set
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
@@ -118,13 +120,13 @@ export const EventsHub: React.FC<EventsHubProps> = ({
     setNewTitle('');
     setNewDesc('');
     setNewType('ACADEMIC_CONTEST');
-    setNewLocation('Hội trường A Khoa Điện - Điện tử');
+    setNewLocation('');
     setNewEventDate('');
     setNewStartTime('08:00');
     setNewEndTime('11:30');
     setNewDeadline('');
-    setNewMax(300);
-    setNewBanner('https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80');
+    setNewMax('');
+    setNewBanner('');
     setNewStatus('REGISTRATION_OPEN');
     setIsCreatingEvent(true);
   };
@@ -141,7 +143,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
     setNewEndTime(evt.endTime);
     setNewDeadline((evt.registrationDeadline || '').slice(0, 10));
     setNewMax(evt.maxParticipants);
-    setNewBanner(evt.bannerUrl);
+    setNewBanner(evt.bannerUrl || '');
     setNewStatus(evt.status);
     setIsCreatingEvent(true);
   };
@@ -248,7 +250,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
           endTime: newEndTime,
           registrationDeadline: newDeadline || editingEvent.registrationDeadline,
           maxParticipants: Number(newMax) || editingEvent.maxParticipants,
-          bannerUrl: newBanner.trim() || editingEvent.bannerUrl,
+          bannerUrl: newBanner, // empty removes the cover (the logo is shown instead)
         });
         setIsCreatingEvent(false);
         setEditingEvent(null);
@@ -270,8 +272,8 @@ export const EventsHub: React.FC<EventsHubProps> = ({
       startTime: newStartTime,
       endTime: newEndTime,
       registrationDeadline: newDeadline || new Date().toISOString(),
-      maxParticipants: Number(newMax) || 200,
-      bannerUrl: newBanner.trim() || undefined,
+      maxParticipants: Number(newMax),
+      bannerUrl: newBanner || undefined,
       status: 'REGISTRATION_OPEN',
       organizer: 'Đoàn - Hội Khoa Điện - Điện tử',
       contactEmail: 'dtn-ddt@hcmut.edu.vn',
@@ -520,12 +522,10 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                   className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-400/30 hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-center space-x-4 min-w-0">
-                    <img 
-                      src={sizedImage(evt.bannerUrl, 160)} 
+                    <EventBanner
+                      url={evt.bannerUrl}
                       alt={evt.title}
-                      referrerPolicy="no-referrer"
-                      loading="lazy"
-                      decoding="async"
+                      width={160}
                       className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700"
                     />
                     <div className="min-w-0">
@@ -607,12 +607,10 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                   >
                     {/* Banner Image with Overlays */}
                     <div className="relative h-56 overflow-hidden bg-slate-100 dark:bg-slate-800">
-                      <img 
-                        src={sizedImage(evt.bannerUrl, 800)} 
+                      <EventBanner
+                        url={evt.bannerUrl}
                         alt={evt.title}
-                        referrerPolicy="no-referrer"
-                        loading="lazy"
-                        decoding="async"
+                        width={800}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-black/20 to-transparent" />
@@ -858,19 +856,18 @@ export const EventsHub: React.FC<EventsHubProps> = ({
 
               <form onSubmit={handleCreateEventSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tên sự kiện *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tên sự kiện<Req /></label>
                   <input
                     type="text"
                     required
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="VD: Triển lãm Robocon & Vi mạch 2026..."
                     className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Loại sự kiện *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Loại sự kiện<Req /></label>
                   <select
                     value={newType}
                     onChange={(e) => setNewType(e.target.value as EventType)}
@@ -903,7 +900,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Ngày diễn ra *</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Ngày diễn ra<Req /></label>
                     <input
                       type="date"
                       required
@@ -944,20 +941,21 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Số lượng tối đa (Slot)</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Số lượng tối đa (Slot)<Req /></label>
                     <input
                       type="number"
-                      min={editingEvent ? Math.max(1, editingEvent.currentParticipants) : 10}
+                      required
+                      min={editingEvent ? Math.max(1, editingEvent.currentParticipants) : 1}
                       max={2000}
                       value={newMax}
-                      onChange={(e) => setNewMax(Number(e.target.value))}
+                      onChange={(e) => setNewMax(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Địa điểm tổ chức *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Địa điểm tổ chức<Req /></label>
                   <input
                     type="text"
                     required
@@ -968,7 +966,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Mô tả sự kiện *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Mô tả sự kiện<Req /></label>
                   <textarea
                     rows={3}
                     required
@@ -980,14 +978,33 @@ export const EventsHub: React.FC<EventsHubProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Ảnh bìa (link ảnh)</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Ảnh bìa (không bắt buộc)</label>
                   <input
-                    type="url"
-                    value={newBanner}
-                    onChange={(e) => setNewBanner(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = '';
+                      if (!file) return;
+                      try {
+                        setEventFormError(null);
+                        setNewBanner(await imageFileToBannerDataUrl(file));
+                      } catch (err: any) {
+                        setEventFormError(err?.message || 'Không xử lý được ảnh.');
+                      }
+                    }}
+                    className="block w-full text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-950/40 dark:file:text-blue-300"
                   />
+                  {newBanner ? (
+                    <div className="mt-2 flex items-center gap-3">
+                      <img src={newBanner} alt="Ảnh bìa đã chọn" className="h-20 rounded-lg border border-slate-200 dark:border-slate-700 object-cover" />
+                      <button type="button" onClick={() => setNewBanner('')} className="text-xs font-semibold text-rose-600 dark:text-rose-300 hover:underline">
+                        Bỏ ảnh
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Không chọn ảnh thì sự kiện hiển thị logo Đoàn - Hội thay cho ảnh bìa.</p>
+                  )}
                 </div>
 
                 {eventFormError && (

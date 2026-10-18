@@ -238,7 +238,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {/* Full Name */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-              Họ và tên sinh viên <span className="text-rose-500">*</span>
+              Họ và tên sinh viên <span className="text-red-600 dark:text-red-400">*</span>
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -258,7 +258,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                Mã số sinh viên (MSSV) <span className="text-rose-500">*</span>
+                Mã số sinh viên (MSSV) <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <div className="relative">
                 <GraduationCap className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -276,7 +276,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                Chi đoàn / Lớp <span className="text-rose-500">*</span>
+                Chi đoàn / Lớp <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <div className="relative">
                 <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -300,7 +300,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                Email nhận vé QR <span className="text-rose-500">*</span>
+                Email nhận vé QR <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -317,7 +317,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                Số điện thoại liên hệ <span className="text-rose-500">*</span>
+                Số điện thoại liên hệ <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <div className="relative">
                 <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />

@@ -19,6 +19,7 @@ import { MemberGender, MemberRecord, MemberStatus } from '../types';
 import { api } from '../services/api';
 import type { MemberInput } from '../services/shared';
 import { writeWorkbook } from '../utils/excel';
+import { Req } from './Required';
 
 const STATUS_LABELS: Record<MemberStatus, string> = {
   STUDYING: 'Đang học',
@@ -540,11 +541,11 @@ export const MemberManager: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className={labelClass}>MSSV *</label>
+                  <label className={labelClass}>MSSV<Req /></label>
                   <input required maxLength={20} value={form.mssv} onChange={e => setField('mssv', e.target.value)} className={`${inputClass} font-mono`} />
                 </div>
                 <div>
-                  <label className={labelClass}>Họ và tên *</label>
+                  <label className={labelClass}>Họ và tên<Req /></label>
                   <input required maxLength={100} value={form.fullName} onChange={e => setField('fullName', e.target.value)} className={inputClass} />
                 </div>
                 <div>

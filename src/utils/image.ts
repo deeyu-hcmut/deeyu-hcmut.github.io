@@ -40,3 +40,29 @@ export async function imageFileToDataUrl(file: File, size = 256, quality = 0.85)
     bitmap.close();
   }
 }
+
+// Event cover: scaled to at most `maxWidth` and stored inline as a JPEG data URL (no paid Storage plan).
+// Every visitor loads the event list, so quality drops until the string stays small.
+export async function imageFileToBannerDataUrl(file: File, maxWidth = 800): Promise<string> {
+  if (!file.type.startsWith('image/')) throw new Error('File được chọn không phải ảnh.');
+  const bitmap = await createImageBitmap(file);
+  try {
+    const scale = Math.min(1, maxWidth / bitmap.width);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Trình duyệt không hỗ trợ xử lý ảnh.');
+    ctx.fillStyle = '#ffffff'; // transparent PNGs would turn black in JPEG
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    let url = '';
+    for (const quality of [0.75, 0.6, 0.45]) {
+      url = canvas.toDataURL('image/jpeg', quality);
+      if (url.length <= 150_000) break;
+    }
+    return url;
+  } finally {
+    bitmap.close();
+  }
+}
