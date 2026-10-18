@@ -9,7 +9,7 @@ export const firebaseConfig = {
 };
 
 // reCAPTCHA Enterprise (Fraud Defense) site key for Firebase App Check (public by design, like the apiKey). Empty = App Check off.
-export const APP_CHECK_SITE_KEY = import.meta.env.VITE_APP_CHECK_SITE_KEY || '';
+export const APP_CHECK_SITE_KEY = import.meta.env.VITE_APP_CHECK_SITE_KEY || '6LeZ2PQtAAAAACACyj5pUztCPCpI6DOXQKDldrgH';
 
 // Apps Script web app of the student Google Sheet (tools/google-sheet-sync). When set, the admin
 // "Sinh viên" tab reads and edits the list through it instead of Firestore (saves the daily read quota).
