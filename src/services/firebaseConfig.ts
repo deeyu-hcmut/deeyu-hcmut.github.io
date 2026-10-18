@@ -8,6 +8,10 @@ export const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:369477368212:web:ca1a18efb12fb45733f781',
 };
 
+// Apps Script web app of the student Google Sheet (tools/google-sheet-sync). When set, the admin
+// "Sinh viên" tab reads and edits the list through it instead of Firestore (saves the daily read quota).
+export const MEMBERS_SHEET_URL = import.meta.env.VITE_MEMBERS_SHEET_URL || '';
+
 // VITE_DEMO_MODE=true runs the old localStorage / Express demo without Firebase
 export const FIREBASE_ENABLED = import.meta.env.VITE_DEMO_MODE !== 'true';
 

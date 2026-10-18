@@ -54,6 +54,31 @@ Script Apps Script gắn vào Google Sheet danh sách sinh viên, tự đồng b
 
 Tắt: **Đồng bộ web → Tắt tự động**.
 
+## Tab Sinh viên đọc thẳng từ Sheet (web app, tuỳ chọn)
+
+Mặc định tab **Sinh viên** trong trang Quản trị đọc cả collection `members` mỗi lần mở (tốn bằng số sinh viên). Bật web app thì tab
+này đọc/ghi qua Sheet: mỗi lần mở chỉ tốn khoảng 1 lượt đọc Firestore (script đồng bộ phần thay đổi rồi trả danh sách từ Sheet).
+
+1. Cập nhật `Code.gs` **và** `appsscript.json` (có thêm khối `webapp`) như phần Cài đặt, bấm 💾 Lưu.
+2. **Triển khai → Tùy chọn triển khai mới → Ứng dụng web**: *Thực thi bằng* **Tôi**, *Người có quyền truy cập* **Bất kỳ ai**
+   → **Triển khai** → cấp quyền nếu được hỏi → sao chép **URL ứng dụng web** (kết thúc bằng `/exec`).
+   Sau này sửa `Code.gs` phải **Triển khai → Quản lý bản triển khai → ✏ → Phiên bản mới** thì web mới nhận code mới.
+3. Chạy **Đồng bộ web → Đồng bộ toàn bộ** một lần (script lưu thêm liên kết tài khoản sinh viên vào tab ẩn `_dong_bo`;
+   lần chạy tự động đầu tiên sau khi cập nhật cũng tự làm việc này).
+4. GitHub repo → Settings → Secrets and variables → Actions → **Variables** → thêm `VITE_MEMBERS_SHEET_URL` = URL ở bước 2,
+   rồi chạy lại workflow Deploy (hoặc đặt biến trong `.env.local` khi chạy local). Để trống = tab Sinh viên đọc Firestore như cũ.
+
+Lưu ý:
+
+- URL công khai nhưng mọi yêu cầu phải kèm token đăng nhập Firebase của tài khoản **Super Admin / Ban QLNS-CTSV** (script kiểm tra
+  lại `admins/{email}` trên Firestore), người khác nhận lỗi không có quyền.
+- Thêm/sửa/xoá sinh viên trên web được ghi thẳng vào **cả Sheet lẫn Firestore**. Thêm sinh viên cần có tab cùng tên khóa (ví dụ `K24`)
+  trong Sheet, nếu không web báo lỗi.
+- Nếu `apiKey` Firebase bị giới hạn theo HTTP referrer thì script (gọi từ máy chủ Google) bị từ chối khi xác thực token:
+  bỏ giới hạn referrer cho key này hoặc dùng key không giới hạn.
+- Hạn mức Apps Script (UrlFetch 20.000 lần/ngày với tài khoản thường) đủ cho nhu cầu quản trị; mỗi lần mở tab tốn khoảng 5 lần.
+- Firestore hết hạn mức ngày thì tab vẫn hiện danh sách theo Sheet, nhưng sửa/xoá sẽ báo lỗi.
+
 ## Khi có lỗi
 
 - Xem nhật ký: Apps Script → **Lần thực thi** (Executions).

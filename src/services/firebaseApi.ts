@@ -18,6 +18,8 @@ import {
   type WriteBatch,
 } from 'firebase/firestore/lite';
 import { db } from './firebase';
+import { auth } from './auth';
+import { MEMBERS_SHEET_URL } from './firebaseConfig';
 import type { Api } from './api';
 import {
   BCHMember,
@@ -551,9 +553,21 @@ const rawFirebaseApi: Api = {
     ),
 
   getMembers: async () =>
-    (await getDocs(query(collection(db, 'members'), orderBy('mssv')))).docs.map(toMember),
+    MEMBERS_SHEET_URL
+      ? (await callMembersSheet<{ members: MemberRecord[] }>({ action: 'list' })).members
+      : (await getDocs(query(collection(db, 'members'), orderBy('mssv')))).docs.map(toMember),
 
   saveMember: async (input, previousId, unlinkAccount) => {
+    if (MEMBERS_SHEET_URL) {
+      // The script keeps the account link itself; buildMember only validates and normalises here
+      const { member } = await callMembersSheet<{ member: MemberRecord }>({
+        action: 'save',
+        member: buildMember(input),
+        previousId,
+        unlinkAccount,
+      });
+      return member;
+    }
     const previousSnap = previousId ? await getDoc(doc(db, 'members', previousId)) : null;
     const previous = previousSnap?.exists() ? toMember(previousSnap) : undefined;
     const { id, ...member } = buildMember(input, previous, unlinkAccount);
@@ -568,6 +582,10 @@ const rawFirebaseApi: Api = {
   },
 
   deleteMember: async memberId => {
+    if (MEMBERS_SHEET_URL) {
+      await callMembersSheet({ action: 'delete', id: memberId });
+      return;
+    }
     const batch = writeBatch(db);
     batch.delete(doc(db, 'members', memberId));
     await batch.commit();
@@ -613,6 +631,21 @@ const rawFirebaseApi: Api = {
     await batch.commit();
   },
 };
+
+// Staff-only; the Apps Script checks the Firebase ID token and the admins/{email} role itself.
+// text/plain keeps this a simple request, so the browser sends no CORS preflight to Apps Script.
+async function callMembersSheet<T>(body: Record<string, unknown>): Promise<T> {
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) throw new Error('Vui lòng đăng nhập lại để xem danh sách sinh viên.');
+  const res = await fetch(MEMBERS_SHEET_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ ...body, token }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data as T;
+}
 
 const NOT_IN_LIST = 'MSSV này chưa có trong danh sách sinh viên của khoa. Liên hệ Ban QLNS-CTSV để được bổ sung.';
 const LINKED_ELSEWHERE =

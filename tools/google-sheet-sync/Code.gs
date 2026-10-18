@@ -112,8 +112,10 @@ function syncOnce(forceFull) {
 
   const props = PropertiesService.getScriptProperties();
   const lastSync = props.getProperty(LAST_SYNC_KEY) || '';
-  const savedHashes = loadRowHashes();
-  const full = forceFull || !lastSync || Object.keys(savedHashes).length === 0;
+  const state = loadState();
+  const savedHashes = state.hashes;
+  // A state tab from before account links were kept (no 3rd column) needs one full read to fill them in
+  const full = forceFull || !lastSync || Object.keys(savedHashes).length === 0 || !state.hasLinks;
 
   // Sheet rows, with a hash of everything the sync looks at
   const rows = [];
@@ -156,6 +158,11 @@ function syncOnce(forceFull) {
     remote = Object.assign(getMembersByIds(needed), webChanged);
     reads = Object.keys(webChanged).length + needed.length;
   }
+
+  // Account links are not in the sheet: rows not read this run keep what the last run saw
+  rows.forEach(row => {
+    row.link = linkOf(remote[row.id], state.links[row.id]);
+  });
 
   const writes = [];
   // Only the changed cells are written back, so formulas elsewhere in the sheet are untouched
@@ -215,7 +222,6 @@ function syncOnce(forceFull) {
 
   // Students added on the website but missing from every tab: appended to the tab of their Khóa
   // (tab named like the Khóa, e.g. "K24"). With no Khóa-named tabs at all they go to the first tab.
-  const byCohortTabs = tabs.some(t => t.cohort);
   const appendTo = new Map();
   const noTab = {};
   Object.keys(webChanged)
@@ -223,9 +229,7 @@ function syncOnce(forceFull) {
     .sort()
     .forEach(id => {
       const member = webChanged[id];
-      const tab = byCohortTabs
-        ? tabs.find(t => t.cohort && normalizeKey(t.cohort) === normalizeKey(member.cohort || ''))
-        : tabs[0];
+      const tab = tabForCohort(tabs, member.cohort);
       if (!tab) {
         const key = member.cohort || 'chưa có khóa';
         noTab[key] = (noTab[key] || 0) + 1;
@@ -237,7 +241,7 @@ function syncOnce(forceFull) {
       });
       if (!appendTo.has(tab)) appendTo.set(tab, []);
       appendTo.get(tab).push(row);
-      rows.push({ id, hash: rowHash(tab, row) });
+      rows.push({ id, hash: rowHash(tab, row), link: linkOf(member) });
     });
 
   commitAll(writes);
@@ -263,6 +267,177 @@ function syncOnce(forceFull) {
   return summary;
 }
 
+// ---------------------------------------------------------------- web app: tab "Sinh viên" của trang Quản trị
+
+/*
+ * The admin tab reads and edits the student list through this web app instead of Firestore, so opening
+ * the tab costs ~1 Firestore read instead of one per student (free plan: 50,000 reads a day).
+ * The sheet is the source of truth; every call is checked against a Firebase ID token.
+ * Deploy: Triển khai → Ứng dụng web (xem README).
+ */
+// Public Firebase web config (same value as src/services/firebaseConfig.ts)
+const FIREBASE_API_KEY = 'AIzaSyD8r0DtLY-0Mp4oAF7iLB-J9mtzSzbYdjo';
+const MEMBER_ADMIN_ROLES = ['SUPER_ADMIN', 'QLNS_CTSV'];
+const ID_PATTERN = /^[a-z0-9]{1,20}$/;
+
+function doPost(e) {
+  try {
+    const body = JSON.parse(e.postData.contents);
+    authorize(body.token);
+    if (body.action === 'list') return jsonOut({ members: listMembers() });
+    if (body.action === 'save') return jsonOut({ member: withLock(() => saveMember(body.member || {}, body.previousId, body.unlinkAccount)) });
+    if (body.action === 'delete') return jsonOut(withLock(() => deleteMember(body.id)));
+    throw new Error('Yêu cầu không hợp lệ.');
+  } catch (err) {
+    console.error(err);
+    return jsonOut({ error: err.message || String(err) });
+  }
+}
+
+function jsonOut(data) {
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function withLock(fn) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    return fn();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// Only a signed-in Super Admin / Ban QLNS-CTSV account (admins/{email} in Firestore) may continue
+function authorize(token) {
+  if (typeof token !== 'string' || token.split('.').length !== 3) throw new Error('Thiếu phiên đăng nhập.');
+  const res = UrlFetchApp.fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({ idToken: token }),
+    muteHttpExceptions: true,
+  });
+  const user = res.getResponseCode() === 200 ? (JSON.parse(res.getContentText()).users || [])[0] : null;
+  if (!user || !user.email || !user.emailVerified) throw new Error('Phiên đăng nhập không hợp lệ, hãy đăng nhập lại.');
+  let role = '';
+  try {
+    role = decodeFields(request('get', `${DOCS_URL}/admins/${encodeURIComponent(user.email.toLowerCase())}`).fields || {}).role;
+  } catch (err) {
+    // no admins/{email} document: not staff
+  }
+  if (!MEMBER_ADMIN_ROLES.includes(role)) throw new Error('Tài khoản này không có quyền quản lý danh sách sinh viên.');
+}
+
+function listMembers() {
+  // Pull website changes (student profiles, edits) into the sheet first. If Firestore is
+  // unavailable (e.g. daily quota used up) the sheet alone still answers.
+  try {
+    runLocked(false);
+  } catch (err) {
+    console.error(err);
+  }
+  const links = loadState().links;
+  const seen = {};
+  const members = [];
+  loadTabs().forEach(tab => {
+    for (let r = 1; r < tab.values.length; r++) {
+      const mssv = String(tab.values[r][tab.colOf.mssv]).trim();
+      const id = mssv.toLowerCase();
+      if (!ID_PATTERN.test(id) || seen[id]) continue;
+      seen[id] = true;
+      members.push(rowToMember(tab, tab.values[r], id, mssv, links[id]));
+    }
+  });
+  return members.sort((a, b) => (a.mssv < b.mssv ? -1 : a.mssv > b.mssv ? 1 : 0));
+}
+
+// Same defaults as the website's buildMember
+function rowToMember(tab, row, id, mssv, link) {
+  const member = Object.assign(
+    {
+      id: id,
+      mssv: mssv,
+      fullName: '',
+      gender: '',
+      dateOfBirth: '',
+      cohort: tab.cohort,
+      classGroup: '',
+      email: '',
+      phone: '',
+      isUnionMember: false,
+      unionJoinDate: '',
+      isAssociationMember: false,
+      status: 'STUDYING',
+      note: '',
+      updatedAt: '',
+    },
+    linkOf(link)
+  );
+  COLUMNS.forEach(c => {
+    const col = tab.colOf[c.field];
+    const value = col === undefined || c.field === 'mssv' ? undefined : fromCell(c, row[col]);
+    if (value !== undefined) member[c.field] = value;
+  });
+  return member;
+}
+
+function findRow(tabs, id) {
+  for (const tab of tabs) {
+    for (let r = 1; r < tab.values.length; r++) {
+      if (String(tab.values[r][tab.colOf.mssv]).trim().toLowerCase() === id) return { tab, r };
+    }
+  }
+  return null;
+}
+
+// Writes the sheet row and the Firestore record together, so neither waits for the 15-minute sync
+function saveMember(input, previousId, unlinkAccount) {
+  const mssv = String(input.mssv || '').trim();
+  const id = mssv.toLowerCase();
+  const from = previousId || id;
+  if (!ID_PATTERN.test(id) || !ID_PATTERN.test(from)) throw new Error(`MSSV "${mssv}" không hợp lệ (chỉ gồm chữ và số, tối đa 20 ký tự).`);
+  if (!String(input.fullName || '').trim()) throw new Error(`Thiếu họ tên cho MSSV ${mssv}.`);
+
+  const tabs = loadTabs();
+  const found = findRow(tabs, from);
+  if ((id !== from || !found) && findRow(tabs, id)) throw new Error(`MSSV ${mssv} đã có trong danh sách.`);
+  const target = found || { tab: tabForCohort(tabs, input.cohort), r: null };
+  if (!target.tab) throw new Error(`Chưa có tab cho khóa "${input.cohort || ''}" trong Google Sheet. Tạo tab cùng tên khóa rồi thử lại.`);
+  const r = target.r === null ? target.tab.sheet.getLastRow() : target.r;
+
+  const previous = getMembersByIds([from])[from] || {};
+  const record = {};
+  COLUMNS.forEach(c => {
+    const v = c.field === 'mssv' ? mssv : c.field === 'unionJoinDate' && !input.isUnionMember ? '' : input[c.field];
+    record[c.field] = c.type === 'bool' ? Boolean(v) : v === undefined || v === null ? '' : String(v);
+    const col = target.tab.colOf[c.field];
+    if (col !== undefined) {
+      const current = (target.tab.values[r] || [])[col];
+      target.tab.sheet.getRange(r + 1, col + 1).setValue(toCell(c, record[c.field], current));
+    }
+  });
+  record.accountEmail = unlinkAccount ? '' : previous.accountEmail || '';
+  record.profileCompletedAt = unlinkAccount ? '' : previous.profileCompletedAt || '';
+  record.updatedAt = new Date().toISOString();
+
+  const writes = [{ update: { name: DOC_PREFIX + id, fields: encodeFields(record) } }];
+  if (from !== id) writes.push({ delete: DOC_PREFIX + from });
+  commitAll(writes);
+  return Object.assign({ id: id }, record);
+}
+
+function deleteMember(id) {
+  if (!ID_PATTERN.test(String(id))) throw new Error('MSSV không hợp lệ.');
+  loadTabs().forEach(tab => {
+    // bottom-up, so row numbers above stay valid
+    for (let r = tab.values.length - 1; r >= 1; r--) {
+      if (String(tab.values[r][tab.colOf.mssv]).trim().toLowerCase() === id) tab.sheet.deleteRow(r + 1);
+    }
+  });
+  commitAll([{ delete: DOC_PREFIX + id }]);
+  return { ok: true };
+}
+
 // ---------------------------------------------------------------- change tracking
 
 const STATE_SHEET = '_dong_bo';
@@ -283,21 +458,39 @@ function stateSheet() {
   return sheet;
 }
 
-function loadRowHashes() {
+// Per record: row hash, plus the account link the website holds (not a sheet column) for the Sinh viên tab
+function loadState() {
   const sheet = SpreadsheetApp.getActive().getSheetByName(STATE_SHEET);
-  const hashes = {};
-  if (!sheet || sheet.getLastRow() < 2) return hashes;
-  sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues().forEach(([id, hash]) => {
-    if (id) hashes[String(id)] = String(hash);
+  const state = { hashes: {}, links: {}, hasLinks: false };
+  if (!sheet || sheet.getLastRow() < 2) return state;
+  state.hasLinks = sheet.getLastColumn() >= 4;
+  sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues().forEach(([id, hash, accountEmail, profileCompletedAt]) => {
+    if (!id) return;
+    state.hashes[String(id)] = String(hash);
+    state.links[String(id)] = { accountEmail: String(accountEmail), profileCompletedAt: String(profileCompletedAt) };
   });
-  return hashes;
+  return state;
+}
+
+function linkOf(...sources) {
+  const src = sources.find(Boolean) || {};
+  return { accountEmail: src.accountEmail || '', profileCompletedAt: src.profileCompletedAt || '' };
 }
 
 function saveRowHashes(rows) {
   const sheet = stateSheet();
   sheet.clearContents();
-  const data = [['ID (do script quản lý, đừng sửa)', 'Hash']].concat(rows.map(row => [row.id, row.hash]));
-  sheet.getRange(1, 1, data.length, 2).setValues(data);
+  const data = [['ID (do script quản lý, đừng sửa)', 'Hash', 'Tài khoản liên kết', 'Hoàn tất hồ sơ']].concat(
+    rows.map(row => [row.id, row.hash, row.link.accountEmail, row.link.profileCompletedAt])
+  );
+  sheet.getRange(1, 1, data.length, 4).setValues(data);
+}
+
+// Tab of a Khóa (named like it, e.g. "K24"); with no Khóa-named tabs at all, the first tab
+function tabForCohort(tabs, cohort) {
+  return tabs.some(t => t.cohort)
+    ? tabs.find(t => t.cohort && normalizeKey(t.cohort) === normalizeKey(cohort || ''))
+    : tabs[0];
 }
 
 // Tabs to sync: SHEET_NAMES if set, otherwise every tab whose first row has an MSSV column

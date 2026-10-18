@@ -35,6 +35,8 @@ jobs:
 
       - name: Build with Vite
         run: npx vite build
+        env:
+          VITE_MEMBERS_SHEET_URL: ${{ vars.VITE_MEMBERS_SHEET_URL }}
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
