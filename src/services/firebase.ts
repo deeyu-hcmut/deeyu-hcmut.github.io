@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore/lite';
 import { APP_CHECK_SITE_KEY, firebaseConfig, USE_FIREBASE_EMULATOR } from './firebaseConfig';
 
@@ -11,7 +11,7 @@ export const app = initializeApp(firebaseConfig);
 if (APP_CHECK_SITE_KEY && !USE_FIREBASE_EMULATOR) {
   // On localhost the console must list the debug token printed in the browser console
   if (import.meta.env.DEV) (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-  initializeAppCheck(app, { provider: new ReCaptchaV3Provider(APP_CHECK_SITE_KEY), isTokenAutoRefreshEnabled: true });
+  initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(APP_CHECK_SITE_KEY), isTokenAutoRefreshEnabled: true });
 }
 
 // The Lite SDK (no realtime listeners / offline cache) is a fraction of the full
