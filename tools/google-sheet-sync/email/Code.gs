@@ -232,7 +232,7 @@ function layout(title, name, mssv, content) {
         ${content}
       </div>
       <div style="border-top:1px solid #cbd5e1;margin-top:12px;padding-top:12px;text-align:center;font-size:11px;color:#94a3b8">
-        Văn phòng Đoàn - Hội Khoa Điện - Điện tử • Email: dtn-ddt@hcmut.edu.vn
+        Đoàn - Hội Khoa Điện - Điện tử • Email: dtn-ddt@hcmut.edu.vn
       </div>
     </div>
   </div>`;
