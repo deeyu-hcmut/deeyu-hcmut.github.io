@@ -454,7 +454,7 @@ export default function App() {
 
         <Suspense fallback={<TabFallback />}>
           {activeTab === 'lookup' && (
-            <StudentPortalLookup events={events} initialMssv={isStudentRole ? myProfile?.mssv : undefined} />
+            <StudentPortalLookup events={events} />
           )}
 
           {activeTab === 'admin' && FIREBASE_ENABLED && currentRole === 'STUDENT' && (

@@ -17,16 +17,19 @@ import {
 import { api } from '../services/api';
 import { RegistrationRecord, EventItem } from '../types';
 import { TicketModal } from './TicketModal';
+import { useSessionInfo } from '../session';
+import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 
 interface StudentPortalLookupProps {
   events: EventItem[];
-  // Set for a logged-in student: auto-looks up their own MSSV so the single
-  // QR nav button can take them straight to their ticket list.
-  initialMssv?: string;
 }
 
-export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events, initialMssv }) => {
-  const [mssvInput, setMssvInput] = useState(initialMssv || '');
+export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events }) => {
+  // With Firebase the page shows the signed-in student's own tickets (the MSSV comes from the linked
+  // profile, no typing); only the demo build keeps the MSSV box.
+  const { session, role, myProfile, signIn, openProfile } = useSessionInfo();
+  const ownMssv = FIREBASE_ENABLED ? myProfile?.mssv : undefined;
+  const [mssvInput, setMssvInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<{
@@ -58,10 +61,21 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
   };
 
   useEffect(() => {
-    if (initialMssv) handleLookup(initialMssv);
-    // Only run for the MSSV the student logged in with, not on every re-render.
+    if (ownMssv) handleLookup(ownMssv);
+    else setData(null);
+    // Only run for the MSSV of the signed-in student, not on every re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialMssv]);
+  }, [ownMssv]);
+
+  const gate = !FIREBASE_ENABLED || ownMssv
+    ? null
+    : !session
+    ? { title: 'Đăng nhập để xem vé của bạn', text: 'Sự kiện đã đăng ký, lịch sử điểm danh và mã vé QR hiển thị tự động theo tài khoản @hcmut.edu.vn của bạn.', action: 'Đăng nhập bằng Google', onClick: signIn }
+    : role === 'SUPER_ADMIN'
+    ? { title: 'Tài khoản quản trị không có vé sinh viên', text: 'Hãy đăng nhập bằng tài khoản sinh viên @hcmut.edu.vn để xem vé.', action: 'Đổi tài khoản', onClick: signIn }
+    : openProfile
+    ? { title: 'Liên kết hồ sơ sinh viên', text: 'Nhập MSSV và họ tên một lần để hệ thống hiển thị vé và lịch sử điểm danh của bạn.', action: 'Liên kết hồ sơ', onClick: openProfile }
+    : { title: 'Cần tài khoản @hcmut.edu.vn', text: 'Tài khoản đang đăng nhập không phải email sinh viên HCMUT. Hãy đăng nhập lại bằng tài khoản @hcmut.edu.vn.', action: 'Đăng nhập lại', onClick: signIn };
 
   const handleViewTicket = (record: RegistrationRecord) => {
     const matchedEvent = events.find(e => e.id === record.eventId) || {
@@ -104,11 +118,12 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
             TRA CỨU HOẠT ĐỘNG & VÉ ĐIỆN TỬ
           </h2>
           <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-            Đăng nhập bằng tài khoản @hcmut.edu.vn đã liên kết MSSV để kiểm tra danh sách sự kiện đã đăng ký tham gia, lịch sử điểm danh và xem lại các mã vé QR của bạn.
+            Đăng nhập bằng tài khoản @hcmut.edu.vn để xem danh sách sự kiện đã đăng ký, lịch sử điểm danh và các mã vé QR của bạn, hiển thị tự động.
           </p>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar (demo build only) */}
+        {!FIREBASE_ENABLED && (
         <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-md mb-10">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
@@ -134,6 +149,23 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
             </button>
           </div>
         </div>
+        )}
+
+        {gate && (
+          <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm text-center mb-10">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-400/30 flex items-center justify-center text-blue-600 dark:text-blue-300">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <h4 className="font-tech text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">{gate.title}</h4>
+            <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">{gate.text}</p>
+            <button
+              onClick={gate.onClick}
+              className="mt-5 px-6 py-3 rounded-2xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20 cursor-pointer"
+            >
+              {gate.action}
+            </button>
+          </div>
+        )}
 
         {error && (
           <div role="alert" className="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 text-sm font-semibold text-rose-800 dark:text-rose-200 flex items-start space-x-2">
