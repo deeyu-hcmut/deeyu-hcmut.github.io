@@ -8,6 +8,9 @@ export const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:369477368212:web:ca1a18efb12fb45733f781',
 };
 
+// reCAPTCHA v3 site key for Firebase App Check (public by design, like the apiKey). Empty = App Check off.
+export const APP_CHECK_SITE_KEY = import.meta.env.VITE_APP_CHECK_SITE_KEY || '';
+
 // Apps Script web app of the student Google Sheet (tools/google-sheet-sync). When set, the admin
 // "Sinh viên" tab reads and edits the list through it instead of Firestore (saves the daily read quota).
 // Not a secret: the script only answers requests carrying a staff Firebase ID token.
