@@ -1,7 +1,16 @@
 {
-  "name": "react-example",
+  "name": "deeyu-hcmut-portal",
+  "version": "1.0.0",
+  "description": "Cổng thông tin chính thức của Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử, ĐH Bách khoa - ĐHQG-HCM",
   "private": true,
-  "version": "0.0.0",
+  "homepage": "https://deeyu-hcmut.github.io/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deeyu-hcmut/deeyu-hcmut.github.io.git"
+  },
+  "bugs": {
+    "email": "dtn-ddt@hcmut.edu.vn"
+  },
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",

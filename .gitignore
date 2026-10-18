@@ -10,3 +10,6 @@ coverage/
 # Firebase CLI / emulators
 .firebase/
 *-debug.log
+
+# Local tooling output
+graphify-out/

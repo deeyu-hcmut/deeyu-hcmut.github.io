@@ -1,89 +1,116 @@
-# ⚡ CỔNG THÔNG TIN ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ (FEE PORTAL)
+# ⚡ Cổng thông tin Đoàn - Hội khoa Điện - Điện tử (FEE Portal)
 
-> **Cổng thông tin điện tử, quản lý phong trào sinh viên, đăng ký sự kiện và tự động hóa điểm danh Đoàn - Hội Khoa Điện - Điện tử (FEE - HCMUT).**
+> Cổng thông tin chính thức của **Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử, Trường Đại học Bách khoa - ĐHQG-HCM**:
+> tin tức, sự kiện, đăng ký, vé điện tử QR, điểm danh và quản lý Đoàn viên - Hội viên.
 
-🌐 **Trang web chính thức:** [https://deeyu-hcmut.github.io/](https://deeyu-hcmut.github.io/)
-
----
-
-## 🚀 Các tính năng chính
-
-- 🏠 **Trang chủ & Bản tin:** Cập nhật tin tức, sự kiện, học bổng doanh nghiệp, phong trào Sinh viên 5 Tốt và chiến dịch Mùa Hè Xanh.
-- 🎟️ **Cổng Sự kiện & Xuất Vé Điện Tử:** Sinh viên đăng ký tham gia sự kiện và nhận mã vé điện tử QR độc nhất.
-- 📷 **Điểm danh Tự động (QR Check-in Scanner):** Quét mã vé QR qua camera hoặc nhập mã vé/MSSV để ghi nhận tham gia thời gian thực.
-- 🔍 **Tra cứu Sinh viên:** Sinh viên tra cứu lịch sử tham dự sự kiện và điểm rèn luyện theo MSSV.
-- 📊 **Dashboard Quản trị:** Ban tổ chức theo dõi số lượng đăng ký, xuất danh sách điểm danh ra file Excel (`.xlsx`) và gửi email nhắc nhở tự động.
+🌐 **Trang web:** <https://deeyu-hcmut.github.io/> · 📄 [Chính sách quyền riêng tư](https://deeyu-hcmut.github.io/privacy.html) · 🔖 Phiên bản **1.0.0** ([CHANGELOG](CHANGELOG.md))
 
 ---
 
-## 🛠️ Công nghệ sử dụng
+## Tính năng
 
-- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Lucide Icons, Canvas Confetti.
-- **Cơ sở dữ liệu:** Firebase Firestore (Lite SDK) + Firebase Auth (đăng nhập Google cho BCH). Bản demo không cần Firebase vẫn chạy được với `VITE_DEMO_MODE=true`.
-- **Triển khai:** Tự động hóa qua **GitHub Actions & GitHub Pages**.
+**Sinh viên** (đăng nhập bằng tài khoản `@hcmut.edu.vn`)
+- Xem sự kiện, tin tức, cơ cấu Ban Chấp hành và Đội CTV (không cần đăng nhập).
+- Liên kết hồ sơ sinh viên một lần (MSSV + họ tên khớp danh sách của khoa), rồi đăng ký sự kiện với thông tin điền sẵn.
+- Nhận vé điện tử **QR**; trang **Tra cứu** tự hiện sự kiện đã đăng ký, lịch sử điểm danh và các vé của chính mình.
+- Email tự động: xác nhận đăng ký (kèm QR), nhắc 24 giờ trước sự kiện, xác nhận điểm danh.
 
----
+**Ban Chấp hành** (theo vai trò)
+- Tạo/sửa/xoá sự kiện (ảnh bìa tải lên, không có thì dùng logo), tin tức, thông báo.
+- **Quét QR điểm danh** bằng camera hoặc nhập mã vé.
+- Danh sách đăng ký, xuất Excel, nhật ký email, tra cứu hoạt động của sinh viên theo MSSV.
+- Quản lý danh sách sinh viên / Đoàn viên / Hội viên (đồng bộ với Google Sheet), BCH và Đội CTV, phân quyền tài khoản.
 
-## 💻 Hướng dẫn chạy thử nghiệm trên máy cá nhân (Local)
+Giao diện sáng/tối luôn theo thiết bị. Dùng được trên điện thoại (thanh điều hướng dưới cùng, nút QR).
 
-1. **Cài đặt thư viện:**
-   ```bash
-   npm install
-   ```
+## Vai trò
 
-2. **Chạy máy chủ phát triển:**
-   ```bash
-   npm run dev
-   ```
-
-3. Mở trình duyệt tại: `http://localhost:3000` (hoặc port hiển thị trên terminal).
-
----
-
-## 🔥 Firebase (cơ sở dữ liệu)
-
-Web dùng project Firebase **`deeyu-hcmut`**. Cấu hình web app nằm trong [`src/services/firebaseConfig.ts`](src/services/firebaseConfig.ts) (các giá trị này công khai theo thiết kế; dữ liệu được bảo vệ bằng Security Rules).
-
-### 1. Bật dịch vụ (làm một lần)
-1. [Firestore](https://console.firebase.google.com/project/deeyu-hcmut/firestore) → **Create database**, vùng `asia-southeast1`, chế độ **production**.
-2. [Authentication → Sign-in method](https://console.firebase.google.com/project/deeyu-hcmut/authentication/providers) → bật **Google**.
-3. [Authentication → Settings → Authorized domains](https://console.firebase.google.com/project/deeyu-hcmut/authentication/settings) → thêm `deeyu-hcmut.github.io`.
-
-### 2. Áp dụng Security Rules
-Mở [Firestore → Rules](https://console.firebase.google.com/project/deeyu-hcmut/firestore/rules), dán toàn bộ nội dung file [`firestore.rules`](firestore.rules) rồi bấm **Publish**.
-(Hoặc dùng CLI: `npx firebase-tools deploy --only firestore:rules --project deeyu-hcmut`.)
-**Mỗi lần sửa `firestore.rules` phải Publish lại.**
-
-> Rules đảm bảo: ai cũng đăng ký được nhưng không thể sửa vé/điểm danh; email & SĐT sinh viên chỉ BCH xem được.
-
-### 3. Cấp quyền BCH
-Tài khoản `SUPER_ADMIN` cấp, đổi, thu hồi quyền ngay trên web: **Quản trị → Phân quyền → Tài khoản BCH được cấp quyền** (không tự đổi quyền của chính mình được).
-Tài khoản Super Admin **đầu tiên** phải tạo tay trong [Firestore → Data](https://console.firebase.google.com/project/deeyu-hcmut/firestore/data), collection `admins`. Mỗi tài khoản là một document:
-- **Document ID**: email Google, ví dụ `dtn-ddt@hcmut.edu.vn`
-- **Trường** `role` (string), một trong:
-
-| `role` | Ban | Quyền |
+| `role` trong `admins/{email}` | Ban | Quyền chính |
 |---|---|---|
-| `SUPER_ADMIN` | Ban Thường vụ | Toàn quyền, cấp quyền tài khoản (`admins`), sửa BCH |
-| `HC_TV` | Ban HC-TV | Tạo/sửa/xoá sự kiện, danh sách đăng ký, xuất Excel, nhắc nhở 24h |
-| `TT_SK` | Ban TT-SK | Như HC-TV, thêm đăng/sửa/xoá tin tức |
-| `QLNS_CTSV` | Ban QLNS-CTSV | BCH & Đội CTV trên trang Cơ cấu Tổ chức (collection `bch`), danh sách sinh viên, đoàn viên, hội viên (collection `members`) |
+| `SUPER_ADMIN` | Ban Thường vụ | Toàn quyền, cấp quyền tài khoản, sửa BCH, đăng ký hộ MSSV |
+| `HC_TV` | Ban HC-TV | Sự kiện, danh sách đăng ký, xuất Excel, nhật ký email |
+| `TT_SK` | Ban TT-SK | Như HC-TV, thêm tin tức |
+| `QLNS_CTSV` | Ban QLNS-CTSV | BCH & Đội CTV, danh sách sinh viên - Đoàn viên - Hội viên |
+| *(không có trong `admins`)* | Sinh viên | Đăng ký sự kiện, xem vé của mình |
 
-Danh sách sinh viên chỉ cần nhập MSSV, Họ và tên, Khóa. Khi sinh viên đăng nhập lần đầu bằng tài khoản **@hcmut.edu.vn**,
-web hỏi MSSV + họ tên (phải khớp danh sách), liên kết tài khoản với hồ sơ đó rồi cho sinh viên tự điền phần còn thiếu
-(giới tính, ngày sinh, lớp, SĐT, Đoàn viên, ngày vào Đoàn, Hội viên). Mỗi MSSV chỉ liên kết được một tài khoản;
-Ban QLNS-CTSV gỡ liên kết trong form Sửa nếu có nhầm lẫn.
+Mọi vai trò cán bộ đều quét được QR. Chỉ tài khoản `@hcmut.edu.vn` đăng nhập được.
 
-Muốn quản lý danh sách sinh viên trên Google Sheet và tự đồng bộ với web: xem [`tools/google-sheet-sync`](tools/google-sheet-sync/README.md).
+## Kiến trúc
 
-Mọi vai trò trên đều quét QR điểm danh được. Tài khoản không có trong `admins` là sinh viên: không thấy nút quét QR.
-Giá trị cũ `EVENT_MANAGER` / `EDITOR` vẫn được hiểu là `HC_TV` / `TT_SK`.
+```
+Trình duyệt (React + Vite, GitHub Pages)
+   ├─ Firebase Auth ........... đăng nhập Google, chỉ @hcmut.edu.vn
+   ├─ Firestore (Lite SDK) .... dữ liệu; bảo vệ bằng firestore.rules (+ App Check)
+   └─ Apps Script web app ..... tab "Sinh viên" đọc/ghi qua Google Sheet (kiểm tra token đăng nhập)
 
-### Chạy local
-`npm run dev` dùng luôn project thật — cẩn thận khi thử đăng ký/xoá.
-- Thử mà không đụng dữ liệu thật: tạo `.env.local` với `VITE_FIREBASE_EMULATOR="true"` và `VITE_FIREBASE_PROJECT_ID="demo-fee-portal"`, rồi chạy `npx firebase-tools emulators:start --only firestore,auth --project demo-fee-portal` (cần Java 21+).
-- Chạy bản demo cũ không có Firebase: `VITE_DEMO_MODE="true"`.
+Google Apps Script (tools/google-sheet-sync)
+   ├─ Code.gs ........ đồng bộ Sheet sinh viên ↔ Firestore + web app cho trang Quản trị
+   ├─ bch/Code.gs .... đồng bộ Sheet BCH → Firestore
+   └─ email/Code.gs .. gửi email tự động bằng Gmail (xác nhận, nhắc 24h, điểm danh)
+```
 
-### Lưu ý
-- **Email chưa được gửi thật.** Nhật ký email trong trang Quản trị chỉ ghi trạng thái `QUEUED`. Muốn gửi thật cần thêm Cloud Functions (gói Blaze) hoặc dịch vụ như EmailJS.
-- Sinh viên đăng ký không cần đăng nhập, nên ai biết MSSV đều tra cứu được lịch sử tham gia (họ tên, sự kiện, mã vé) của MSSV đó — giống như bản trước. Email/SĐT không bị lộ.
+Bố cục Firestore và quy tắc truy cập: xem phần chú thích đầu [`src/services/firebaseApi.ts`](src/services/firebaseApi.ts) và [`firestore.rules`](firestore.rules).
+
+## Công nghệ
+
+React 19 · TypeScript · Vite · Tailwind CSS 4 · Firebase (Auth, Firestore Lite, App Check) · `qrcode` / `qr-scanner` · `xlsx` · GitHub Actions + GitHub Pages · Google Apps Script. Thiết kế để chạy trên **gói Firebase Spark (miễn phí)**: có cache trình duyệt, dữ liệu cũ khi hết hạn mức, và tab Sinh viên đọc qua Sheet để tiết kiệm lượt đọc.
+
+## Chạy trên máy cá nhân
+
+Cần Node.js 22.
+
+```bash
+npm ci
+npm run dev        # http://localhost:3000
+npm run lint       # kiểm tra kiểu TypeScript
+npx vite build     # build ra dist/
+```
+
+`npm run dev` dùng **project Firebase thật**, cẩn thận khi thử đăng ký/xoá. Các cách khác:
+- Emulator: `.env.local` với `VITE_FIREBASE_EMULATOR="true"` và `VITE_FIREBASE_PROJECT_ID="demo-fee-portal"`, rồi `npx firebase-tools emulators:start --only firestore,auth --project demo-fee-portal` (cần Java 21+).
+- Bản demo không cần Firebase: `VITE_DEMO_MODE="true"`.
+
+Biến môi trường tuỳ chọn: xem [`.env.example`](.env.example).
+
+## Cài đặt cho một project mới
+
+### 1. Firebase (project `deeyu-hcmut`)
+1. [Firestore](https://console.firebase.google.com/project/deeyu-hcmut/firestore) → **Create database** (vùng `asia-southeast1`, chế độ production).
+2. [Authentication](https://console.firebase.google.com/project/deeyu-hcmut/authentication/providers) → bật **Google**; **Settings → Authorized domains** → thêm `deeyu-hcmut.github.io`.
+3. **Quy tắc bảo mật:** dán toàn bộ [`firestore.rules`](firestore.rules) vào [Firestore → Rules](https://console.firebase.google.com/project/deeyu-hcmut/firestore/rules) và **Publish** (hoặc `npx firebase-tools deploy --only firestore:rules --project deeyu-hcmut`). **Mỗi lần sửa file phải Publish lại; nên deploy web trước rồi mới Publish quy tắc.**
+4. **Super Admin đầu tiên:** tạo tay trong Firestore, collection `admins`, document ID là email `@hcmut.edu.vn`, trường `role` = `SUPER_ADMIN`. Sau đó cấp quyền ngay trên web: **Quản trị → Phân quyền**.
+5. **App Check (khuyến nghị):** tạo khoá reCAPTCHA Enterprise loại Website cho `deeyu-hcmut.github.io`, đăng ký trong Firebase → App Check, đặt site key vào [`src/services/firebaseConfig.ts`](src/services/firebaseConfig.ts) (hoặc `VITE_APP_CHECK_SITE_KEY`). Chỉ bật **Enforce** sau khi biểu đồ App Check cho thấy gần như mọi yêu cầu đã được xác minh, và theo dõi hạn mức 10.000 lượt đánh giá/tháng của reCAPTCHA Enterprise.
+
+### 2. Google Apps Script
+Hướng dẫn từng bước trong [`tools/google-sheet-sync/README.md`](tools/google-sheet-sync/README.md): đồng bộ danh sách sinh viên (kèm web app cho tab Sinh viên), đồng bộ BCH, gửi email tự động. Tài khoản chạy script phải là Owner/Editor của project Firebase.
+
+### 3. Triển khai
+Mỗi lần push lên `main`, workflow [`deploy.yml`](.github/workflows/deploy.yml) chạy `npm ci` → `npm run lint` → `vite build` rồi đăng lên GitHub Pages. Tệp trong [`public/`](public/) (ví dụ `privacy.html`, tệp xác minh Search Console) được phục vụ ở gốc trang.
+
+## Phát hành
+
+Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/); lịch sử thay đổi ở [CHANGELOG.md](CHANGELOG.md). Push tag dạng `vX.Y.Z` để workflow [`release.yml`](.github/workflows/release.yml) kiểm tra, build và tạo bản **GitHub Release** kèm gói `dist`:
+
+```bash
+git tag -a v1.0.0 -m "v1.0.0"
+git push origin v1.0.0
+```
+
+## Bảo mật
+
+Tóm tắt các biện pháp và cách báo lỗi bảo mật: [SECURITY.md](SECURITY.md). Chính sách dữ liệu cá nhân: [privacy.html](public/privacy.html).
+
+## Cấu trúc thư mục
+
+```
+src/            ứng dụng React (components, services, utils, types)
+public/         tệp tĩnh (logo, privacy.html, sitemap, robots, xác minh)
+tools/          Google Apps Script (Sheet sinh viên, BCH, email)
+firestore.rules quy tắc bảo mật Firestore
+.github/        workflow deploy và release
+server.ts       máy chủ Express cho bản demo cục bộ
+```
+
+## Giấy phép
+
+Chưa khai báo giấy phép mã nguồn; mặc định mọi quyền được bảo lưu bởi Đoàn - Hội khoa Điện - Điện tử. Liên hệ <dtn-ddt@hcmut.edu.vn> nếu muốn tái sử dụng.

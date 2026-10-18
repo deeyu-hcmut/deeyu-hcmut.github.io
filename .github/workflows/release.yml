@@ -1,0 +1,48 @@
+name: Release
+
+# Push a tag like v1.0.0 to build the site and publish a GitHub Release with the packaged dist/
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run lint
+
+      - name: Build with Vite
+        run: npx vite build
+        env:
+          VITE_MEMBERS_SHEET_URL: ${{ vars.VITE_MEMBERS_SHEET_URL }}
+
+      - name: Package dist
+        run: cd dist && zip -qr "../fee-portal-${GITHUB_REF_NAME}.zip" .
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Release notes: the matching section of CHANGELOG.md, else GitHub's generated notes
+          awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          if [ -s notes.md ]; then
+            gh release create "$GITHUB_REF_NAME" "fee-portal-${GITHUB_REF_NAME}.zip" --title "$GITHUB_REF_NAME" --notes-file notes.md
+          else
+            gh release create "$GITHUB_REF_NAME" "fee-portal-${GITHUB_REF_NAME}.zip" --title "$GITHUB_REF_NAME" --generate-notes
+          fi

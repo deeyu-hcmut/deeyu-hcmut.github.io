@@ -11,6 +11,12 @@
         ],
         "createdAt": "2026-10-17T14:11:18.022Z",
         "reason": "False positive: detector paired unrelated dark:text-slate-100 (page text) with selection:bg-blue-600 (::selection pseudo-class bg); confirmed by Assessment B agent in /impeccable critique run 2026-10-17, no real contrast issue exists"
+      },
+      {
+        "rule": "overused-font",
+        "value": "open sans",
+        "createdAt": "2026-10-18T09:11:06.581Z",
+        "reason": "assistant: privacy.html deliberately uses the portal's existing body font (--font-sans in src/index.css); no change decided by the user"
       }
     ]
   }
