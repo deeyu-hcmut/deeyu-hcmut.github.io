@@ -2,18 +2,6 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/), phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
-## [Unreleased]
-
-### Thêm
-- Tài liệu hướng dẫn: GIF + kịch bản clip cho sinh viên, PDF hướng dẫn cho cán bộ (`docs/huong-dan`), mục điểm danh QR tách riêng cho máy tính và điện thoại.
-
-### Thay đổi
-- Mọi vai trò cán bộ (kể cả Ban QLNS-CTSV) xem được danh sách đăng ký, xuất Excel và nhật ký email (cần Publish lại `firestore.rules`).
-
-### Sửa
-- Dòng mô tả trang chủ không còn tràn khỏi màn hình điện thoại.
-- Bản demo cục bộ: sự kiện không có ảnh bìa dùng logo như bản thật.
-
 ## [1.0.0] - 2026-10-18
 
 Bản phát hành đầu tiên của cổng thông tin.
@@ -25,6 +13,11 @@ Bản phát hành đầu tiên của cổng thông tin.
 - Quản trị theo vai trò: sự kiện (ảnh bìa tải lên, không có thì dùng logo), tin tức, danh sách đăng ký, xuất Excel, nhật ký email, BCH, phân quyền.
 - Danh sách sinh viên / Đoàn viên / Hội viên chia theo khóa và lớp, đọc/ghi qua Google Sheet (Apps Script web app) để tiết kiệm hạn mức Firestore.
 - Giao diện sáng/tối theo thiết bị; trang [Chính sách quyền riêng tư](public/privacy.html).
+- Mọi vai trò cán bộ xem được danh sách đăng ký, xuất Excel và nhật ký email; tra cứu hoạt động sinh viên theo MSSV.
+
+### Tài liệu
+- Hướng dẫn sinh viên: GIF từng bước + kịch bản dựng clip (`docs/huong-dan/sinh-vien`).
+- Hướng dẫn cán bộ theo vai trò (PDF), điểm danh QR tách riêng cho máy tính và điện thoại (`docs/huong-dan/huong-dan-can-bo.pdf`).
 
 ### Bảo mật
 - Chỉ tài khoản `@hcmut.edu.vn` đăng nhập được (cả giao diện lẫn Firestore Rules).

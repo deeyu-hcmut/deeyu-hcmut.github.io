@@ -41,8 +41,14 @@ jobs:
         run: |
           # Release notes: the matching section of CHANGELOG.md, else GitHub's generated notes
           awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
-          if [ -s notes.md ]; then
-            gh release create "$GITHUB_REF_NAME" "fee-portal-${GITHUB_REF_NAME}.zip" --title "$GITHUB_REF_NAME" --notes-file notes.md
+          [ -s notes.md ] || echo "Bản phát hành $GITHUB_REF_NAME." > notes.md
+          ZIP="fee-portal-${GITHUB_REF_NAME}.zip"
+          # Re-pushing a moved tag refreshes the existing release instead of failing
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file notes.md
+            gh release upload "$GITHUB_REF_NAME" "$ZIP" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" "fee-portal-${GITHUB_REF_NAME}.zip" --title "$GITHUB_REF_NAME" --generate-notes
+            gh release create "$GITHUB_REF_NAME" "$ZIP" --title "$GITHUB_REF_NAME" --notes-file notes.md
           fi
+          # Ship the user guides with the release too
+          gh release upload "$GITHUB_REF_NAME" docs/huong-dan/huong-dan-can-bo.pdf docs/huong-dan/sinh-vien/huong-dan-sinh-vien-day-du.gif --clobber
