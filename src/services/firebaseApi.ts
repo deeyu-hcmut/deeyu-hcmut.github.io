@@ -113,15 +113,18 @@ function queueNotification(batch: WriteBatch, notification: Omit<StoredNotificat
 // App mount asks for stats, events and news at the same time; share one read per collection.
 const listCache = new Map<string, { at: number; promise: Promise<unknown[]> }>();
 const LIST_CACHE_MS = 10_000;
+// Staff registration lists hold contact info, so they stay in memory only; switching the event
+// filter back and forth (or reopening the tab) must not re-read every ticket and contact.
+const REGISTRATIONS_CACHE_MS = 2 * 60_000;
 
 // Public lists are also kept in localStorage, so reloads and repeat visits within PERSIST_MS
 // cost no reads (the free plan allows 50,000 reads a day for the whole site).
-const PERSIST_MS = 5 * 60_000;
+const PERSIST_MS = 15 * 60_000;
 const persistKey = (name: string) => `fee_cache_${name}`;
 
-function cachedList<T>(name: string, load: () => Promise<T[]>, persist = false): Promise<T[]> {
+function cachedList<T>(name: string, load: () => Promise<T[]>, persist = false, ttl = LIST_CACHE_MS): Promise<T[]> {
   const hit = listCache.get(name);
-  if (hit && Date.now() - hit.at < LIST_CACHE_MS) return hit.promise as Promise<T[]>;
+  if (hit && Date.now() - hit.at < ttl) return hit.promise as Promise<T[]>;
   if (persist) {
     try {
       const stored = JSON.parse(localStorage.getItem(persistKey(name)) || 'null') as { at: number; data: T[] } | null;
@@ -150,6 +153,8 @@ function cachedList<T>(name: string, load: () => Promise<T[]>, persist = false):
 }
 
 function invalidate(...names: string[]) {
+  // Any ticket change makes every cached registration list stale
+  if (names.includes('events')) names = [...names, ...[...listCache.keys()].filter(k => k.startsWith('registrations:'))];
   names.forEach(name => {
     listCache.delete(name);
     try {
@@ -263,7 +268,7 @@ const rawFirebaseApi: Api = {
       });
     }
     await batch.commit();
-    invalidate('events');
+    invalidate('events', 'notifications');
     return { id: ref.id, ...event };
   },
 
@@ -437,13 +442,20 @@ const rawFirebaseApi: Api = {
   },
 
   getRegistrations: async (eventId, search) => {
-    const registrations = collection(db, 'registrations');
-    const regQuery = eventId && eventId !== 'ALL' ? query(registrations, where('eventId', '==', eventId)) : registrations;
-    const regSnap = await getDocs(regQuery);
-    const contacts = await loadContacts(eventId && eventId !== 'ALL' ? regSnap.docs.map(d => d.id) : undefined);
-    const records = regSnap.docs
-      .map(d => toRecord(d.id, d.data(), contacts.get(d.id)))
-      .sort((a, b) => b.registeredAt.localeCompare(a.registeredAt));
+    const one = eventId && eventId !== 'ALL' ? eventId : undefined;
+    const records = await cachedList(
+      `registrations:${one ?? 'ALL'}`,
+      async () => {
+        const registrations = collection(db, 'registrations');
+        const regSnap = await getDocs(one ? query(registrations, where('eventId', '==', one)) : registrations);
+        const contacts = await loadContacts(one ? regSnap.docs.map(d => d.id) : undefined);
+        return regSnap.docs
+          .map(d => toRecord(d.id, d.data(), contacts.get(d.id)))
+          .sort((a, b) => b.registeredAt.localeCompare(a.registeredAt));
+      },
+      false,
+      REGISTRATIONS_CACHE_MS
+    );
     return filterRegistrations(records, undefined, search);
   },
 
@@ -501,11 +513,15 @@ const rawFirebaseApi: Api = {
 
   getNotifications: async () => {
     const readAt = readNotificationsReadAt();
-    const snap = await getDocs(query(collection(db, 'notifications'), orderBy('createdAt', 'desc'), limit(20)));
-    return snap.docs.map(d => {
-      const { createdAt, ...rest } = d.data() as StoredNotification;
-      return { id: d.id, ...rest, timestamp: relativeTime(createdAt), read: createdAt <= readAt };
-    });
+    const stored = await cachedList(
+      'notifications',
+      async () =>
+        (await getDocs(query(collection(db, 'notifications'), orderBy('createdAt', 'desc'), limit(20)))).docs.map(d =>
+          withId<StoredNotification & { id: string }>(d)
+        ),
+      true
+    );
+    return stored.map(({ createdAt, ...rest }) => ({ ...rest, timestamp: relativeTime(createdAt), read: createdAt <= readAt }));
   },
 
   // Notifications are shared by every visitor, so "read" is tracked per browser

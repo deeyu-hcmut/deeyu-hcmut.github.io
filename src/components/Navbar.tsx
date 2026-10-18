@@ -32,7 +32,8 @@ import { ROLE_LABELS, STAFF_ROLES } from '../utils/roles';
 // Every Firestore load is billed as up to 20 reads (free plan: 50,000 a day for the whole site),
 // so Firebase builds poll far less often than the local-storage demo build.
 const NOTIFICATION_POLL_MS = 8000;
-const NOTIFICATION_REFRESH_MS = 5 * 60_000;
+// Matches the Firestore cache lifetime: polling faster only re-reads the same cached copy
+const NOTIFICATION_REFRESH_MS = 15 * 60_000;
 
 interface NavbarProps {
   activeTab: string;
