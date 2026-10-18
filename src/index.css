@@ -178,3 +178,11 @@
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* PC (chuột thật): con trỏ mặc định là logo, đầu ngọn lửa là điểm click.
+ * Link/nút vẫn dùng bàn tay, ô nhập vẫn dùng con trỏ chữ. */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    cursor: url("/cursor.png") 16 1, auto;
+  }
+}
