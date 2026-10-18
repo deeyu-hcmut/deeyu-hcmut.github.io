@@ -535,7 +535,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-sm">
-                Cổng thông tin điện tử, quản lý phong trào sinh viên và tự động hóa điểm danh Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Khoa Điện - Điện tử (HCMUT).
+                Cổng thông tin chính thức của Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử
               </p>
             </div>
 
