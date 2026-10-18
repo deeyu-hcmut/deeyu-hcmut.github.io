@@ -48,7 +48,7 @@
     <li>Đăng nhập và vai trò</li>
     <li>Quản lý sự kiện <span class="muted">(Super Admin, Ban HC-TV, Ban TT-SK)</span></li>
     <li>Điểm danh bằng QR <span class="muted">(mọi vai trò cán bộ)</span></li>
-    <li>Danh sách đăng ký, xuất Excel, email tự động <span class="muted">(Super Admin, Ban HC-TV, Ban TT-SK)</span></li>
+    <li>Danh sách đăng ký, xuất Excel, email tự động <span class="muted">(mọi vai trò cán bộ)</span></li>
     <li>Tin tức <span class="muted">(Super Admin, Ban TT-SK)</span></li>
     <li>Tra cứu hoạt động của sinh viên <span class="muted">(mọi vai trò cán bộ)</span></li>
     <li>BCH, Đội CTV và danh sách sinh viên <span class="muted">(Super Admin, Ban QLNS-CTSV)</span></li>
@@ -67,7 +67,7 @@
     <tr><th>Chức năng</th><th>Super Admin</th><th>Ban HC-TV</th><th>Ban TT-SK</th><th>Ban QLNS-CTSV</th></tr>
     <tr><td>Quét QR điểm danh, tra cứu hoạt động SV</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td></tr>
     <tr><td>Tạo / sửa / xoá sự kiện</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td><td class="c">–</td></tr>
-    <tr><td>Danh sách đăng ký, xuất Excel, nhật ký email</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td><td class="c">–</td></tr>
+    <tr><td>Danh sách đăng ký, xuất Excel, nhật ký email</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td><td class="c">✔</td></tr>
     <tr><td>Đăng / sửa / xoá tin tức</td><td class="c">✔</td><td class="c">–</td><td class="c">✔</td><td class="c">–</td></tr>
     <tr><td>BCH &amp; Đội CTV, danh sách sinh viên</td><td class="c">✔</td><td class="c">–</td><td class="c">–</td><td class="c">✔</td></tr>
     <tr><td>Phân quyền tài khoản</td><td class="c">✔</td><td class="c">–</td><td class="c">–</td><td class="c">–</td></tr>
@@ -99,21 +99,57 @@
 <div class="section">
   <h2>3. Điểm danh bằng QR</h2>
   <span class="who">Mọi vai trò cán bộ</span>
+  <p>Hệ thống <b>tự điểm danh ngay khi camera đọc được mã QR</b> trên vé, không cần bấm thêm. Chọn cách phù hợp với thiết bị:</p>
+  <table>
+    <tr><th></th><th>3A. Máy tính (laptop, PC)</th><th>3B. Điện thoại</th></tr>
+    <tr><td><b>Mở trạm điểm danh</b></td><td>Nút <b>Quét QR Điểm danh</b> ở góc trên bên phải</td><td>Nút tròn <b>Điểm danh</b> ở giữa thanh dưới cùng</td></tr>
+    <tr><td><b>Camera</b></td><td>Webcam của laptop hoặc webcam USB</td><td>Camera sau (mặc định), đổi sang camera trước bằng nút đổi camera</td></tr>
+    <tr><td><b>Trình duyệt nên dùng</b></td><td>Chrome, Edge</td><td>Chrome (Android), Safari (iPhone)</td></tr>
+    <tr><td><b>Phù hợp khi</b></td><td>Bàn check-in cố định, cần nhập tay nhanh bằng bàn phím</td><td>Đi lại giữa các hàng, nhiều cửa vào cùng lúc</td></tr>
+  </table>
+
+  <h3>3A. Trên máy tính</h3>
   <ol>
-    <li>Bấm <b>Quét QR Điểm danh</b> (máy tính: góc trên; điện thoại: nút <b>Điểm danh</b> ở giữa thanh dưới).</li>
-    <li>Chọn sự kiện đang tổ chức ở ô trên cùng.</li>
-    <li>Bấm <b>Bật camera quét QR</b> và đưa vé QR của sinh viên vào khung. Trên điện thoại có nút đổi camera trước / sau.</li>
-    <li>Không quét được? Nhập <b>mã vé</b> (ví dụ <code>EVT-84525</code>) hoặc <b>MSSV</b> vào ô nhập tay → <b>Check-in</b>.</li>
-    <li>Màn hình báo <b>Điểm danh thành công</b> kèm tên, MSSV. Vé đã điểm danh trước đó sẽ hiện cảnh báo kèm giờ điểm danh cũ. Sinh viên nhận email xác nhận trong vài phút.</li>
+    <li>Đăng nhập tài khoản cán bộ, bấm <b>Quét QR Điểm danh</b> ở góc trên bên phải.</li>
+    <li>Ở ô <b>Chọn sự kiện đang tổ chức điểm danh</b>, chọn đúng sự kiện.</li>
+    <li>Bấm <b>Bật camera quét QR</b>. Lần đầu, trình duyệt hỏi quyền dùng camera → chọn <b>Cho phép</b> (Allow).</li>
+    <li>Sinh viên đưa vé QR (trên điện thoại hoặc bản in) trước webcam, cách khoảng <b>15–30 cm</b>, giữ yên 1–2 giây. Khung vàng bám theo mã khi đã nhận ra.</li>
+    <li>Kết quả hiện ngay bên phải: <b style="color:#047857">xanh</b> là điểm danh thành công, <b style="color:#b45309">vàng</b> là vé đã điểm danh trước đó (kèm giờ cũ), <b style="color:#be123c">đỏ</b> là không tìm thấy vé. Mời người tiếp theo, camera vẫn chạy.</li>
+    <li>Không quét được: gõ <b>mã vé</b> (ví dụ <code>EVT-84042</code>) hoặc <b>MSSV</b> vào ô <b>Nhập thủ công</b> rồi bấm <b>Check-in</b> (hoặc Enter).</li>
+    <li>Xong ca: bấm <b>Tắt camera</b> rồi đóng trạm bằng nút ✕.</li>
   </ol>
-  <figure><img src="anh/qr-diem-danh.jpg" alt="Trạm điểm danh" /><figcaption>Trạm điểm danh: chọn sự kiện, bật camera hoặc nhập mã vé</figcaption></figure>
-  <figure><img src="anh/qr-diem-danh-thanh-cong.jpg" alt="Điểm danh thành công" /><figcaption>Kết quả điểm danh thành công và lịch sử điểm danh của phiên</figcaption></figure>
-  <div class="tip">Dùng trình duyệt Chrome / Safari và cho phép truy cập camera khi được hỏi. Nếu camera lỗi, bấm <b>Thử bật camera lại</b> hoặc nhập mã tay.</div>
+  <figure><img src="anh/pc-1-mo-tram.jpg" alt="Trạm điểm danh trên máy tính" /><figcaption>Máy tính: chọn sự kiện, bấm Bật camera quét QR (hoặc nhập mã ở ô dưới)</figcaption></figure>
+  <figure><img src="anh/pc-2-camera-quet.jpg" alt="Webcam đang quét vé" /><figcaption>Webcam đọc mã QR, kết quả và lịch sử điểm danh hiện bên phải</figcaption></figure>
+  <div class="tip"><b>Đã lỡ chặn camera?</b> Bấm biểu tượng ổ khoá / camera ở bên trái thanh địa chỉ → <b>Camera: Cho phép</b> → bấm <b>Thử bật camera lại</b>.
+    Nếu báo camera đang bận, hãy đóng Zoom / Google Meet / ứng dụng camera khác. Webcam laptop thường kém nét: nhờ sinh viên tăng độ sáng màn hình vé và tránh đứng ngược sáng.</div>
+
+  <h3>3B. Trên điện thoại</h3>
+  <ol>
+    <li>Mở <b>deeyu-hcmut.github.io</b> bằng <b>Chrome</b> (Android) hoặc <b>Safari</b> (iPhone) và đăng nhập tài khoản cán bộ. Không mở link trong Zalo / Messenger / Facebook vì trình duyệt trong các ứng dụng này thường không cho dùng camera.</li>
+    <li>Bấm nút tròn <b>Điểm danh</b> ở giữa thanh dưới cùng.</li>
+    <li>Chọn đúng sự kiện ở ô trên cùng.</li>
+    <li>Bấm <b>Bật camera quét QR</b> → <b>Cho phép</b> camera. Mặc định dùng camera sau; nút <b>đổi camera</b> cạnh nút <b>Tắt camera</b> chuyển sang camera trước.</li>
+    <li>Hướng camera vào mã QR trên điện thoại sinh viên, cách khoảng <b>15–25 cm</b>. Máy Android rung nhẹ khi đọc được; tên sinh viên và kết quả hiện ngay dưới khung camera. Quét người tiếp theo luôn, không cần bấm gì. Cùng một vé quét lại trong 5 giây sẽ được bỏ qua để tránh trùng.</li>
+    <li>Không quét được: kéo xuống ô <b>Nhập thủ công Mã vé hoặc MSSV</b> → <b>Check-in</b>.</li>
+    <li>Xong ca: bấm <b>Tắt camera</b> để đỡ tốn pin.</li>
+  </ol>
+  <table style="border:none">
+    <tr>
+      <td style="border:none;width:25%"><img src="anh/mobile-0-nut-diem-danh.jpg" alt="Nút Điểm danh" style="width:100%;border:1px solid #cbd5e1;border-radius:6px" /><div class="muted" style="text-align:center">1. Nút Điểm danh</div></td>
+      <td style="border:none;width:25%"><img src="anh/mobile-1-mo-tram.jpg" alt="Trạm điểm danh" style="width:100%;border:1px solid #cbd5e1;border-radius:6px" /><div class="muted" style="text-align:center">2. Chọn sự kiện, bật camera</div></td>
+      <td style="border:none;width:25%"><img src="anh/mobile-2-camera-quet.jpg" alt="Camera đang quét" style="width:100%;border:1px solid #cbd5e1;border-radius:6px" /><div class="muted" style="text-align:center">3. Quét: tự điểm danh</div></td>
+      <td style="border:none;width:25%"><img src="anh/mobile-3-nhap-tay.jpg" alt="Nhập tay" style="width:100%;border:1px solid #cbd5e1;border-radius:6px" /><div class="muted" style="text-align:center">4. Kết quả, nhập tay</div></td>
+    </tr>
+  </table>
+  <div class="tip"><b>Cấp lại quyền camera trên điện thoại:</b>
+    iPhone: bấm <b>aA</b> trên thanh địa chỉ Safari → <b>Cài đặt trang web</b> → <b>Camera: Cho phép</b> (hoặc Cài đặt → Safari → Camera).
+    Android: bấm biểu tượng bên trái thanh địa chỉ Chrome → <b>Quyền</b> → <b>Camera</b> → Cho phép.
+    Nhiều cửa vào: mỗi cửa một điện thoại, tất cả chọn <b>cùng một sự kiện</b>; một vé chỉ điểm danh được một lần dù quét ở cửa nào.</div>
 </div>
 
 <div class="section">
   <h2>4. Danh sách đăng ký, xuất Excel, email tự động</h2>
-  <span class="who">Super Admin · Ban HC-TV · Ban TT-SK</span>
+  <span class="who">Mọi vai trò cán bộ</span>
   <h3>Danh sách đăng ký</h3>
   <ol>
     <li>Vào <b>Quản trị &amp; Tự động hóa</b> → tab <b>Đăng ký sự kiện</b>. Mặc định hiển thị sự kiện mới nhất; chọn sự kiện khác ở ô chọn.</li>
@@ -200,7 +236,7 @@
     <tr><td>Không thấy mục Quản trị / nút Quét QR</td><td>Tài khoản chưa được cấp quyền: nhờ Super Admin cấp ở tab Phân quyền, rồi tải lại trang.</td></tr>
     <tr><td>Sinh viên không đăng ký được</td><td>Sinh viên chưa liên kết hồ sơ, hoặc MSSV chưa có trong danh sách sinh viên của khoa (xem mục 7). Kiểm tra sự kiện còn mở đăng ký và còn chỗ.</td></tr>
     <tr><td>Sinh viên không nhận được email</td><td>Xem tab Nhật ký thư: <i>Đang chờ</i> thì đợi tối đa 5–10 phút; <i>Lỗi</i> là địa chỉ email sai; <i>Đã gửi</i> thì nhờ kiểm tra thư rác.</td></tr>
-    <tr><td>Camera không quét được QR</td><td>Cho phép camera trong trình duyệt, tăng độ sáng màn hình vé, hoặc nhập mã vé / MSSV bằng tay.</td></tr>
+    <tr><td>Camera không bật / không quét được QR</td><td>Xem hộp lưu ý ở mục 3A (máy tính) hoặc 3B (điện thoại) để cấp lại quyền camera; mở web bằng Chrome / Safari thay vì trình duyệt trong Zalo, Messenger; tăng độ sáng màn hình vé; hoặc nhập mã vé / MSSV bằng tay.</td></tr>
     <tr><td>Vừa tạo sự kiện nhưng máy khác chưa thấy</td><td>Dữ liệu được lưu tạm trên trình duyệt tối đa khoảng 3 phút, đợi rồi tải lại trang.</td></tr>
     <tr><td>Web báo lỗi tải dữ liệu hoặc hiện dữ liệu cũ cả ngày</td><td>Có thể đã hết hạn mức đọc miễn phí trong ngày; hệ thống tự phục hồi sau nửa đêm (giờ Thái Bình Dương). Báo Super Admin nếu lặp lại.</td></tr>
   </table>

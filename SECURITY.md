@@ -13,7 +13,7 @@ Nếu bạn phát hiện lỗ hổng, **đừng đăng công khai**. Gửi email
 ## Các biện pháp hiện có
 
 - Đăng nhập Google chỉ chấp nhận `@hcmut.edu.vn`; vai trò cán bộ lưu ở `admins/{email}`.
-- Firestore Security Rules ([`firestore.rules`](firestore.rules)): vé chỉ chủ vé và cán bộ đọc; email/số điện thoại chỉ cán bộ sự kiện; danh sách sinh viên chỉ Ban QLNS-CTSV và Super Admin.
+- Firestore Security Rules ([`firestore.rules`](firestore.rules)): vé chỉ chủ vé và cán bộ đọc; email/số điện thoại chỉ cán bộ đã được cấp quyền; danh sách sinh viên chỉ Ban QLNS-CTSV và Super Admin.
 - Apps Script web app xác thực token đăng nhập Firebase và vai trò trước mọi thao tác.
 - Firebase App Check (reCAPTCHA Enterprise) để chống truy cập tự động.
 

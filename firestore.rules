@@ -91,8 +91,10 @@ service cloud.firestore {
       allow write: if isStaff();
     }
 
+    // Every staff role reads the email log; only event staff edit or delete entries
     match /emailLogs/{logId} {
-      allow read, write: if canManageEvents();
+      allow read: if isStaff();
+      allow update, delete: if canManageEvents();
       // Check-in confirmation queued by whoever scans the ticket
       allow create: if isStaff();
     }
@@ -178,11 +180,11 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/students/$(r.mssvKey)).data.lastEventId == r.eventId;
     }
 
-    // Email / phone / note of a registration: written once with it, readable by staff only.
+    // Email / phone / note of a registration: written once with it, readable by every staff role
+    // (registration list, Excel export, the QR station's contact card); only event staff edit or delete.
     match /registrationContacts/{regId} {
-      allow read, update, delete: if canManageEvents();
-      // The QR station shows the scanned student's contact card
-      allow get: if isStaff();
+      allow read: if isStaff();
+      allow update, delete: if canManageEvents();
       allow create: if request.resource.data.keys().hasOnly(['email', 'phone', 'note'])
         && request.resource.data.keys().hasAll(['email', 'phone', 'note'])
         && request.resource.data.email is string && request.resource.data.email.size() <= 100

@@ -28,7 +28,7 @@ import QRCode from 'qrcode';
 import { api } from '../services/api';
 import { filterRegistrations } from '../services/shared';
 import { FIREBASE_ENABLED } from '../services/firebaseConfig';
-import { ROLE_LABELS, canManageEvents, canManageMembers } from '../utils/roles';
+import { ROLE_LABELS, canManageMembers, isStaff } from '../utils/roles';
 
 const MemberManager = lazy(() => import('./MemberManager').then(m => ({ default: m.MemberManager })));
 const BchManager = lazy(() => import('./BchManager').then(m => ({ default: m.BchManager })));
@@ -76,7 +76,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onBchChange,
   currentEmail
 }) => {
-  const eventAccess = canManageEvents(currentRole);
+  // Registrations, Excel export and email logs are open to every staff role (firestore.rules mirrors this)
+  const eventAccess = isStaff(currentRole);
   const memberAccess = canManageMembers(currentRole);
   const visibleTabs: AdminTab[] = [
     ...(eventAccess ? ['REGISTRATIONS', 'AUTOMATION'] as const : []),
@@ -193,7 +194,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       role: 'QLNS_CTSV',
       title: 'Ban QLNS-CTSV',
       desc: 'Quản lý nhân sự: danh sách BCH và Trưởng, phó ban Đội CTV trên trang Cơ cấu Tổ chức, hồ sơ sinh viên, đoàn viên và hội viên của khoa.',
-      permissions: ['Cập nhật BCH và Trưởng, phó ban Đội CTV', 'Quản lý danh sách sinh viên', 'Quản lý đoàn viên & hội viên', 'Quét QR điểm danh']
+      permissions: ['Cập nhật BCH và Trưởng, phó ban Đội CTV', 'Quản lý danh sách sinh viên', 'Quản lý đoàn viên & hội viên', 'Quét QR điểm danh', 'Xem đăng ký, xuất Excel & nhật ký email']
     },
     {
       role: 'STUDENT',

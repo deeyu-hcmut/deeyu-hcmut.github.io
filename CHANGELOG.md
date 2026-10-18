@@ -5,7 +5,10 @@
 ## [Unreleased]
 
 ### Thêm
-- Tài liệu hướng dẫn: GIF + kịch bản clip cho sinh viên, PDF hướng dẫn cho cán bộ (`docs/huong-dan`).
+- Tài liệu hướng dẫn: GIF + kịch bản clip cho sinh viên, PDF hướng dẫn cho cán bộ (`docs/huong-dan`), mục điểm danh QR tách riêng cho máy tính và điện thoại.
+
+### Thay đổi
+- Mọi vai trò cán bộ (kể cả Ban QLNS-CTSV) xem được danh sách đăng ký, xuất Excel và nhật ký email (cần Publish lại `firestore.rules`).
 
 ### Sửa
 - Dòng mô tả trang chủ không còn tràn khỏi màn hình điện thoại.

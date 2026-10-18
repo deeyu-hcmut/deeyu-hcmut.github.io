@@ -28,12 +28,12 @@ Giao diện sáng/tối luôn theo thiết bị. Dùng được trên điện th
 | `role` trong `admins/{email}` | Ban | Quyền chính |
 |---|---|---|
 | `SUPER_ADMIN` | Ban Thường vụ | Toàn quyền, cấp quyền tài khoản, sửa BCH, đăng ký hộ MSSV |
-| `HC_TV` | Ban HC-TV | Sự kiện, danh sách đăng ký, xuất Excel, nhật ký email |
+| `HC_TV` | Ban HC-TV | Tạo / sửa / xoá sự kiện |
 | `TT_SK` | Ban TT-SK | Như HC-TV, thêm tin tức |
 | `QLNS_CTSV` | Ban QLNS-CTSV | BCH & Đội CTV, danh sách sinh viên - Đoàn viên - Hội viên |
 | *(không có trong `admins`)* | Sinh viên | Đăng ký sự kiện, xem vé của mình |
 
-Mọi vai trò cán bộ đều quét được QR. Chỉ tài khoản `@hcmut.edu.vn` đăng nhập được.
+Mọi vai trò cán bộ đều quét được QR, xem danh sách đăng ký, xuất Excel và xem nhật ký email. Chỉ tài khoản `@hcmut.edu.vn` đăng nhập được.
 
 ## Tài liệu hướng dẫn
 
