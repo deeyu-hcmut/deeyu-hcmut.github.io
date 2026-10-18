@@ -140,6 +140,9 @@ function queueReminders() {
         sentAt: now.toISOString(),
         status: 'QUEUED',
         ticketCode: reg.data.ticketCode,
+        eventTitle: e.title,
+        eventWhen: `${e.startTime || ''} ngày ${formatDate(e.eventDate)}`.trim(),
+        location: e.location || '',
       }));
     });
     writes.push(updateWrite(`events/${evt.id}`, { reminderFor: startKey }));
@@ -172,36 +175,85 @@ function sendQueued() {
 // ---------------------------------------------------------------- email content
 
 function confirmationBody(r, event) {
-  const when = event.eventDate ? `${event.startTime || ''} ngày ${formatDate(event.eventDate)}` : '';
-  return `
-    <p>Chào <b>${esc(r.fullName)}</b>,</p>
-    <p>Bạn đã đăng ký thành công sự kiện <b>${esc(r.eventTitle)}</b>.</p>
-    <table cellpadding="4" style="border-collapse:collapse">
-      <tr><td>Mã vé</td><td><b style="font-family:monospace;font-size:16px">#${esc(r.ticketCode)}</b></td></tr>
-      <tr><td>MSSV</td><td>${esc(r.mssv)}</td></tr>
-      ${when ? `<tr><td>Thời gian</td><td>${esc(when)}</td></tr>` : ''}
-      ${event.location ? `<tr><td>Địa điểm</td><td>${esc(event.location)}</td></tr>` : ''}
-    </table>
-    <p>Khi đến sự kiện, hãy mở vé QR trên <a href="${SITE_URL}">${SITE_URL}</a>
-       (mục Tra cứu vé, nhập MSSV) để Ban Tổ chức quét điểm danh.</p>
-    ${footer()}`;
+  const when = event.eventDate ? `${event.startTime || ''} ngày ${formatDate(event.eventDate)}`.trim() : '';
+  return layout(r.fullName, `
+    <p>Đoàn – Hội khoa Điện – Điện tử xin xác nhận bạn đã <b>đăng ký thành công</b> tham gia sự kiện <b>${esc(r.eventTitle)}</b>.
+       Thông tin đăng ký của bạn như sau:</p>
+    ${infoCard([
+      ['Mã vé', `<b style="font-family:monospace;font-size:16px">#${esc(r.ticketCode)}</b>`],
+      ['Họ và tên', esc(r.fullName)],
+      ['MSSV', esc(r.mssv)],
+      ['Thời gian', esc(when)],
+      ['Địa điểm', esc(event.location)],
+    ])}
+    <p>Khi đến sự kiện, bạn vui lòng mở vé QR trên cổng thông tin (mục Tra cứu vé, nhập MSSV) để Ban Tổ chức quét điểm danh.</p>
+    ${button('Xem vé QR của tôi')}
+    <p>Đoàn – Hội khoa Điện – Điện tử tin tưởng rằng sự có mặt của bạn sẽ góp phần làm nên thành công của chương trình.</p>
+    ${contactLine()}`);
 }
 
 function queuedBody(l) {
-  const intro = {
-    ATTENDANCE_SUCCESS: 'Ban Tổ chức đã ghi nhận bạn <b>điểm danh thành công</b>. Cảm ơn bạn đã tham gia!',
-    REMINDER_24H: 'Sự kiện bạn đã đăng ký sẽ diễn ra trong vòng 24 giờ tới. Nhớ mang theo vé QR để điểm danh nhé!',
-  }[l.type] || esc(l.subject);
-  return `
-    <p>Chào <b>${esc(l.recipientName)}</b>,</p>
+  if (l.type === 'REMINDER_24H') {
+    return layout(l.recipientName, `
+      <p>Đoàn – Hội khoa Điện – Điện tử xin nhắc bạn: sự kiện <b>${esc(l.eventTitle || 'bạn đã đăng ký')}</b> sẽ diễn ra
+         trong vòng <b>24 giờ tới</b>.</p>
+      ${infoCard([
+        ['Thời gian', esc(l.eventWhen)],
+        ['Địa điểm', esc(l.location)],
+        ['Mã vé', l.ticketCode ? `<b style="font-family:monospace;font-size:16px">#${esc(l.ticketCode)}</b>` : ''],
+      ])}
+      <p>Bạn vui lòng mang theo vé QR để Ban Tổ chức quét điểm danh.</p>
+      ${button('Xem vé QR của tôi')}
+      ${contactLine()}`);
+  }
+  const intro = l.type === 'ATTENDANCE_SUCCESS'
+    ? 'Ban Tổ chức xin ghi nhận bạn đã <b>điểm danh thành công</b>. Đoàn – Hội khoa Điện – Điện tử chân thành cảm ơn bạn đã tham gia và đồng hành cùng chương trình.'
+    : esc(l.subject);
+  return layout(l.recipientName, `
     <p>${intro}</p>
-    ${l.ticketCode ? `<p>Mã vé: <b style="font-family:monospace">#${esc(l.ticketCode)}</b></p>` : ''}
-    <p>Xem lại vé tại <a href="${SITE_URL}">${SITE_URL}</a>.</p>
-    ${footer()}`;
+    ${infoCard([['Mã vé', l.ticketCode ? `<b style="font-family:monospace;font-size:16px">#${esc(l.ticketCode)}</b>` : '']])}
+    ${button('Xem lại vé tại cổng thông tin')}
+    ${contactLine()}`);
+}
+
+// ---- shared HTML pieces (inline styles only: mail clients ignore <style> blocks)
+
+function layout(name, content) {
+  return `
+  <div style="background:#f1f5f9;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#0f172a;font-size:14px;line-height:1.6">
+    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+      <div style="background:#1d4ed8;color:#ffffff;padding:16px 24px;font-size:15px;font-weight:bold">${esc(SENDER_NAME)}</div>
+      <div style="padding:24px">
+        <p>Thân gửi: <b>${esc(name)}</b>;</p>
+        <p>Lời đầu tiên, Đoàn – Hội khoa Điện – Điện tử xin gửi đến bạn lời chúc sức khỏe và lời chào trân trọng nhất.</p>
+        ${content}
+        <p style="margin-top:24px">Thân ái và quyết thắng./.<br><b>Đoàn – Hội khoa Điện – Điện tử.</b></p>
+      </div>
+      ${footer()}
+    </div>
+  </div>`;
+}
+
+// rows: [label, already-escaped html]; empty values are left out
+function infoCard(rows) {
+  const lines = rows
+    .filter(([, value]) => value)
+    .map(([label, value]) => `<tr><td style="padding:6px 12px;color:#64748b;white-space:nowrap">${label}</td><td style="padding:6px 12px">${value}</td></tr>`);
+  return lines.length
+    ? `<table cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin:12px 0">${lines.join('')}</table>`
+    : '';
+}
+
+function button(label) {
+  return `<p><a href="${SITE_URL}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold;padding:10px 20px;border-radius:8px">${esc(label)}</a></p>`;
+}
+
+function contactLine() {
+  return '<p>Trong trường hợp cần trao đổi thêm, bạn vui lòng liên hệ qua Fanpage chính thức của Đoàn – Hội khoa Điện – Điện tử để được hỗ trợ nhanh chóng. Xin chân thành cảm ơn.</p>';
 }
 
 function footer() {
-  return `<p style="color:#64748b;font-size:12px">Email tự động từ cổng thông tin ${SENDER_NAME} (HCMUT). Vui lòng không trả lời email này.</p>`;
+  return `<div style="padding:12px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px">Email tự động từ cổng thông tin ${esc(SENDER_NAME)} (HCMUT). Vui lòng không trả lời email này.</div>`;
 }
 
 function trySend(to, subject, html) {
