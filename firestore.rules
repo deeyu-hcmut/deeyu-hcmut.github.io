@@ -151,12 +151,13 @@ service cloud.firestore {
         && after.checkedInAt is string && after.checkedInAt.size() <= 40;
     }
 
-    // Registering needs a signed-in @hcmut.edu.vn account
+    // Registering needs a signed-in @hcmut.edu.vn account whose linked student record is this MSSV, so nobody
+    // can register (or fill places) under someone else's MSSV. A Super Admin may register any MSSV.
     function isValidRegistration(regId) {
       let r = request.resource.data;
       let eventPath = /databases/$(database)/documents/events/$(r.eventId);
       let event = get(eventPath).data;
-      return signedIn() && r.keys().hasOnly(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
+      return signedIn() && (ownsMssv(r.mssvKey) || isSuperAdmin()) && r.keys().hasOnly(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
                                'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])
         && r.keys().hasAll(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
                             'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])

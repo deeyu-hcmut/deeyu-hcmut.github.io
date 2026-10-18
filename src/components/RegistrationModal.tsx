@@ -57,15 +57,16 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     setEmail(prev => prev || profile.email || session?.email || '');
   }, [profile?.id, profile?.updatedAt]);
 
-  // Registration needs a signed-in account; an @hcmut.edu.vn student must finish their profile first
-  const isStudentAccount = role === 'STUDENT';
+  // Registration needs a signed-in @hcmut.edu.vn account with a finished student profile, because
+  // firestore.rules only accepts the MSSV linked to that account. Only a Super Admin (no student record) skips it.
+  const needsProfile = role !== 'SUPER_ADMIN';
   const gate: 'signin' | 'hcmut' | 'profile' | null = !FIREBASE_ENABLED
     ? null
     : !session
       ? 'signin'
-      : isStudentAccount && !isHcmutEmail(session.email)
+      : needsProfile && !isHcmutEmail(session.email)
         ? 'hcmut'
-        : isStudentAccount && !profile
+        : needsProfile && !profile
           ? 'profile'
           : null;
   
