@@ -28,6 +28,7 @@ interface StudentPortalLookupProps {
 export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events, initialMssv }) => {
   const [mssvInput, setMssvInput] = useState(initialMssv || '');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<{
     mssv: string;
     studentName: string;
@@ -43,11 +44,14 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
     if (!mssvToSearch.trim()) return;
 
     setLoading(true);
+    setError(null);
     try {
       const res = await api.lookupStudent(mssvToSearch.trim());
       setData(res);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to lookup student', err);
+      setData(null);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -100,7 +104,7 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
             TRA CỨU HOẠT ĐỘNG & VÉ ĐIỆN TỬ
           </h2>
           <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-            Nhập Mã số sinh viên (MSSV) để kiểm tra danh sách sự kiện đã đăng ký tham gia, lịch sử điểm danh và xem lại các mã vé QR.
+            Đăng nhập bằng tài khoản @hcmut.edu.vn đã liên kết MSSV để kiểm tra danh sách sự kiện đã đăng ký tham gia, lịch sử điểm danh và xem lại các mã vé QR của bạn.
           </p>
         </div>
 
@@ -130,6 +134,13 @@ export const StudentPortalLookup: React.FC<StudentPortalLookupProps> = ({ events
             </button>
           </div>
         </div>
+
+        {error && (
+          <div role="alert" className="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-400/30 text-sm font-semibold text-rose-800 dark:text-rose-200 flex items-start space-x-2">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
 
         {/* Results Card */}
         {data && (

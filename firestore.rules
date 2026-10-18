@@ -26,6 +26,16 @@ service cloud.firestore {
     function canManageMembers() { return hasRole(['SUPER_ADMIN', 'QLNS_CTSV']); }
     function isSuperAdmin() { return hasRole(['SUPER_ADMIN']); }
 
+    function memberPath(mssvKey) {
+      return /databases/$(database)/documents/members/$(mssvKey);
+    }
+
+    // The signed-in account is the one linked to this MSSV's student record (first sign-in profile form)
+    function ownsMssv(mssvKey) {
+      return signedIn() && exists(memberPath(mssvKey))
+        && get(memberPath(mssvKey)).data.get('accountEmail', '') == request.auth.token.email;
+    }
+
     function registrationPath(regId) {
       return /databases/$(database)/documents/registrations/$(regId);
     }
@@ -117,9 +127,12 @@ service cloud.firestore {
     }
 
     // registrations/{eventId}_{mssvKey}: the ticket, without contact details.
-    // `get` is public (duplicate check, MSSV lookup); listing everything is staff only.
+    // `get` is for staff and the student the ticket belongs to (account linked to that MSSV); the
+    // ticket code is the check-in credential, so it must not be readable by anyone who guesses an MSSV.
+    // A missing document is readable, which is what the duplicate check in registerEvent needs.
+    // Listing everything is staff only.
     match /registrations/{regId} {
-      allow get: if true;
+      allow get: if resource == null || isStaff() || ownsMssv(resource.data.mssvKey);
       allow list: if isStaff();
       allow update, delete: if canManageEvents();
       allow update: if isStaff() && isCheckInUpdate();
@@ -175,9 +188,9 @@ service cloud.firestore {
         && createsRegistration(regId);
     }
 
-    // students/{mssvKey}: which events an MSSV registered for, used by the public lookup.
+    // students/{mssvKey}: which events an MSSV registered for, used by the ticket lookup (the student's own account or staff).
     match /students/{mssvKey} {
-      allow get: if true;
+      allow get: if isStaff() || ownsMssv(mssvKey);
       allow list, delete: if canManageEvents();
       allow create: if isStudentIndexWrite(mssvKey, []);
       allow update: if canManageEvents() || isStudentIndexWrite(mssvKey, resource.data.eventIds);

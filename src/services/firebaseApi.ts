@@ -1,5 +1,6 @@
 import {
   arrayRemove,
+  arrayUnion,
   collection,
   doc,
   getDoc,
@@ -60,9 +61,9 @@ import { STAFF_ROLES, normalizeRole } from '../utils/roles';
  *   events/{eventId}                   public read; staff write; public +1 on registration
  *   news/{newsId}                      public read; news staff write
  *   bch/{memberId}                     public read; Super Admin / Ban QLNS-CTSV write; `order` sorts the cards
- *   registrations/{eventId}_{mssvKey}  ticket without contact info; public get, staff list/update
+ *   registrations/{eventId}_{mssvKey}  ticket without contact info; get by staff or the student's linked account, staff list/update
  *   registrationContacts/{same id}     email/phone/note; staff only
- *   students/{mssvKey}                 { eventIds } index for the public MSSV lookup
+ *   students/{mssvKey}                 { eventIds } index for the student's ticket lookup
  *   notifications/{id}                 public read; staff write
  *   emailLogs/{id}                     event staff read; any staff adds on check-in
  *   members/{mssvKey}                  student / Đoàn viên / Hội viên records; Ban QLNS-CTSV, plus the
@@ -351,7 +352,14 @@ const rawFirebaseApi: Api = {
     const studentRef = doc(db, 'students', mssvKey);
 
     const result = await runTransaction(db, async tx => {
-      const [eventSnap, regSnap, studentSnap] = await Promise.all([tx.get(eventRef), tx.get(regRef), tx.get(studentRef)]);
+      // Tickets are readable only by their owner and staff: a denied read of this id means it already exists
+      const readRegistration = tx.get(regRef).catch(err => {
+        if ((err as { code?: string }).code === 'permission-denied') {
+          throw new Error(`MSSV ${mssv} đã đăng ký sự kiện này trước đó.`);
+        }
+        throw err;
+      });
+      const [eventSnap, regSnap] = await Promise.all([tx.get(eventRef), readRegistration]);
       if (!eventSnap.exists()) throw new Error('Sự kiện không tồn tại');
       const event = withId<StoredEvent>(eventSnap);
       if (!isRegistrationOpen(event)) throw new Error('Sự kiện hiện không mở đăng ký hoặc đã quá hạn đăng ký');
@@ -375,18 +383,15 @@ const rawFirebaseApi: Api = {
       const contact: ContactInfo = { email: data.email.trim(), phone: data.phone.trim(), note: data.note?.trim() || '' };
       const currentParticipants = event.currentParticipants + 1;
       const status = currentParticipants >= event.maxParticipants ? 'REGISTRATION_CLOSED' : event.status;
-      const previousEventIds: string[] = studentSnap.exists() ? studentSnap.data().eventIds ?? [] : [];
-
       tx.set(regRef, ticket);
       tx.set(doc(db, 'registrationContacts', regId), contact);
       tx.update(eventRef, { currentParticipants, status, lastRegistrationId: regId });
-      tx.set(studentRef, {
-        mssv,
-        fullName: ticket.fullName,
-        classGroup: ticket.classGroup,
-        eventIds: [...previousEventIds, eventId],
-        lastEventId: eventId,
-      });
+      // merge + arrayUnion: the index is never read here (students/{mssv} is readable only by its owner)
+      tx.set(
+        studentRef,
+        { mssv, fullName: ticket.fullName, classGroup: ticket.classGroup, eventIds: arrayUnion(eventId), lastEventId: eventId },
+        { merge: true }
+      );
 
       return {
         registration: toRecord(regId, ticket, contact),
@@ -445,9 +450,15 @@ const rawFirebaseApi: Api = {
 
   lookupStudent: async mssv => {
     const mssvKey = mssvKeyOf(mssv);
-    const studentSnap = mssvKey ? await getDoc(doc(db, 'students', mssvKey)) : null;
-    const eventIds: string[] = studentSnap?.exists() ? studentSnap.data().eventIds ?? [] : [];
-    const snaps = await Promise.all(eventIds.map(id => getDoc(doc(db, 'registrations', `${id}_${mssvKey}`))));
+    let snaps: DocumentSnapshot[];
+    try {
+      const studentSnap = mssvKey ? await getDoc(doc(db, 'students', mssvKey)) : null;
+      const eventIds: string[] = studentSnap?.exists() ? studentSnap.data().eventIds ?? [] : [];
+      snaps = await Promise.all(eventIds.map(id => getDoc(doc(db, 'registrations', `${id}_${mssvKey}`))));
+    } catch (err) {
+      if ((err as { code?: string }).code === 'permission-denied') throw new Error(NOT_YOUR_TICKETS);
+      throw err;
+    }
     // Contact details are staff-only, so lookup results carry no email/phone
     const history = snaps.filter(s => s.exists()).map(s => toRecord(s.id, s.data()!));
 
@@ -652,6 +663,9 @@ async function callMembersSheet<T>(body: Record<string, unknown>): Promise<T> {
   if (data.error) throw new Error(data.error);
   return data as T;
 }
+
+const NOT_YOUR_TICKETS =
+  'Bạn chỉ xem được vé của chính mình. Hãy đăng nhập bằng tài khoản @hcmut.edu.vn đã liên kết với MSSV này (mục Hồ sơ sinh viên).';
 
 const NOT_IN_LIST = 'MSSV này chưa có trong danh sách sinh viên của khoa. Liên hệ Ban QLNS-CTSV để được bổ sung.';
 const LINKED_ELSEWHERE =
