@@ -133,17 +133,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <img
               src={`${import.meta.env.BASE_URL}logo.png`}
-              alt="Logo Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử"
+              alt="Logo Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử HCMUT"
               width={48}
               height={48}
               className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 motion-safe:group-hover:animate-wiggle"
             />
-            <div className="flex items-center space-x-2 min-w-0">
-              <span title="Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử" className="truncate font-tech text-[13px] sm:text-base font-extrabold leading-tight tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
-                Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử
-              </span>
-              <span className="hidden xl:inline px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-400/30">
-                HCMUT
+            <div className="min-w-0">
+              <span title="Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử HCMUT" className="line-clamp-2 font-tech text-[13px] sm:text-base font-extrabold leading-tight tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
+                Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử HCMUT
               </span>
             </div>
           </div>
