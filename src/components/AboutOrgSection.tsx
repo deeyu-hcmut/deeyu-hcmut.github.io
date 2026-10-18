@@ -14,10 +14,11 @@ const ORG_TABS: { id: BchOrganization; label: string }[] = [
   { id: 'DOI_CTV', label: 'Đội CTV Đoàn - Hội' },
 ];
 
-const MemberCard: React.FC<{ member: BCHMember }> = ({ member }) => (
-  <div className="rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-6 hover:border-blue-400/60 dark:hover:border-blue-400/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden shadow-xs flex flex-col justify-between">
+// `compact` (Ủy viên) is about half as wide as a full card: stacked layout, no bio
+const MemberCard: React.FC<{ member: BCHMember; compact?: boolean }> = ({ member, compact = false }) => (
+  <div className={`rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 ${compact ? 'p-3.5' : 'p-6'} h-full w-full hover:border-blue-400/60 dark:hover:border-blue-400/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden shadow-xs flex flex-col justify-between`}>
     <div>
-      <div className="flex items-start space-x-4">
+      <div className={compact ? 'flex flex-col items-center text-center gap-2' : 'flex items-start space-x-4'}>
         <div className="relative flex-shrink-0">
           {member.avatarUrl ? (
             <img
@@ -26,10 +27,10 @@ const MemberCard: React.FC<{ member: BCHMember }> = ({ member }) => (
               referrerPolicy="no-referrer"
               loading="lazy"
               decoding="async"
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-blue-200 dark:border-blue-400/30 group-hover:border-blue-500 transition-colors"
+              className={`${compact ? 'w-12 h-12' : 'w-16 h-16'} rounded-2xl object-cover border-2 border-blue-200 dark:border-blue-400/30 group-hover:border-blue-500 transition-colors`}
             />
           ) : (
-            <span className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-400 flex items-center justify-center border-2 border-blue-200 dark:border-blue-400/30">
+            <span className={`${compact ? 'w-12 h-12' : 'w-16 h-16'} rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-400 flex items-center justify-center border-2 border-blue-200 dark:border-blue-400/30`}>
               <UserRound className="w-7 h-7" />
             </span>
           )}
@@ -38,15 +39,15 @@ const MemberCard: React.FC<{ member: BCHMember }> = ({ member }) => (
           </span>
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className={`min-w-0 ${compact ? 'w-full' : 'flex-1'}`}>
           {member.department && (
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-2 ${compact ? 'justify-center' : ''}`}>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-400/30">
                 {member.department}
               </span>
             </div>
           )}
-          <h4 className="font-tech text-base font-bold text-slate-900 dark:text-slate-100 mt-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors truncate">
+          <h4 className={`font-tech font-bold text-slate-900 dark:text-slate-100 mt-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors ${compact ? 'text-sm break-words' : 'text-base truncate'}`}>
             {member.name}
           </h4>
           <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 mt-0.5">
@@ -60,7 +61,7 @@ const MemberCard: React.FC<{ member: BCHMember }> = ({ member }) => (
         </div>
       </div>
 
-      {member.bio && (
+      {member.bio && !compact && (
         <p className="mt-4 text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50/80 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/80">
           {member.bio}
         </p>
@@ -69,7 +70,7 @@ const MemberCard: React.FC<{ member: BCHMember }> = ({ member }) => (
 
     {/* Only the email is public; phone numbers are not published */}
     {member.email && (
-      <div className="mt-5 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400">
+      <div className={`${compact ? 'mt-3 pt-2.5' : 'mt-5 pt-3.5'} border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400`}>
         <a
           href={`mailto:${member.email}`}
           className="flex items-center space-x-1.5 hover:text-blue-600 dark:hover:text-blue-300 transition-colors min-w-0"
@@ -82,9 +83,17 @@ const MemberCard: React.FC<{ member: BCHMember }> = ({ member }) => (
   </div>
 );
 
-const MemberGrid: React.FC<{ members: BCHMember[] }> = ({ members }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {members.map(member => <MemberCard key={member.id} member={member} />)}
+// Rows are centred, so one Bí thư or fewer than three Phó sit in the middle at the same card width as a full row
+const FULL_WIDTH = 'w-full md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]';
+const COMPACT_WIDTH = 'w-[calc((100%-1.5rem)/2)] md:w-[calc((100%-4.5rem)/4)] lg:w-[calc((100%-7.5rem)/6)]';
+
+const MemberGrid: React.FC<{ members: BCHMember[]; compact?: boolean }> = ({ members, compact = false }) => (
+  <div className="flex flex-wrap justify-center gap-6">
+    {members.map(member => (
+      <div key={member.id} className={compact ? COMPACT_WIDTH : FULL_WIDTH}>
+        <MemberCard member={member} compact={compact} />
+      </div>
+    ))}
   </div>
 );
 
@@ -168,29 +177,29 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
             <div className="space-y-12">
               {biThu.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('BI_THU', selectedOrgFilter)}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4 text-center">{bchLevelLabel('BI_THU', selectedOrgFilter)}</h3>
                   <MemberGrid members={biThu} />
                 </div>
               )}
               {phoBiThu.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('PHO_BI_THU', selectedOrgFilter)}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4 text-center">{bchLevelLabel('PHO_BI_THU', selectedOrgFilter)}</h3>
                   <MemberGrid members={phoBiThu} />
                 </div>
               )}
               {uyVienBtv.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('UY_VIEN_BTV', selectedOrgFilter)}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4 text-center">{bchLevelLabel('UY_VIEN_BTV', selectedOrgFilter)}</h3>
                   <MemberGrid members={uyVienBtv} />
                 </div>
               )}
               {banGroups.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">Trưởng, Phó ban</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4 text-center">Trưởng, Phó ban</h3>
                   <div className="space-y-8">
                     {banGroups.map(group => (
                       <div key={group.department}>
-                        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3">{group.department}</h4>
+                        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3 text-center">{group.department}</h4>
                         <MemberGrid members={group.members} />
                       </div>
                     ))}
@@ -199,8 +208,8 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
               )}
               {uyVien.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4">{bchLevelLabel('UY_VIEN', selectedOrgFilter)}</h3>
-                  <MemberGrid members={uyVien} />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-4 text-center">{bchLevelLabel('UY_VIEN', selectedOrgFilter)}</h3>
+                  <MemberGrid members={uyVien} compact />
                 </div>
               )}
             </div>
