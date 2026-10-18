@@ -50,6 +50,7 @@ import {
   buildBch,
   normalizeStaffEmail,
   buildStudentProfile,
+  emailSubject,
 } from './shared';
 import { normalizeKey } from '../utils/excel';
 import { STAFF_ROLES, normalizeRole } from '../utils/roles';
@@ -423,7 +424,7 @@ const rawFirebaseApi: Api = {
       batch.set(doc(collection(db, 'emailLogs')), {
         recipientEmail: contact.email,
         recipientName: data.fullName,
-        subject: '[Đoàn - Hội Khoa Điện - Điện tử] Ghi nhận Điểm danh tham dự thành công',
+        subject: emailSubject(`Xác nhận điểm danh tham dự sự kiện: ${data.eventTitle}`),
         type: 'ATTENDANCE_SUCCESS',
         sentAt: checkedInAt,
         status: 'QUEUED',

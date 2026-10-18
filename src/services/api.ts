@@ -23,6 +23,7 @@ import {
   buildBch,
   normalizeStaffEmail,
   buildStudentProfile,
+  emailSubject,
   type MemberInput,
   type BchInput
 } from './shared';
@@ -214,7 +215,7 @@ const clientStorage = {
       id: `email-${Date.now()}`,
       recipientEmail: newRecord.email,
       recipientName: newRecord.fullName,
-      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký "${event.title}" - Mã vé QR: ${ticketCode}`,
+      subject: emailSubject(`Xác nhận đăng ký sự kiện: ${event.title}`),
       type: 'REGISTRATION_CONFIRMATION',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',
@@ -271,7 +272,7 @@ const clientStorage = {
       id: `email-${Date.now()}`,
       recipientEmail: target.email,
       recipientName: target.fullName,
-      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Ghi nhận Điểm danh tham dự thành công`,
+      subject: emailSubject('Xác nhận điểm danh tham dự sự kiện'),
       type: 'ATTENDANCE_SUCCESS',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',

@@ -271,3 +271,7 @@ export function filterRegistrations(records: RegistrationRecord[], eventId?: str
 
 // Only the newest posts are read up front; older ones load on demand (Firestore free-plan reads).
 export const NEWS_PAGE = 10;
+
+// Subject of every automatic email: "[ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ] NỘI DUNG IN HOA".
+// Keep in sync with subjectOf in tools/google-sheet-sync/email/Code.gs.
+export const emailSubject = (content: string) => `[ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ] ${content.toUpperCase()}`;

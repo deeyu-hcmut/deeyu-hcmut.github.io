@@ -16,6 +16,8 @@
 const PROJECT_ID = 'deeyu-hcmut';
 const SITE_URL = 'https://deeyu-hcmut.github.io/';
 const SENDER_NAME = 'Đoàn - Hội Khoa Điện - Điện tử';
+// Subject of every email: "[ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ] NỘI DUNG IN HOA" (keep in sync with emailSubject in src/services/shared.ts)
+const subjectOf = content => `[ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ] ${content.toUpperCase()}`;
 const RUN_EVERY_MINUTES = 5;
 // Each run reads at most this many records per step; the rest wait for the next run
 const BATCH = 50;
@@ -54,7 +56,7 @@ function guiThuMau() {
   const reg = { fullName: 'Nguyễn Văn A', eventTitle: 'Sự kiện mẫu', ticketCode: 'MAU-123456', mssv: '2310000' };
   const event = { eventDate: '2027-03-31', startTime: '08:00', location: 'Sảnh BK.B6' };
   const qr = qrImages(reg.ticketCode);
-  send(me, `[${SENDER_NAME}] Xác nhận đăng ký: ${reg.eventTitle}`, confirmationBody(reg, event, Boolean(qr.qr)), qr);
+  send(me, subjectOf(`Xác nhận đăng ký sự kiện: ${reg.eventTitle}`), confirmationBody(reg, event, Boolean(qr.qr)), qr);
   console.log(`Đã gửi email mẫu tới ${me}.`);
 }
 
@@ -104,7 +106,7 @@ function sendRegistrationConfirmations() {
     const contact = getDoc(`registrationContacts/${reg.id}`);
     if (contact && contact.email) {
       const event = events[r.eventId] || (events[r.eventId] = getDoc(`events/${r.eventId}`) || {});
-      const subject = `[${SENDER_NAME}] Xác nhận đăng ký: ${r.eventTitle}`;
+      const subject = subjectOf(`Xác nhận đăng ký sự kiện: ${r.eventTitle}`);
       const qr = qrImages(r.ticketCode);
       const ok = trySend(contact.email, subject, confirmationBody(r, event, Boolean(qr.qr)), qr);
       logs.push(createWrite('emailLogs', {
@@ -156,7 +158,7 @@ function queueReminders() {
       writes.push(createWrite('emailLogs', {
         recipientEmail: contact.email,
         recipientName: reg.data.fullName,
-        subject: `[Nhắc nhở 24h] Sự kiện "${e.title}" sắp diễn ra tại ${e.location}`,
+        subject: subjectOf(`Nhắc nhở sự kiện sắp diễn ra trong 24h: ${e.title}`),
         type: 'REMINDER_24H',
         sentAt: now.toISOString(),
         status: 'QUEUED',

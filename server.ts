@@ -9,7 +9,7 @@ import {
   INITIAL_NOTIFICATIONS, 
   INITIAL_STATS 
 } from './src/data/mockData.ts';
-import { EDITABLE_EVENT_FIELDS, EDITABLE_NEWS_FIELDS, pickFields } from './src/services/shared.ts';
+import { EDITABLE_EVENT_FIELDS, EDITABLE_NEWS_FIELDS, pickFields, emailSubject } from './src/services/shared.ts';
 import { EventItem, NewsItem, RegistrationRecord, NotificationItem, EmailDispatchLog } from './src/types/index.ts';
 
 async function startServer() {
@@ -28,7 +28,7 @@ async function startServer() {
       id: 'email-001',
       recipientEmail: '2211001@student.university.edu.vn',
       recipientName: 'Nguyễn Văn An',
-      subject: '[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký EE TECH DAY 2026 kèm Vé Điện Tử QR',
+      subject: emailSubject('Xác nhận đăng ký sự kiện: EE TECH DAY 2026'),
       type: 'REGISTRATION_CONFIRMATION',
       sentAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
       status: 'DELIVERED',
@@ -38,7 +38,7 @@ async function startServer() {
       id: 'email-002',
       recipientEmail: '2111054@student.university.edu.vn',
       recipientName: 'Lê Quang Minh',
-      subject: '[Đoàn - Hội Khoa Điện - Điện tử] Nhắc nhở: Hội thảo Thiết kế Vi mạch Bán dẫn VLSI diễn ra ngày mai',
+      subject: emailSubject('Nhắc nhở sự kiện sắp diễn ra trong 24h: Hội thảo Thiết kế Vi mạch Bán dẫn VLSI'),
       type: 'REMINDER_24H',
       sentAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
       status: 'DELIVERED',
@@ -260,7 +260,7 @@ async function startServer() {
       id: `email-${Date.now()}`,
       recipientEmail: newRecord.email,
       recipientName: newRecord.fullName,
-      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Xác nhận đăng ký "${event.title}" - Mã vé QR: ${ticketCode}`,
+      subject: emailSubject(`Xác nhận đăng ký sự kiện: ${event.title}`),
       type: 'REGISTRATION_CONFIRMATION',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',
@@ -324,7 +324,7 @@ async function startServer() {
       id: `email-${Date.now()}`,
       recipientEmail: target.email,
       recipientName: target.fullName,
-      subject: `[Đoàn - Hội Khoa Điện - Điện tử] Ghi nhận Điểm danh tham dự thành công`,
+      subject: emailSubject('Xác nhận điểm danh tham dự sự kiện'),
       type: 'ATTENDANCE_SUCCESS',
       sentAt: new Date().toISOString(),
       status: 'DELIVERED',
