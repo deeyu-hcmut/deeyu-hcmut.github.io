@@ -64,10 +64,20 @@ function guiEmail() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return;
   try {
-    const confirmed = sendRegistrationConfirmations();
-    const reminders = queueReminders();
-    const queued = sendQueued();
-    console.log(`Xác nhận đăng ký: ${confirmed}. Xếp nhắc 24h: ${reminders}. Email chờ gửi: ${queued}. Còn ${MailApp.getRemainingDailyQuota()} email hôm nay.`);
+    // One failing step must not stop the others (e.g. a reminder error would hold back every queued email)
+    const results = [
+      ['Xác nhận đăng ký', sendRegistrationConfirmations],
+      ['Xếp nhắc 24h', queueReminders],
+      ['Email chờ gửi', sendQueued],
+    ].map(([label, step]) => {
+      try {
+        return `${label}: ${step()}`;
+      } catch (err) {
+        console.error(`${label} lỗi: ${err}`);
+        return `${label}: LỖI`;
+      }
+    });
+    console.log(`${results.join('. ')}. Còn ${MailApp.getRemainingDailyQuota()} email hôm nay.`);
   } finally {
     lock.releaseLock();
   }
