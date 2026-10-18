@@ -9,9 +9,11 @@ import {
   orderBy,
   query,
   runTransaction,
+  startAfter,
   where,
   writeBatch,
   type DocumentSnapshot,
+  type QueryConstraint,
   type QueryDocumentSnapshot,
   type WriteBatch,
 } from 'firebase/firestore/lite';
@@ -36,6 +38,7 @@ import {
   buildEvent,
   buildNews,
   buildStats,
+  NEWS_PAGE,
   filterEvents,
   filterNews,
   filterRegistrations,
@@ -125,20 +128,26 @@ const persistKey = (name: string) => `fee_cache_${name}`;
 function cachedList<T>(name: string, load: () => Promise<T[]>, persist = false, ttl = LIST_CACHE_MS): Promise<T[]> {
   const hit = listCache.get(name);
   if (hit && Date.now() - hit.at < ttl) return hit.promise as Promise<T[]>;
+  let stored: { at: number; data: T[] } | null = null;
   if (persist) {
     try {
-      const stored = JSON.parse(localStorage.getItem(persistKey(name)) || 'null') as { at: number; data: T[] } | null;
-      if (stored && Date.now() - stored.at < PERSIST_MS) {
-        const promise = Promise.resolve(stored.data);
-        listCache.set(name, { at: Date.now(), promise });
-        return promise;
-      }
+      stored = JSON.parse(localStorage.getItem(persistKey(name)) || 'null');
     } catch {
       // ignore: storage blocked or corrupt, fall through to Firestore
     }
+    if (stored && Date.now() - stored.at < PERSIST_MS) {
+      const promise = Promise.resolve(stored.data);
+      listCache.set(name, { at: Date.now(), promise });
+      return promise;
+    }
   }
-  const promise = load().then(data => {
-    if (persist) {
+  const expired = stored;
+  const promise = load().catch(err => {
+    // Daily quota used up or offline: an out-of-date copy beats an empty page
+    if (expired) return expired.data;
+    throw err;
+  }).then(data => {
+    if (persist && data !== expired?.data) {
       try {
         localStorage.setItem(persistKey(name), JSON.stringify({ at: Date.now(), data }));
       } catch {
@@ -181,11 +190,12 @@ function nextOrder(list: StoredBch[]): number {
   return list.reduce((max, m) => Math.max(max, m.order ?? 0), -1) + 1;
 }
 
-const loadNews = () =>
-  cachedList('news', async () =>
-    (await getDocs(query(collection(db, 'news'), orderBy('publishedAt', 'desc')))).docs.map(d => withId<NewsItem>(d)),
-    true
+const newsPage = (...constraints: QueryConstraint[]) =>
+  getDocs(query(collection(db, 'news'), orderBy('publishedAt', 'desc'), ...constraints, limit(NEWS_PAGE))).then(snap =>
+    snap.docs.map(d => withId<NewsItem>(d))
   );
+
+const loadNews = () => cachedList('news', () => newsPage(), true);
 
 // With ids, reads only those contacts instead of every contact of every event
 async function loadContacts(ids?: string[]): Promise<Map<string, ContactInfo>> {
@@ -223,6 +233,8 @@ const rawFirebaseApi: Api = {
   },
 
   getNews: async (category, search) => filterNews(await loadNews(), category, search),
+
+  getOlderNews: (before) => newsPage(startAfter(before)),
 
   createNews: async newsData => {
     const ref = doc(collection(db, 'news'));

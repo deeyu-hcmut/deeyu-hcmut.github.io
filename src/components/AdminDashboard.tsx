@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { 
   ShieldCheck, 
   Users, 
@@ -70,7 +70,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [requestedTab, setActiveTab] = useState<AdminTab>(visibleTabs[0]);
   // Falls back when the role changes (demo role switcher) and hides the current tab
   const activeTab = visibleTabs.includes(requestedTab) ? requestedTab : visibleTabs[0];
-  const [selectedEventId, setSelectedEventId] = useState<string>('ALL');
+  // Newest event first: "all events" reads every ticket and contact, so it is opt-in
+  const [selectedEventId, setSelectedEventId] = useState<string>(events[0]?.id ?? 'ALL');
+  const pickedAll = useRef(false);
+  useEffect(() => {
+    if (selectedEventId === 'ALL' && !pickedAll.current && events[0]) setSelectedEventId(events[0].id);
+  }, [events]);
   const [searchQuery, setSearchQuery] = useState('');
   const [registrations, setRegistrations] = useState<RegistrationRecord[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailDispatchLog[]>([]);
@@ -103,7 +108,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   useEffect(() => {
-    if (activeTab === 'REGISTRATIONS') loadData();
+    // Wait for the events: until the default event is picked, "ALL" would read every ticket
+    if (activeTab === 'REGISTRATIONS' && events.length) loadData();
   }, [selectedEventId, eventAccess, activeTab]);
 
   useEffect(() => {
@@ -318,7 +324,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {/* Event Select */}
                 <select
                   value={selectedEventId}
-                  onChange={(e) => setSelectedEventId(e.target.value)}
+                  onChange={(e) => { pickedAll.current = e.target.value === 'ALL'; setSelectedEventId(e.target.value); }}
                   className="w-full sm:w-64 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="ALL">Tất cả sự kiện</option>

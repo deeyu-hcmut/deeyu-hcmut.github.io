@@ -27,7 +27,7 @@ import { api } from './services/api';
 import { FIREBASE_ENABLED } from './services/firebaseConfig';
 import type { StaffSession } from './services/auth';
 import { canCheckIn } from './utils/roles';
-import { isHcmutEmail } from './services/shared';
+import { isHcmutEmail, NEWS_PAGE } from './services/shared';
 import { SessionContext } from './session';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
@@ -178,6 +178,7 @@ export default function App() {
   // Data States
   const [events, setEvents] = useState<EventItem[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
+  const [hasMoreNews, setHasMoreNews] = useState(false);
   const [bchMembers, setBchMembers] = useState<BCHMember[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -203,6 +204,7 @@ export default function App() {
       ]);
       setEvents(eventsData);
       setNews(newsData);
+      setHasMoreNews(FIREBASE_ENABLED && newsData.length >= NEWS_PAGE);
       setBchMembers(bchData);
     } catch (err) {
       console.error('Initial data fetch failed', err);
@@ -223,6 +225,12 @@ export default function App() {
 
   const handleCheckInSuccess = (record: RegistrationRecord) => {
     showToast(`Đã điểm danh cho sinh viên ${record.fullName}!`);
+  };
+
+  const handleLoadMoreNews = async () => {
+    const older = await api.getOlderNews(news[news.length - 1].publishedAt);
+    setNews(prev => [...prev, ...older]);
+    setHasMoreNews(older.length >= NEWS_PAGE);
   };
 
   const handleCreateNews = async (newsItem: Partial<NewsItem>) => {
@@ -390,7 +398,7 @@ export default function App() {
                     onClick={() => setActiveTab('news')}
                     className="self-start sm:self-auto text-sm font-bold text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 flex items-center space-x-2 cursor-pointer bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-blue-400/50 transition-all"
                   >
-                    <span>Xem tất cả tin tức ({news.length})</span>
+                    <span>Xem tất cả tin tức ({news.length}{hasMoreNews ? '+' : ''})</span>
                     <span>→</span>
                   </button>
                 </div>
@@ -429,6 +437,8 @@ export default function App() {
         {activeTab === 'news' && (
           <NewsFeed
             newsList={news}
+            hasMore={hasMoreNews}
+            onLoadMore={handleLoadMoreNews}
             currentRole={currentRole}
             onCreateNews={handleCreateNews}
             onUpdateNews={handleUpdateNews}

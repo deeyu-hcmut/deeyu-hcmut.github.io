@@ -268,3 +268,6 @@ export function filterRegistrations(records: RegistrationRecord[], eventId?: str
   }
   return result;
 }
+
+// Only the newest posts are read up front; older ones load on demand (Firestore free-plan reads).
+export const NEWS_PAGE = 10;

@@ -28,6 +28,8 @@ interface NewsFeedProps {
   onUpdateNews: (newsId: string, patch: Partial<NewsItem>) => Promise<void>;
   onDeleteNews: (item: NewsItem) => Promise<void>;
   isCompact?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => Promise<void>;
 }
 
 export const NewsFeed: React.FC<NewsFeedProps> = ({
@@ -36,8 +38,12 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
   onCreateNews,
   onUpdateNews,
   onDeleteNews,
-  isCompact = false
+  isCompact = false,
+  hasMore = false,
+  onLoadMore
 }) => {
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreError, setMoreError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -491,6 +497,30 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({
                 </div>
               </article>
             ))}
+          </div>
+        )}
+
+        {hasMore && onLoadMore && !isCompact && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={async () => {
+                setLoadingMore(true);
+                setMoreError(false);
+                try {
+                  await onLoadMore();
+                } catch {
+                  setMoreError(true);
+                } finally {
+                  setLoadingMore(false);
+                }
+              }}
+              disabled={loadingMore}
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400/50 disabled:opacity-60 cursor-pointer"
+            >
+              {loadingMore && <RefreshCw className="w-4 h-4 animate-spin" />}
+              <span>{loadingMore ? 'Đang tải…' : 'Xem thêm tin cũ hơn'}</span>
+            </button>
+            {moreError && <p className="mt-2 text-xs text-rose-600 dark:text-rose-300">Không tải được tin cũ, vui lòng thử lại.</p>}
           </div>
         )}
       </div>

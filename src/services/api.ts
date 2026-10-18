@@ -427,6 +427,9 @@ const localApi = {
     return (await fetchApi<NewsItem[]>(`/api/news?${params.toString()}`)) ?? clientStorage.getNews(category, search);
   },
 
+  // Demo mode loads every post at once, so there is nothing older to fetch
+  getOlderNews: async (_before: string): Promise<NewsItem[]> => [],
+
   createNews: async (newsData: Partial<NewsItem>): Promise<NewsItem> =>
     (await fetchApi<NewsItem>('/api/news', postJson(newsData))) ?? clientStorage.createNews(newsData),
 
