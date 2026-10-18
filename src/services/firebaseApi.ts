@@ -125,6 +125,9 @@ const REGISTRATIONS_CACHE_MS = 2 * 60_000;
 // Public lists are also kept in localStorage, so reloads and repeat visits within PERSIST_MS
 // cost no reads (the free plan allows 50,000 reads a day for the whole site).
 const PERSIST_MS = 15 * 60_000;
+// Events and news change often and people expect to see them soon. The cache is per browser, so a
+// shorter life only costs returning visitors, not first-time ones.
+const FRESH_PERSIST_MS: Record<string, number> = { events: 3 * 60_000, news: 3 * 60_000 };
 const persistKey = (name: string) => `fee_cache_${name}`;
 
 function cachedList<T>(name: string, load: () => Promise<T[]>, persist = false, ttl = LIST_CACHE_MS): Promise<T[]> {
@@ -137,7 +140,7 @@ function cachedList<T>(name: string, load: () => Promise<T[]>, persist = false, 
     } catch {
       // ignore: storage blocked or corrupt, fall through to Firestore
     }
-    if (stored && Date.now() - stored.at < PERSIST_MS) {
+    if (stored && Date.now() - stored.at < (FRESH_PERSIST_MS[name] ?? PERSIST_MS)) {
       const promise = Promise.resolve(stored.data);
       listCache.set(name, { at: Date.now(), promise });
       return promise;
