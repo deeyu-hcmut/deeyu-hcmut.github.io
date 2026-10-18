@@ -534,8 +534,8 @@ export default function App() {
                   Đoàn Thanh niên - Hội sinh viên<br />khoa Điện - Điện tử
                 </span>
               </div>
-              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-sm">
-                Cổng thông tin chính thức của Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-md">
+                Cổng thông tin chính thức của<br />Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử
               </p>
             </div>
 
@@ -603,7 +603,7 @@ export default function App() {
               <h4 className="font-tech text-xs font-bold uppercase tracking-wider text-white mb-4 leading-relaxed">
                 Đội Cộng tác viên Đoàn - Hội<br className="hidden sm:inline" /> khoa Điện - Điện tử
               </h4>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed text-justify">
                 Đồng hành cùng Ban Chấp hành Đoàn - Hội tổ chức sự kiện, làm truyền thông và hỗ trợ sinh viên toàn khoa.
               </p>
             </div>
