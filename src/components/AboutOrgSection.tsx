@@ -114,13 +114,14 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
   // Trưởng ban and Phó ban are grouped together, by the specific ban they lead,
   // not lumped into one flat "Trưởng/Phó ban" list.
   const banDeptOf = (m: BCHMember) => canonicalizeDepartment(m.department || 'Khác') || 'Khác';
-  const banLeaders = [...byLevel('TRUONG_BAN'), ...byLevel('PHO_BAN')];
-  const departments = Array.from(new Set(banLeaders.map(banDeptOf))).sort((a, b) => a.localeCompare(b, 'vi'));
+  const truongBan = byLevel('TRUONG_BAN');
+  const phoBan = byLevel('PHO_BAN');
+  const departments = Array.from(new Set([...truongBan, ...phoBan].map(banDeptOf))).sort((a, b) => a.localeCompare(b, 'vi'));
+  // Trưởng ban on their own row above the Phó ban, same card size
   const banGroups = departments.map(department => ({
     department,
-    members: banLeaders
-      .filter(m => banDeptOf(m) === department)
-      .sort((a, b) => ((a.level ?? inferBchLevel(a.position)) === 'TRUONG_BAN' ? 0 : 1) - ((b.level ?? inferBchLevel(b.position)) === 'TRUONG_BAN' ? 0 : 1)),
+    truong: truongBan.filter(m => banDeptOf(m) === department),
+    pho: phoBan.filter(m => banDeptOf(m) === department),
   }));
 
   return (
@@ -200,7 +201,10 @@ export const AboutOrgSection: React.FC<AboutOrgSectionProps> = ({ bchMembers }) 
                     {banGroups.map(group => (
                       <div key={group.department}>
                         <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3 text-center">{group.department}</h4>
-                        <MemberGrid members={group.members} />
+                        <div className="space-y-6">
+                          {group.truong.length > 0 && <MemberGrid members={group.truong} />}
+                          {group.pho.length > 0 && <MemberGrid members={group.pho} />}
+                        </div>
                       </div>
                     ))}
                   </div>
