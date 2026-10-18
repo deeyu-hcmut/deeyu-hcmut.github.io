@@ -114,7 +114,9 @@ export default function App() {
   // which fills in event registrations. Only plain student accounts get the form pushed on sign-in.
   const [myProfile, setMyProfile] = useState<MemberRecord | null>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const hcmutEmail = FIREBASE_ENABLED && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
+  // Super Admin is not a student: no profile form, menu entry, or lookup of a student record
+  const hcmutEmail =
+    FIREBASE_ENABLED && currentRole !== 'SUPER_ADMIN' && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
   const isStudentRole = currentRole === 'STUDENT';
 
   useEffect(() => {
