@@ -134,6 +134,8 @@ Không gắn vào sheet nào: tạo một project Apps Script độc lập.
 - **Giới hạn của Google:** Gmail cá nhân ~**100 email/ngày**, tài khoản Google Workspace ~**1.500 email/ngày**.
   Hết hạn mức thì phần còn lại tự gửi vào hôm sau. Email gửi đi mang địa chỉ của người cài script, tên hiển thị
   `Đoàn - Hội Khoa Điện - Điện tử`. Nên dùng một tài khoản Gmail chung của Đoàn - Hội thay vì Gmail cá nhân.
+- Email xác nhận đăng ký và email nhắc 24h kèm **mã QR của vé** (nội dung QR là mã vé, giống vé trên web). Ảnh QR do dịch vụ công cộng
+  `api.qrserver.com` tạo (mã vé được gửi tới dịch vụ này); nếu không gọi được thì email vẫn gửi, chỉ thiếu ảnh.
 - Chỉ gửi xác nhận cho đăng ký **sau khi** bật tự động; các đăng ký cũ không nhận email xác nhận (nhưng vẫn nhận nhắc 24h).
 - Mỗi sự kiện chỉ nhắc một lần. Đổi ngày/giờ bắt đầu thì nhắc lại theo giờ mới.
 

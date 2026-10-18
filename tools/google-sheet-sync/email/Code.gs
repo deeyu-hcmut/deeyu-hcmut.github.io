@@ -53,7 +53,8 @@ function guiThuMau() {
   const me = Session.getActiveUser().getEmail();
   const reg = { fullName: 'Nguyễn Văn A', eventTitle: 'Sự kiện mẫu', ticketCode: 'MAU-123456', mssv: '2310000' };
   const event = { eventDate: '2027-03-31', startTime: '08:00', location: 'Sảnh BK.B6' };
-  send(me, `[${SENDER_NAME}] Xác nhận đăng ký: ${reg.eventTitle}`, confirmationBody(reg, event));
+  const qr = qrImages(reg.ticketCode);
+  send(me, `[${SENDER_NAME}] Xác nhận đăng ký: ${reg.eventTitle}`, confirmationBody(reg, event, Boolean(qr.qr)), qr);
   console.log(`Đã gửi email mẫu tới ${me}.`);
 }
 
@@ -94,7 +95,8 @@ function sendRegistrationConfirmations() {
     if (contact && contact.email) {
       const event = events[r.eventId] || (events[r.eventId] = getDoc(`events/${r.eventId}`) || {});
       const subject = `[${SENDER_NAME}] Xác nhận đăng ký: ${r.eventTitle}`;
-      const ok = trySend(contact.email, subject, confirmationBody(r, event));
+      const qr = qrImages(r.ticketCode);
+      const ok = trySend(contact.email, subject, confirmationBody(r, event, Boolean(qr.qr)), qr);
       logs.push(createWrite('emailLogs', {
         recipientEmail: contact.email,
         recipientName: r.fullName,
@@ -174,7 +176,8 @@ function sendQueued() {
   for (const log of queued) {
     if (MailApp.getRemainingDailyQuota() < 1) break;
     const l = log.data;
-    const ok = trySend(l.recipientEmail, l.subject, queuedBody(l));
+    const qr = l.type === 'REMINDER_24H' ? qrImages(l.ticketCode) : {};
+    const ok = trySend(l.recipientEmail, l.subject, queuedBody(l, Boolean(qr.qr)), qr);
     writes.push(updateWrite(`emailLogs/${log.id}`, { status: ok ? 'SENT' : 'FAILED', sentAt: new Date().toISOString() }));
     if (ok) sent++;
   }
@@ -188,20 +191,20 @@ function sendQueued() {
 const PURPLE = '#4e4ecc'; // the site's brand violet (blue-600 on dark surfaces)
 const NAVY = '#180c5e'; // logo colour
 
-function confirmationBody(r, event) {
+function confirmationBody(r, event, withQr) {
   const when = event.eventDate ? `${event.startTime || ''} Ngày ${formatDate(event.eventDate)}`.trim() : '';
   return layout('XÁC NHẬN ĐĂNG KÝ SỰ KIỆN THÀNH CÔNG', r.fullName, r.mssv, `
     <p>Xác nhận đăng ký tham gia thành công sự kiện <b>${esc(r.eventTitle)}</b>.</p>
-    ${ticketCard(r.ticketCode, when, event.location)}
-    <p style="font-size:12px;color:#64748b">Vui lòng lưu lại email này hoặc xuất trình mã vé tại cổng sự kiện để hoàn tất điểm danh.</p>`);
+    ${ticketCard(r.ticketCode, when, event.location, withQr)}
+    <p style="font-size:12px;color:#64748b">Vui lòng lưu lại email này hoặc xuất trình mã vé và mã QR tại cổng sự kiện để hoàn tất điểm danh.</p>`);
 }
 
-function queuedBody(l) {
+function queuedBody(l, withQr) {
   const code = l.ticketCode ? ` (#${esc(l.ticketCode)})` : '';
   if (l.type === 'REMINDER_24H') {
     return layout('NHẮC NHỞ: SỰ KIỆN SẮP DIỄN RA TRONG 24H', l.recipientName, l.mssv, `
       <p>Nhắc nhở tham gia sự kiện <b>${esc(l.eventTitle || 'bạn đã đăng ký')}</b> sẽ diễn ra trong vòng <b>24 giờ tới</b>${l.eventWhen ? `, vào <b>${esc(l.eventWhen)}</b>` : ''}${l.location ? ` tại <b>${esc(l.location)}</b>` : ''}.</p>
-      ${ticketCard(l.ticketCode, l.eventWhen, l.location)}
+      ${ticketCard(l.ticketCode, l.eventWhen, l.location, withQr)}
       ${notice('#fffbeb', '#fde68a', '#78350f', `⚡ <b>Lưu ý:</b> Vui lòng mặc trang phục lịch sự / Áo Đoàn và mang theo thẻ sinh viên kèm vé QR${code}.`)}`);
   }
   if (l.type === 'ATTENDANCE_SUCCESS') {
@@ -235,13 +238,14 @@ function layout(title, name, mssv, content) {
   </div>`;
 }
 
-function ticketCard(code, when, location) {
+function ticketCard(code, when, location, withQr) {
   const line = [when ? `Thời gian: ${esc(when)}` : '', location ? esc(location) : ''].filter(Boolean).join(' • ');
   return `
     <div style="margin:16px 0;padding:16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-align:center">
       <div style="font-size:12px;font-weight:bold;color:#64748b">MÃ VÉ ĐIỆN TỬ CỦA BẠN</div>
       <div style="font-family:'Courier New',monospace;font-size:26px;font-weight:bold;color:${PURPLE};margin:4px 0">${code ? `#${esc(code)}` : ''}</div>
       ${line ? `<div style="font-size:12px;color:#475569">${line}</div>` : ''}
+      ${withQr ? '<img src="cid:qr" width="180" height="180" alt="Mã QR của vé" style="display:block;margin:12px auto 0;border-radius:8px;background:#ffffff">' : ''}
     </div>`;
 }
 
@@ -249,9 +253,23 @@ function notice(background, border, color, html, align) {
   return `<div style="margin:16px 0;padding:12px 14px;background:${background};border:1px solid ${border};border-radius:10px;color:${color};font-size:13px;text-align:${align || 'left'}">${html}</div>`;
 }
 
-function trySend(to, subject, html) {
+// QR of the ticket code (what the check-in scanner reads, same as the ticket on the website) as an
+// inline image, so it shows without "load images". Rendered by a public QR service; if that is
+// unreachable the email still goes out with the ticket code and no image.
+function qrImages(code) {
+  if (!code) return {};
   try {
-    send(to, subject, html);
+    const res = UrlFetchApp.fetch(`https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=8&data=${encodeURIComponent(code)}`, { muteHttpExceptions: true });
+    if (res.getResponseCode() === 200) return { qr: res.getBlob().setName('qr.png') };
+  } catch (err) {
+    console.warn(`Không tạo được QR cho ${code}: ${err}`);
+  }
+  return {};
+}
+
+function trySend(to, subject, html, inlineImages) {
+  try {
+    send(to, subject, html, inlineImages);
     return true;
   } catch (err) {
     console.warn(`Không gửi được tới ${to}: ${err}`);
@@ -259,8 +277,8 @@ function trySend(to, subject, html) {
   }
 }
 
-function send(to, subject, html) {
-  MailApp.sendEmail({ to: to, subject: subject, htmlBody: html, name: SENDER_NAME });
+function send(to, subject, html, inlineImages) {
+  MailApp.sendEmail({ to: to, subject: subject, htmlBody: html, name: SENDER_NAME, inlineImages: inlineImages || {} });
 }
 
 function esc(value) {
