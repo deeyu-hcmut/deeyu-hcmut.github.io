@@ -7,10 +7,10 @@
     <meta name="description" content="Cổng thông tin điện tử, quản lý phong trào sinh viên và tự động hóa sự kiện Đoàn - Hội Khoa Điện - Điện tử." />
     <meta name="theme-color" content="#180c5e" />
     <script>
-      // Apply the saved / OS theme before first paint (key shared with src/theme.ts)
+      // Apply the device theme before first paint (src/theme.ts keeps following it afterwards)
       try {
-        var t = localStorage.getItem("fee_portal_theme");
-        if (t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.classList.add("dark");
+        if (matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.classList.add("dark");
+        localStorage.removeItem("fee_portal_theme"); // old manual choice, no longer used
       } catch (e) {}
     </script>
     <link rel="canonical" href="https://deeyu-hcmut.github.io/" />

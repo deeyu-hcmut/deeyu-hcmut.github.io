@@ -28,6 +28,7 @@ import { FIREBASE_ENABLED } from './services/firebaseConfig';
 import type { StaffSession } from './services/auth';
 import { canCheckIn } from './utils/roles';
 import { isHcmutEmail, NEWS_PAGE } from './services/shared';
+import { useSystemTheme } from './theme';
 import { SessionContext } from './session';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
@@ -71,6 +72,7 @@ function TabFallback() {
 }
 
 export default function App() {
+  useSystemTheme();
   const [activeTab, setActiveTabState] = useState<string>(tabFromHash);
 
   useEffect(() => {

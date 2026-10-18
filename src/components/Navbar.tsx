@@ -17,8 +17,6 @@ import {
   X,
   LogIn,
   LogOut,
-  Sun,
-  Moon,
   ChevronDown,
   User
 } from 'lucide-react';
@@ -26,7 +24,6 @@ import { Role, NotificationItem } from '../types';
 import { api } from '../services/api';
 import { FIREBASE_ENABLED } from '../services/firebaseConfig';
 import type { StaffSession } from '../services/auth';
-import { useTheme } from '../theme';
 import { ROLE_LABELS, STAFF_ROLES } from '../utils/roles';
 
 // Every Firestore load is billed as up to 20 reads (free plan: 50,000 a day for the whole site),
@@ -67,7 +64,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [theme, toggleTheme] = useTheme();
   const [showAccount, setShowAccount] = useState(false);
 
   useEffect(() => {
@@ -156,17 +152,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <QrCode className="w-4 h-4" />
               <span>{onOpenQRScanner ? 'Quét QR Điểm danh' : 'Vé QR của tôi'}</span>
-            </button>
-
-            {/* Light / dark theme toggle */}
-            <button
-              id="header-theme-toggle"
-              onClick={toggleTheme}
-              className="hidden sm:inline-flex p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
-              aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
-              title={theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
             {/* Notification Bell with Dropdown */}
@@ -383,15 +368,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             );
           })}
 
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex flex-col space-y-2">
-            <button
-              onClick={toggleTheme}
-              className="sm:hidden w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span>{theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}</span>
-            </button>
-          </div>
         </div>
       )}
     </header>
