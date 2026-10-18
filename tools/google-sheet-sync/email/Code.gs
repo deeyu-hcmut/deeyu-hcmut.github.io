@@ -151,7 +151,7 @@ function queueReminders() {
         ticketCode: reg.data.ticketCode,
         mssv: reg.data.mssv,
         eventTitle: e.title,
-        eventWhen: `${e.startTime || ''} ngày ${formatDate(e.eventDate)}`.trim(),
+        eventWhen: `${e.startTime || ''} Ngày ${formatDate(e.eventDate)}`.trim(),
         location: e.location || '',
       }));
     });
@@ -200,12 +200,14 @@ function queuedBody(l) {
   const code = l.ticketCode ? ` (#${esc(l.ticketCode)})` : '';
   if (l.type === 'REMINDER_24H') {
     return layout('NHẮC NHỞ: SỰ KIỆN SẮP DIỄN RA TRONG 24H', l.recipientName, l.mssv, `
-      <p>Sự kiện <b>${esc(l.eventTitle || 'bạn đã đăng ký')}</b> bạn đã đăng ký sẽ diễn ra trong vòng <b>24 giờ tới</b>${l.eventWhen ? `, vào <b>${esc(l.eventWhen)}</b>` : ''}${l.location ? ` tại <b>${esc(l.location)}</b>` : ''}.</p>
+      <p>Nhắc nhở tham gia sự kiện <b>${esc(l.eventTitle || 'bạn đã đăng ký')}</b> sẽ diễn ra trong vòng <b>24 giờ tới</b>${l.eventWhen ? `, vào <b>${esc(l.eventWhen)}</b>` : ''}${l.location ? ` tại <b>${esc(l.location)}</b>` : ''}.</p>
+      ${ticketCard(l.ticketCode, l.eventWhen, l.location)}
       ${notice('#fffbeb', '#fde68a', '#78350f', `⚡ <b>Lưu ý:</b> Vui lòng mặc trang phục lịch sự / Áo Đoàn và mang theo thẻ sinh viên kèm vé QR${code}.`)}`);
   }
   if (l.type === 'ATTENDANCE_SUCCESS') {
     return layout('XÁC NHẬN ĐIỂM DANH THAM DỰ SỰ KIỆN', l.recipientName, l.mssv, `
-      <p>Ban Tổ chức xác nhận bạn đã <b>Check-in thành công</b>${l.eventTitle ? ` tại sự kiện <b>${esc(l.eventTitle)}</b>` : ''}.</p>
+      <p>Xác nhận điểm danh tham dự thành công${l.eventTitle ? ` sự kiện <b>${esc(l.eventTitle)}</b>` : ''}.</p>
+      ${ticketCard(l.ticketCode)}
       ${notice('#ecfdf5', '#a7f3d0', '#064e3b', '🎉 <b>Ban Tổ chức đã ghi nhận bạn tham gia đầy đủ chương trình.</b>', 'center')}`);
   }
   return layout(esc(l.subject), l.recipientName, l.mssv, '');

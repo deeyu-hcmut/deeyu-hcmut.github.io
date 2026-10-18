@@ -52,6 +52,15 @@ interface AdminDashboardProps {
   currentEmail?: string;
 }
 
+// Ticket box of the email previews below (mirrors ticketCard in tools/google-sheet-sync/email/Code.gs)
+const PreviewTicketCard: React.FC<{ line?: string }> = ({ line }) => (
+  <div className="my-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-center">
+    <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">MÃ VÉ ĐIỆN TỬ CỦA BẠN</p>
+    <p className="text-2xl font-mono font-extrabold text-blue-700 dark:text-blue-300 my-1">#TECH-88392</p>
+    {line && <p className="text-xs text-slate-600 dark:text-slate-300">{line}</p>}
+  </div>
+);
+
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   events,
   currentRole,
@@ -518,11 +527,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <>
                       <p>Xác nhận đăng ký tham gia thành công sự kiện <strong>EE TECH DAY 2026: Triển lãm Đồ án & Ngày hội Tuyển dụng</strong>.</p>
                       
-                      <div className="my-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-center">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">MÃ VÉ ĐIỆN TỬ CỦA BẠN</p>
-                        <p className="text-2xl font-mono font-extrabold text-blue-700 dark:text-blue-300 my-1">#TECH-88392</p>
-                        <p className="text-xs text-slate-600 dark:text-slate-300">Thời gian: 08:00 Ngày 28/08/2026 • Hội trường A</p>
-                      </div>
+                      <PreviewTicketCard line="Thời gian: 08:00 Ngày 28/08/2026 • Hội trường A" />
 
                       <p className="text-xs text-slate-500 dark:text-slate-400">Vui lòng lưu lại email này hoặc xuất trình mã vé tại cổng Hội trường để hoàn tất điểm danh.</p>
                     </>
@@ -530,7 +535,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   {previewType === 'REMINDER' && (
                     <>
-                      <p>Sự kiện <strong>EE TECH DAY 2026</strong> bạn đã đăng ký sẽ chính thức khai mạc vào <strong>08:00 sáng mai</strong> tại Hội trường A.</p>
+                      <p>Nhắc nhở tham gia sự kiện <strong>EE TECH DAY 2026</strong> sẽ diễn ra trong vòng <strong>24 giờ tới</strong>, vào <strong>08:00 Ngày 28/08/2026</strong> tại <strong>Hội trường A</strong>.</p>
+                      <PreviewTicketCard line="Thời gian: 08:00 Ngày 28/08/2026 • Hội trường A" />
                       <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-400/30 rounded-lg text-xs text-amber-900 dark:text-amber-200">
                         ⚡ <strong>Lưu ý:</strong> Vui lòng mặc trang phục lịch sự / Áo Đoàn và mang theo thẻ sinh viên kèm vé QR (#TECH-88392).
                       </div>
@@ -539,7 +545,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   {previewType === 'CHECKIN' && (
                     <>
-                      <p>Ban Tổ chức xác nhận bạn đã <strong>Check-in thành công</strong> tại sự kiện <strong>EE TECH DAY 2026</strong>.</p>
+                      <p>Xác nhận điểm danh tham dự thành công sự kiện <strong>EE TECH DAY 2026</strong>.</p>
+                      <PreviewTicketCard />
                       <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-400/30 rounded-lg text-emerald-900 dark:text-emerald-200 text-center font-bold">
                         🎉 Ban Tổ chức đã ghi nhận bạn tham gia đầy đủ chương trình.
                       </div>
