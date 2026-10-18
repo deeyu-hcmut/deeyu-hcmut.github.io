@@ -48,6 +48,15 @@ function guiThu() {
   console.log(`Đã gửi thử tới ${me}. Còn ${MailApp.getRemainingDailyQuota()} email được gửi hôm nay.`);
 }
 
+// Gửi thử email xác nhận đăng ký mẫu tới chính bạn để xem giao diện mới (dữ liệu giả, không ghi gì vào Firestore)
+function guiThuMau() {
+  const me = Session.getActiveUser().getEmail();
+  const reg = { fullName: 'Nguyễn Văn A', eventTitle: 'Sự kiện mẫu', ticketCode: 'MAU-123456', mssv: '2310000' };
+  const event = { eventDate: '2027-03-31', startTime: '08:00', location: 'Sảnh BK.B6' };
+  send(me, `[${SENDER_NAME}] Xác nhận đăng ký: ${reg.eventTitle}`, confirmationBody(reg, event));
+  console.log(`Đã gửi email mẫu tới ${me}.`);
+}
+
 // ---------------------------------------------------------------- run
 
 function guiEmail() {
