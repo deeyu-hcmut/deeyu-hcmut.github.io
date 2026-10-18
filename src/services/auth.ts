@@ -4,6 +4,7 @@ import { app, db } from './firebase';
 import { USE_FIREBASE_EMULATOR } from './firebaseConfig';
 import { Role } from '../types';
 import { normalizeRole } from '../utils/roles';
+import { isHcmutEmail } from './shared';
 
 export interface StaffSession {
   email: string;
@@ -30,13 +31,22 @@ async function resolveRole(email: string): Promise<{ role: Role; roleCheckFailed
   }
 }
 
-export function watchSession(onChange: (session: StaffSession | null) => void): () => void {
+// `rejected` is set when a sign-in was refused because the account is not an @hcmut.edu.vn one
+export function watchSession(onChange: (session: StaffSession | null, rejected?: boolean) => void): () => void {
   return onAuthStateChanged(auth, async user => {
     if (!user?.email) {
       onChange(null);
       return;
     }
-    onChange({ email: user.email, displayName: user.displayName, ...(await resolveRole(user.email)) });
+    const resolved = await resolveRole(user.email);
+    // Only @hcmut.edu.vn accounts may sign in. The one exception is an account listed in admins/{email}, so a
+    // Super Admin whose Google account is on another domain can never be locked out (firestore.rules mirrors this).
+    if (!isHcmutEmail(user.email) && resolved.role === 'STUDENT') {
+      onChange(null, true);
+      await signOut(auth);
+      return;
+    }
+    onChange({ email: user.email, displayName: user.displayName, ...resolved });
   });
 }
 

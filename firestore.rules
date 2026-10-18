@@ -149,12 +149,12 @@ service cloud.firestore {
         && after.checkedInAt is string && after.checkedInAt.size() <= 40;
     }
 
-    // Registering needs a signed-in Google account (students use @hcmut.edu.vn)
+    // Registering needs an @hcmut.edu.vn account (or a staff account listed in admins/)
     function isValidRegistration(regId) {
       let r = request.resource.data;
       let eventPath = /databases/$(database)/documents/events/$(r.eventId);
       let event = get(eventPath).data;
-      return signedIn() && r.keys().hasOnly(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
+      return (isHcmutUser() || isStaff()) && r.keys().hasOnly(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
                                'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])
         && r.keys().hasAll(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
                             'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])

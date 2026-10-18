@@ -96,9 +96,10 @@ export default function App() {
     let cancelled = false;
     import('./services/auth').then(({ watchSession }) => {
       if (cancelled) return;
-      unsubscribe = watchSession(next => {
+      unsubscribe = watchSession((next, rejected) => {
         setSession(next);
         setCurrentRole(next?.role ?? 'STUDENT');
+        if (rejected) showToast('Chỉ tài khoản @hcmut.edu.vn mới đăng nhập được. Vui lòng chọn lại tài khoản sinh viên.');
         if (next?.roleCheckFailed) {
           showToast('Không kiểm tra được quyền BCH (máy chủ dữ liệu đang quá tải hoặc hết hạn mức trong ngày). Vui lòng tải lại trang sau.');
         }
