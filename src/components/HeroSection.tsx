@@ -22,7 +22,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         src={`${import.meta.env.BASE_URL}logo.png`}
         alt=""
         aria-hidden="true"
-        className="absolute -top-16 -right-24 w-[420px] sm:w-[560px] opacity-[0.05] dark:opacity-[0.07] pointer-events-none select-none"
+        className="absolute -top-16 -right-24 w-[420px] sm:w-[560px] opacity-[0.05] dark:opacity-[0.07] motion-safe:animate-sway pointer-events-none select-none"
       />
 
       {/* Bottom seamless fade */}
@@ -39,7 +39,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               alt="Youth Union DEE"
               width={72}
               height={72}
-              className="w-16 h-16 sm:w-[72px] sm:h-[72px] mx-auto"
+              className="w-16 h-16 sm:w-[72px] sm:h-[72px] mx-auto motion-safe:animate-float"
             />
 
             {/* Top Badges */}

@@ -516,7 +516,7 @@ export default function App() {
                   width={96}
                   height={96}
                   loading="lazy"
-                  className="w-24 h-24"
+                  className="w-24 h-24 transition-transform duration-300 hover:scale-110 hover:-rotate-6"
                 />
                 <span className="font-tech text-base font-extrabold text-white leading-tight">
                   Đoàn Thanh niên - Hội sinh viên<br />khoa Điện - Điện tử

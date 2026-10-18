@@ -135,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               alt="Logo Đoàn Thanh niên - Hội sinh viên khoa Điện - Điện tử"
               width={48}
               height={48}
-              className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 group-hover:scale-105 transition-transform"
+              className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 motion-safe:group-hover:animate-wiggle"
             />
             <div className="flex items-center space-x-2 min-w-0">
               <span className="font-tech text-[13px] sm:text-base font-extrabold leading-tight tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
