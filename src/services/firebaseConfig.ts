@@ -10,7 +10,12 @@ export const firebaseConfig = {
 
 // Apps Script web app of the student Google Sheet (tools/google-sheet-sync). When set, the admin
 // "Sinh viên" tab reads and edits the list through it instead of Firestore (saves the daily read quota).
-export const MEMBERS_SHEET_URL = import.meta.env.VITE_MEMBERS_SHEET_URL || '';
+// Not a secret: the script only answers requests carrying a staff Firebase ID token.
+// VITE_MEMBERS_SHEET_URL overrides it ("none" falls back to reading Firestore).
+const membersSheetUrl =
+  import.meta.env.VITE_MEMBERS_SHEET_URL ||
+  'https://script.google.com/macros/s/AKfycbwcElJQDSL7LMzNUM5_colj4lEY4UT0Jjo-3FRhMisTpMMIFaO7oCsoB_h4Y3k8Qsk9OA/exec';
+export const MEMBERS_SHEET_URL = membersSheetUrl === 'none' ? '' : membersSheetUrl;
 
 // VITE_DEMO_MODE=true runs the old localStorage / Express demo without Firebase
 export const FIREBASE_ENABLED = import.meta.env.VITE_DEMO_MODE !== 'true';
