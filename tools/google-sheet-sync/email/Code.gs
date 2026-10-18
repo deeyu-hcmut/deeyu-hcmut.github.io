@@ -187,33 +187,33 @@ function sendQueued() {
 // Same look as the email preview in the admin page (Quản trị → Nhật ký Email)
 function confirmationBody(r, event) {
   const when = event.eventDate ? `${event.startTime || ''} Ngày ${formatDate(event.eventDate)}`.trim() : '';
-  return layout('XÁC NHẬN ĐĂNG KÝ SỰ KIỆN THÀNH CÔNG', r.fullName, r.mssv, `
+  return layout('XÁC NHẬN ĐĂNG KÝ SỰ KIỆN THÀNH CÔNG', r.fullName, `
     <p>Bạn đã đăng ký tham gia thành công sự kiện <b>${esc(r.eventTitle)}</b>.</p>
-    ${ticketCard(r.ticketCode, when, event.location)}
+    ${ticketCard(r.ticketCode, when, event.location, r.mssv)}
     <p style="font-size:12px;color:#64748b">Vui lòng lưu lại email này hoặc xuất trình mã vé (vé QR trong mục Tra cứu vé trên cổng thông tin, nhập MSSV) tại cổng sự kiện để hoàn tất điểm danh.</p>
     ${button('Xem vé QR của tôi')}`);
 }
 
 function queuedBody(l) {
   if (l.type === 'REMINDER_24H') {
-    return layout('NHẮC NHỞ: SỰ KIỆN SẮP DIỄN RA TRONG 24H', l.recipientName, l.mssv, `
+    return layout('NHẮC NHỞ: SỰ KIỆN SẮP DIỄN RA TRONG 24H', l.recipientName, `
       <p>Sự kiện <b>${esc(l.eventTitle || 'bạn đã đăng ký')}</b> bạn đã đăng ký sẽ diễn ra trong vòng <b>24 giờ tới</b>.</p>
-      ${ticketCard(l.ticketCode, l.eventWhen, l.location)}
+      ${ticketCard(l.ticketCode, l.eventWhen, l.location, l.mssv)}
       ${notice('#fffbeb', '#fde68a', '#78350f', '⚡ <b>Lưu ý:</b> Vui lòng mặc trang phục lịch sự / Áo Đoàn và mang theo thẻ sinh viên kèm vé QR.')}
       ${button('Xem vé QR của tôi')}`);
   }
   if (l.type === 'ATTENDANCE_SUCCESS') {
-    return layout('XÁC NHẬN ĐIỂM DANH THAM DỰ SỰ KIỆN', l.recipientName, l.mssv, `
+    return layout('XÁC NHẬN ĐIỂM DANH THAM DỰ SỰ KIỆN', l.recipientName, `
       <p>Ban Tổ chức xác nhận bạn đã <b>điểm danh thành công</b>.</p>
       ${notice('#ecfdf5', '#a7f3d0', '#064e3b', '🎉 <b>Ban Tổ chức đã ghi nhận bạn tham gia chương trình. Đoàn – Hội khoa Điện – Điện tử chân thành cảm ơn bạn!</b>', 'center')}
       ${button('Xem lại vé tại cổng thông tin')}`);
   }
-  return layout(esc(l.subject), l.recipientName, l.mssv, button('Mở cổng thông tin'));
+  return layout(esc(l.subject), l.recipientName, button('Mở cổng thông tin'));
 }
 
 // ---- shared HTML pieces (inline styles only: mail clients ignore <style> blocks)
 
-function layout(title, name, mssv, content) {
+function layout(title, name, content) {
   return `
   <div style="background:#f1f5f9;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#334155;font-size:14px;line-height:1.6">
     <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;border:1px solid #e2e8f0;padding:24px">
@@ -222,7 +222,7 @@ function layout(title, name, mssv, content) {
         <h2 style="margin:10px 0 0;font-size:20px;color:#1e3a8a">${title}</h2>
       </div>
       <div style="padding:20px 0 8px">
-        <p style="margin:0 0 12px">Xin chào <b>${esc(name)}</b>${mssv ? ` (MSSV: <b>${esc(mssv)}</b>)` : ''},</p>
+        <p style="margin:0 0 12px"><i><u>Thân gửi:</u></i> <b>${esc(name)}</b>;</p>
         ${content}
         <p style="margin:20px 0 0">Thân ái và quyết thắng./.<br><b>Đoàn – Hội khoa Điện – Điện tử.</b></p>
       </div>
@@ -231,8 +231,8 @@ function layout(title, name, mssv, content) {
   </div>`;
 }
 
-function ticketCard(code, when, location) {
-  const line = [when ? `Thời gian: ${esc(when)}` : '', location ? esc(location) : ''].filter(Boolean).join(' • ');
+function ticketCard(code, when, location, mssv) {
+  const line = [mssv ? `MSSV: ${esc(mssv)}` : '', when ? `Thời gian: ${esc(when)}` : '', location ? esc(location) : ''].filter(Boolean).join(' • ');
   return `
     <div style="margin:16px 0;padding:16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;text-align:center">
       <div style="font-size:12px;font-weight:bold;color:#64748b;letter-spacing:.5px">MÃ VÉ ĐIỆN TỬ CỦA BẠN</div>
