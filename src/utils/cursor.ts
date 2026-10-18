@@ -78,6 +78,12 @@ export function initLogoCursor() {
   }, { passive: true });
 
   document.addEventListener('mousedown', (e) => {
+    // A native <select> list draws its own OS cursor and stops mousemove, so the logo would sit
+    // frozen beside it; hide it until the mouse moves again.
+    if (e.target instanceof Element && e.target.closest('select')) {
+      el.classList.remove('visible');
+      return;
+    }
     el.classList.add('down');
     const ripple = document.createElement('div');
     ripple.className = 'logo-cursor-ripple';
