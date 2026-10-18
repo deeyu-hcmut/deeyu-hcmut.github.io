@@ -155,7 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="header-qr-checkin-btn"
               onClick={onOpenQRScanner ?? onOpenStudentLookup}
-              className="hidden sm:flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+              className="hidden lg:flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-blue-500/20 cursor-pointer"
             >
               <QrCode className="w-4 h-4" />
               <span>{onOpenQRScanner ? 'Quét QR Điểm danh' : 'Vé QR của tôi'}</span>
