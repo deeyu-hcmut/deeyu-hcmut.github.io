@@ -38,22 +38,20 @@ export function watchSession(onChange: (session: StaffSession | null, rejected?:
       onChange(null);
       return;
     }
-    const resolved = await resolveRole(user.email);
-    // Only @hcmut.edu.vn accounts may sign in. The one exception is an account listed in admins/{email}, so a
-    // Super Admin whose Google account is on another domain can never be locked out (firestore.rules mirrors this).
-    if (!isHcmutEmail(user.email) && resolved.role === 'STUDENT') {
+    // Only @hcmut.edu.vn accounts may sign in (firestore.rules signedIn() enforces the same)
+    if (!isHcmutEmail(user.email)) {
       onChange(null, true);
       await signOut(auth);
       return;
     }
-    onChange({ email: user.email, displayName: user.displayName, ...resolved });
+    onChange({ email: user.email, displayName: user.displayName, ...(await resolveRole(user.email)) });
   });
 }
 
 export async function signInStaff(): Promise<void> {
   const provider = new GoogleAuthProvider();
-  // Always show the account chooser, so a student signed in with Gmail can switch to @hcmut.edu.vn
-  provider.setCustomParameters({ prompt: 'select_account' });
+  // Account chooser limited to @hcmut.edu.vn (a hint only: watchSession and firestore.rules enforce it)
+  provider.setCustomParameters({ prompt: 'select_account', hd: 'hcmut.edu.vn' });
   await signInWithPopup(auth, provider);
 }
 

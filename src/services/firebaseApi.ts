@@ -52,6 +52,7 @@ import {
   normalizeStaffEmail,
   buildStudentProfile,
   emailSubject,
+  isHcmutEmail,
 } from './shared';
 import { normalizeKey } from '../utils/excel';
 import { STAFF_ROLES, normalizeRole } from '../utils/roles';
@@ -499,6 +500,7 @@ const rawFirebaseApi: Api = {
     if (!STAFF_ROLES.includes(role)) throw new Error('Vai trò không hợp lệ.');
     const account = { role, updatedAt: new Date().toISOString() };
     const id = normalizeStaffEmail(email);
+    if (!isHcmutEmail(id)) throw new Error('Chỉ cấp quyền được cho tài khoản @hcmut.edu.vn.');
     const batch = writeBatch(db);
     batch.set(doc(db, 'admins', id), account);
     await batch.commit();

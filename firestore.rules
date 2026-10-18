@@ -8,7 +8,9 @@ service cloud.firestore {
     // Legacy values still accepted: EVENT_MANAGER (= HC_TV), EDITOR (= TT_SK). Mirrors src/utils/roles.ts.
 
     function signedIn() {
-      return request.auth != null && request.auth.token.email_verified == true;
+      // Only @hcmut.edu.vn accounts count as signed in, for students and staff alike
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@hcmut[.]edu[.]vn$');
     }
 
     function adminPath() {
@@ -149,12 +151,12 @@ service cloud.firestore {
         && after.checkedInAt is string && after.checkedInAt.size() <= 40;
     }
 
-    // Registering needs an @hcmut.edu.vn account (or a staff account listed in admins/)
+    // Registering needs a signed-in @hcmut.edu.vn account
     function isValidRegistration(regId) {
       let r = request.resource.data;
       let eventPath = /databases/$(database)/documents/events/$(r.eventId);
       let event = get(eventPath).data;
-      return (isHcmutUser() || isStaff()) && r.keys().hasOnly(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
+      return signedIn() && r.keys().hasOnly(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
                                'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])
         && r.keys().hasAll(['eventId', 'eventTitle', 'fullName', 'mssv', 'mssvKey', 'classGroup',
                             'faculty', 'registeredAt', 'ticketCode', 'checkedIn'])

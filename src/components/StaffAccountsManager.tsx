@@ -138,7 +138,7 @@ export const StaffAccountsManager: React.FC<StaffAccountsManagerProps> = ({ curr
           required
           value={newEmail}
           onChange={e => setNewEmail(e.target.value)}
-          placeholder="email@gmail.com hoặc email@hcmut.edu.vn"
+          placeholder="email@hcmut.edu.vn"
           className={`${inputClass} sm:flex-1`}
         />
         <select value={newRole} onChange={e => setNewRole(e.target.value as Role)} className={`${inputClass} sm:w-48`}>
