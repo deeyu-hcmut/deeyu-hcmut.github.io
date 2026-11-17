@@ -1,6 +1,6 @@
 // Security rules tests, run against the Firestore emulator:
 //   npm install --no-save @firebase/rules-unit-testing@5
-//   npx -y firebase-tools@14 emulators:exec --only firestore "node --test tests/"
+//   npx -y firebase-tools@14 emulators:exec --only firestore "node --test tests/firestore.rules.test.mjs"
 // (the emulator needs Java 21+). CI runs the same thing in .github/workflows/deploy.yml.
 import { readFileSync } from 'node:fs';
 import { after, before, beforeEach, describe, test } from 'node:test';

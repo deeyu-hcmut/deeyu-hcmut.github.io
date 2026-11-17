@@ -41,7 +41,7 @@ jobs:
           npm install --no-save @firebase/rules-unit-testing@5
 
       - name: Test security rules
-        run: npx -y firebase-tools@14 emulators:exec --only firestore --project demo-deeyu-rules "node --test tests/"
+        run: npx -y firebase-tools@14 emulators:exec --only firestore --project demo-deeyu-rules "node --test tests/firestore.rules.test.mjs"
 
   build:
     runs-on: ubuntu-latest
