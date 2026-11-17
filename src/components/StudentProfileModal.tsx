@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { GraduationCap, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { MemberGender, MemberRecord, MemberStatus } from '../types';
 import { api } from '../services/api';
-import { CLASS_GROUP_PATTERN } from '../services/shared';
+import { CLASS_GROUP_PATTERN, PRIVACY_VERSION } from '../services/shared';
 import { Req } from './Required';
 
 const STATUS_OPTIONS: { value: MemberStatus; label: string }[] = [
@@ -21,6 +21,8 @@ interface StudentProfileModalProps {
   displayName: string | null;
   // The record already linked to this account, or null to ask for MSSV first
   linked: MemberRecord | null;
+  // No agreement to the current privacy policy version is logged for this account yet
+  needsConsent: boolean;
   onSaved: (record: MemberRecord) => void;
   onLater: () => void;
 }
@@ -45,7 +47,7 @@ function YesNo({ name, value, onChange }: { name: string; value: boolean | null;
   );
 }
 
-export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accountEmail, displayName, linked, onSaved, onLater }) => {
+export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accountEmail, displayName, linked, needsConsent, onSaved, onLater }) => {
   const [record, setRecord] = useState<MemberRecord | null>(linked);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -67,6 +69,8 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
   // Imported records default to "Đang học"; the student confirms it on the first form
   const [status, setStatus] = useState<MemberStatus | ''>(answered ? linked!.status : '');
   const [saved, setSaved] = useState(false);
+  // Never pre-ticked (Luật 91/2025)
+  const [agreed, setAgreed] = useState(false);
 
   const startForm = (member: MemberRecord) => {
     setRecord(member);
@@ -107,6 +111,10 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
       setError('Vui lòng chọn trạng thái học tập.');
       return;
     }
+    if (needsConsent && !agreed) {
+      setError('Vui lòng đọc và đồng ý với Chính sách quyền riêng tư để lưu hồ sơ.');
+      return;
+    }
     setBusy(true);
     setError(null);
     const patch = {
@@ -121,7 +129,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
       status,
     };
     try {
-      await api.saveMyProfile(record.id, patch, accountEmail);
+      await api.saveMyProfile(record.id, patch, accountEmail, needsConsent);
       setSaved(true);
       const now = new Date().toISOString();
       onSaved({ ...record, ...patch, unionJoinDate: isUnionMember ? unionJoinDate : '', accountEmail, profileCompletedAt: now, updatedAt: now });
@@ -268,6 +276,26 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ accoun
                 ))}
               </select>
             </div>
+
+            {needsConsent && (
+              <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  checked={agreed}
+                  onChange={e => setAgreed(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 flex-shrink-0 accent-blue-600"
+                />
+                <span>
+                  Tôi đã đọc và đồng ý với{' '}
+                  <a href={`${import.meta.env.BASE_URL}privacy.html`} target="_blank" rel="noopener" className="font-semibold text-blue-700 dark:text-blue-300 underline">
+                    Chính sách quyền riêng tư
+                  </a>{' '}
+                  (phiên bản {PRIVACY_VERSION}), cho phép Đoàn - Hội khoa xử lý các thông tin trên để quản lý Đoàn viên - Hội viên và tổ chức sự kiện.
+                  <Req />
+                </span>
+              </label>
+            )}
 
             <div className="flex justify-end gap-3 pt-1">
               <button type="button" onClick={onLater} disabled={busy} className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 disabled:opacity-50">

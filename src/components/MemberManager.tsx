@@ -140,6 +140,8 @@ export const MemberManager: React.FC = () => {
 
   const [deleting, setDeleting] = useState<MemberRecord | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  // Right-to-erasure request: also removes tickets, contacts and the consent log of this MSSV
+  const [eraseAll, setEraseAll] = useState(false);
 
   const loadMembers = async () => {
     setLoading(true);
@@ -257,15 +259,21 @@ export const MemberManager: React.FC = () => {
     if (!deleting) return;
     setDeleteBusy(true);
     try {
-      await api.deleteMember(deleting.id);
+      if (eraseAll) {
+        const { deletedRegistrations } = await api.eraseStudentData(deleting.id);
+        showNotice('success', `Đã xoá toàn bộ dữ liệu của ${deleting.fullName} (${deleting.mssv}), gồm ${deletedRegistrations} lượt đăng ký.`);
+      } else {
+        await api.deleteMember(deleting.id);
+        showNotice('success', `Đã xoá ${deleting.fullName} (${deleting.mssv}) khỏi danh sách.`);
+      }
       setMembers(prev => prev.filter(m => m.id !== deleting.id));
-      showNotice('success', `Đã xoá ${deleting.fullName} (${deleting.mssv}) khỏi danh sách.`);
       setDeleting(null);
     } catch (err: any) {
       showNotice('error', err.message);
       setDeleting(null);
     } finally {
       setDeleteBusy(false);
+      setEraseAll(false);
     }
   };
 
@@ -662,7 +670,7 @@ export const MemberManager: React.FC = () => {
 
       {/* Modal: confirm delete */}
       {deleting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => !deleteBusy && setDeleting(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => { if (!deleteBusy) { setDeleting(null); setEraseAll(false); } }}>
           <div
             role="alertdialog"
             aria-labelledby="delete-member-title"
@@ -681,13 +689,25 @@ export const MemberManager: React.FC = () => {
                   {deleting.fullName} ({deleting.mssv})
                 </p>
                 <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                  Hồ sơ đoàn viên / hội viên của sinh viên này bị xoá. Lịch sử đăng ký sự kiện không bị ảnh hưởng. Không thể hoàn tác.
+                  {eraseAll
+                    ? 'Hồ sơ, toàn bộ vé, thông tin liên hệ, lịch sử tham gia sự kiện và bản ghi đồng ý của MSSV này bị xoá. Không thể hoàn tác.'
+                    : 'Hồ sơ đoàn viên / hội viên của sinh viên này bị xoá. Lịch sử đăng ký sự kiện không bị ảnh hưởng. Không thể hoàn tác.'}
                 </p>
+                <label className="mt-3 flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={eraseAll}
+                    onChange={e => setEraseAll(e.target.checked)}
+                    disabled={deleteBusy}
+                    className="mt-0.5 w-4 h-4 flex-shrink-0 accent-rose-600"
+                  />
+                  <span>Sinh viên yêu cầu xoá dữ liệu cá nhân: xoá toàn bộ dữ liệu gắn với MSSV (xử lý trong 20 ngày theo Luật 91/2025)</span>
+                </label>
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button
-                onClick={() => setDeleting(null)}
+                onClick={() => { setDeleting(null); setEraseAll(false); }}
                 disabled={deleteBusy}
                 className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 disabled:opacity-50"
               >

@@ -140,6 +140,8 @@ service cloud.firestore {
       allow get: if resource == null || isStaff() || ownsMssv(resource.data.mssvKey);
       allow list: if isStaff();
       allow update, delete: if canManageEvents();
+      // Ban QLNS-CTSV handles erasure requests (api.eraseStudentData)
+      allow delete: if canManageMembers();
       allow update: if isStaff() && isCheckInUpdate();
       allow create: if isValidRegistration(regId);
     }
@@ -186,6 +188,7 @@ service cloud.firestore {
     match /registrationContacts/{regId} {
       allow read: if isStaff();
       allow update, delete: if canManageEvents();
+      allow delete: if canManageMembers();
       allow create: if request.resource.data.keys().hasOnly(['email', 'phone', 'note'])
         && request.resource.data.keys().hasAll(['email', 'phone', 'note'])
         && request.resource.data.email is string && request.resource.data.email.size() <= 100
@@ -198,8 +201,37 @@ service cloud.firestore {
     match /students/{mssvKey} {
       allow get: if isStaff() || ownsMssv(mssvKey);
       allow list, delete: if canManageEvents();
+      allow delete: if canManageMembers();
       allow create: if isStudentIndexWrite(mssvKey, []);
       allow update: if canManageEvents() || isStudentIndexWrite(mssvKey, resource.data.eventIds);
+    }
+
+    // ---------- Audit log of staff deletions and role changes (firebaseApi.ts audit()) ----------
+    // Append only: the author is the signed-in account and the time is the server's, so entries cannot be forged
+    // or backdated; nobody may edit or delete them. Super Admin reads them (Firebase console) after an incident.
+    match /auditLogs/{logId} {
+      allow read: if isSuperAdmin();
+      allow create: if isStaff()
+        && request.resource.data.keys().hasOnly(['action', 'target', 'by', 'at'])
+        && request.resource.data.keys().hasAll(['action', 'target', 'by', 'at'])
+        && request.resource.data.by == request.auth.token.email
+        && request.resource.data.at == request.time
+        && request.resource.data.action is string && request.resource.data.action.size() <= 40
+        && request.resource.data.target is string && request.resource.data.target.size() <= 200;
+    }
+
+    // ---------- Privacy policy consent log: consents/{email}/versions/{policy version} ----------
+    // Written once by the student with their profile (Luật 91/2025: who agreed, when, to which version);
+    // never edited. Ban QLNS-CTSV reads it and deletes it with the rest of an erasure request.
+    match /consents/{email}/versions/{version} {
+      allow get: if signedIn() && request.auth.token.email == email;
+      allow read, delete: if canManageMembers();
+      allow create: if signedIn() && request.auth.token.email == email
+        && request.resource.data.keys().hasOnly(['mssv', 'version', 'agreedAt'])
+        && request.resource.data.keys().hasAll(['mssv', 'version', 'agreedAt'])
+        && request.resource.data.version == version
+        && request.resource.data.mssv is string && request.resource.data.mssv.matches('^[a-z0-9]{1,20}$')
+        && request.resource.data.agreedAt is string && request.resource.data.agreedAt.size() <= 40;
     }
 
     // ---------- Student / Đoàn viên / Hội viên records (Ban QLNS-CTSV) ----------

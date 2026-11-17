@@ -85,6 +85,59 @@ function guiEmail() {
   }
 }
 
+// ---------------------------------------------------------------- sao lưu hằng đêm
+
+// The free Spark plan has no Firestore backups, so every night every collection is saved as one JSON file
+// in a Drive folder of the installing account. Documents keep Firestore's REST format (typed fields), so
+// a restore can send them back through :commit unchanged. The newest BACKUP_KEEP files are kept.
+const BACKUP_FOLDER = 'Sao lưu Firestore deeyu-hcmut';
+const BACKUP_KEEP = 30;
+const BACKUP_COLLECTIONS = ['events', 'registrations', 'registrationContacts', 'students', 'members', 'news', 'bch',
+  'notifications', 'admins', 'auditLogs', 'emailLogs'];
+
+function batSaoLuu() {
+  tatSaoLuu();
+  ScriptApp.newTrigger('saoLuu').timeBased().everyDays(1).atHour(2).create();
+  console.log('Đã bật sao lưu Firestore lúc 2-3 giờ sáng mỗi ngày.');
+}
+
+function tatSaoLuu() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'saoLuu')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+}
+
+function saoLuu() {
+  const backup = { project: PROJECT_ID, takenAt: new Date().toISOString(), collections: {} };
+  BACKUP_COLLECTIONS.forEach(name => {
+    const docs = [];
+    let pageToken = '';
+    do {
+      const page = request('get', `${DOCS_URL}/${name}?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`) || {};
+      (page.documents || []).forEach(d => docs.push(d));
+      pageToken = page.nextPageToken || '';
+    } while (pageToken);
+    backup.collections[name] = docs;
+  });
+  // consents/{email}/versions/{version} lives in subcollections
+  backup.collections['consents/*/versions'] = request('post', `${DOCS_URL}:runQuery`, {
+    structuredQuery: { from: [{ collectionId: 'versions', allDescendants: true }] },
+  }).filter(row => row.document).map(row => row.document);
+
+  const folders = DriveApp.getFoldersByName(BACKUP_FOLDER);
+  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(BACKUP_FOLDER);
+  const stamp = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd_HHmm');
+  folder.createFile(`firestore_${stamp}.json`, JSON.stringify(backup), 'application/json');
+
+  const files = [];
+  const it = folder.getFiles();
+  while (it.hasNext()) files.push(it.next());
+  files.sort((a, b) => b.getDateCreated() - a.getDateCreated()).slice(BACKUP_KEEP).forEach(f => f.setTrashed(true));
+
+  const counts = Object.keys(backup.collections).map(k => `${k}: ${backup.collections[k].length}`).join(', ');
+  console.log(`Đã sao lưu vào "${BACKUP_FOLDER}/firestore_${stamp}.json" (${counts}).`);
+}
+
 function sendRegistrationConfirmations() {
   const props = PropertiesService.getScriptProperties();
   const since = props.getProperty(LAST_REGISTRATION_KEY);

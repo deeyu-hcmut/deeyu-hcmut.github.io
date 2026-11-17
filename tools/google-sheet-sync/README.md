@@ -158,6 +158,19 @@ Không gắn vào sheet nào: tạo một project Apps Script độc lập.
 
 Tắt: chọn hàm **`tatTuDong`** → **▶ Chạy**.
 
+## Sao lưu Firestore hằng đêm
+
+Gói Spark (miễn phí) không có sao lưu Firestore, nên cùng script này lưu **toàn bộ dữ liệu** thành một file JSON mỗi đêm
+vào thư mục Drive **`Sao lưu Firestore deeyu-hcmut`** của tài khoản cài script (giữ 30 bản gần nhất, bản cũ hơn vào Thùng rác).
+
+1. Chạy hàm **`saoLuu`** một lần (Google hỏi thêm quyền Drive → **Cho phép**), kiểm tra file mới trong thư mục trên.
+2. Chạy hàm **`batSaoLuu`**: từ giờ tự sao lưu lúc 2-3 giờ sáng. Tắt: **`tatSaoLuu`**.
+
+- File chứa thông tin cá nhân (email, số điện thoại, ngày sinh): **không chia sẻ thư mục này**.
+- **Thử khôi phục ít nhất một lần mỗi học kỳ**: bản sao lưu chưa từng khôi phục thử thì chưa chắc dùng được. Mỗi phần tử trong
+  `collections` là document đúng định dạng REST của Firestore (`name`, `fields`), có thể ghi lại vào một project thử nghiệm
+  bằng `:commit` với `{ update: <document> }`.
+
 ## Khi có lỗi
 
 - Xem nhật ký: Apps Script → **Lần thực thi** (Executions). Mỗi lần chạy ghi `Xác nhận đăng ký: …, Email chờ gửi: …, Còn … email hôm nay`.

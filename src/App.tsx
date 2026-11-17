@@ -117,6 +117,7 @@ export default function App() {
   // which fills in event registrations. Only plain student accounts get the form pushed on sign-in.
   const [myProfile, setMyProfile] = useState<MemberRecord | null>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [needsConsent, setNeedsConsent] = useState(true);
   // Super Admin is not a student: no profile form, menu entry, or lookup of a student record
   const hcmutEmail =
     FIREBASE_ENABLED && currentRole !== 'SUPER_ADMIN' && isHcmutEmail(session?.email) ? session!.email.toLowerCase() : null;
@@ -127,11 +128,15 @@ export default function App() {
     setProfileModalOpen(false);
     if (!hcmutEmail) return;
     let cancelled = false;
-    api.getMyMemberProfile(hcmutEmail)
-      .then(record => {
+    Promise.all([api.getMyMemberProfile(hcmutEmail), api.hasConsent(hcmutEmail).catch(() => true)])
+      .then(([record, consented]) => {
         if (cancelled) return;
         setMyProfile(record);
-        if (isStudentRole && !record?.profileCompletedAt && !profileDeferred(hcmutEmail)) setProfileModalOpen(true);
+        setNeedsConsent(!consented);
+        // Also asks students who finished the form before consent was logged (or before a policy update).
+        // A failed check counts as agreed: re-creating an existing log entry would make the profile save fail.
+        const incomplete = !record?.profileCompletedAt || !consented;
+        if (isStudentRole && incomplete && !profileDeferred(hcmutEmail)) setProfileModalOpen(true);
       })
       .catch(err => console.error('Failed to load student profile', err));
     return () => {
@@ -156,7 +161,7 @@ export default function App() {
 
   const closeProfileModal = () => {
     setProfileModalOpen(false);
-    if (hcmutEmail && !myProfile?.profileCompletedAt) {
+    if (hcmutEmail && (!myProfile?.profileCompletedAt || needsConsent)) {
       try {
         sessionStorage.setItem(PROFILE_LATER_KEY, hcmutEmail);
       } catch {
@@ -332,7 +337,11 @@ export default function App() {
             accountEmail={hcmutEmail}
             displayName={session?.displayName ?? null}
             linked={myProfile}
-            onSaved={record => setMyProfile(record)}
+            needsConsent={needsConsent}
+            onSaved={record => {
+              setMyProfile(record);
+              setNeedsConsent(false);
+            }}
             onLater={closeProfileModal}
           />
         </Suspense>

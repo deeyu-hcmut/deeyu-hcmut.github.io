@@ -10,6 +10,7 @@ import {
   orderBy,
   query,
   runTransaction,
+  serverTimestamp,
   startAfter,
   where,
   writeBatch,
@@ -53,6 +54,7 @@ import {
   buildStudentProfile,
   emailSubject,
   isHcmutEmail,
+  PRIVACY_VERSION,
 } from './shared';
 import { normalizeKey } from '../utils/excel';
 import { STAFF_ROLES, normalizeRole } from '../utils/roles';
@@ -112,6 +114,17 @@ function readNotificationsReadAt(): string {
   } catch {
     return '';
   }
+}
+
+// Who deleted or re-assigned what (firestore.rules: staff append only, Super Admin reads, nobody edits).
+// Goes in the same batch as the change it records.
+function audit(batch: WriteBatch, action: string, target: string) {
+  batch.set(doc(collection(db, 'auditLogs')), {
+    action,
+    target: target.slice(0, 200),
+    by: auth.currentUser?.email ?? '',
+    at: serverTimestamp(),
+  });
 }
 
 function queueNotification(batch: WriteBatch, notification: Omit<StoredNotification, 'createdAt'>) {
@@ -269,6 +282,7 @@ const rawFirebaseApi: Api = {
   deleteNews: async newsId => {
     const batch = writeBatch(db);
     batch.delete(doc(db, 'news', newsId));
+    audit(batch, 'DELETE_NEWS', newsId);
     await batch.commit();
     invalidate('news');
   },
@@ -336,6 +350,7 @@ const rawFirebaseApi: Api = {
     // The event goes last, so a failure part-way leaves it visible for a retry
     const batch = writeBatch(db);
     batch.delete(doc(db, 'events', eventId));
+    audit(batch, 'DELETE_EVENT', `${eventId} (${regSnap.size} lượt đăng ký)`);
     await batch.commit();
     invalidate('events');
     return { deletedRegistrations: regSnap.size };
@@ -503,6 +518,7 @@ const rawFirebaseApi: Api = {
     if (!isHcmutEmail(id)) throw new Error('Chỉ cấp quyền được cho tài khoản @hcmut.edu.vn.');
     const batch = writeBatch(db);
     batch.set(doc(db, 'admins', id), account);
+    audit(batch, 'SET_ROLE', `${id} → ${role}`);
     await batch.commit();
     return { email: id, ...account };
   },
@@ -510,6 +526,7 @@ const rawFirebaseApi: Api = {
   removeStaffAccount: async email => {
     const batch = writeBatch(db);
     batch.delete(doc(db, 'admins', email));
+    audit(batch, 'REMOVE_STAFF', email);
     await batch.commit();
   },
 
@@ -538,6 +555,7 @@ const rawFirebaseApi: Api = {
   deleteBchMember: async id => {
     const batch = writeBatch(db);
     batch.delete(doc(db, 'bch', id));
+    audit(batch, 'DELETE_BCH', id);
     await batch.commit();
     invalidate('bch');
   },
@@ -601,13 +619,41 @@ const rawFirebaseApi: Api = {
   },
 
   deleteMember: async memberId => {
+    const batch = writeBatch(db);
+    audit(batch, 'DELETE_MEMBER', memberId);
     if (MEMBERS_SHEET_URL) {
       await callMembersSheet({ action: 'delete', id: memberId });
-      return;
+    } else {
+      batch.delete(doc(db, 'members', memberId));
     }
-    const batch = writeBatch(db);
-    batch.delete(doc(db, 'members', memberId));
     await batch.commit();
+  },
+
+  // Event counters (currentParticipants / checkedInCount) are left as they were: they are historical totals
+  eraseStudentData: async memberId => {
+    const id = memberIdOf(memberId);
+    const memberSnap = await getDoc(doc(db, 'members', id));
+    const accountEmail = memberSnap.exists() ? String(memberSnap.data().accountEmail || '') : '';
+    const regSnap = await getDocs(query(collection(db, 'registrations'), where('mssvKey', '==', id)));
+    const consentSnap = accountEmail ? await getDocs(collection(db, 'consents', accountEmail, 'versions')) : null;
+
+    const logBatch = writeBatch(db);
+    audit(logBatch, 'ERASE_STUDENT', `${id} (${regSnap.size} lượt đăng ký)`);
+    await logBatch.commit();
+    const refs = [
+      ...regSnap.docs.flatMap(reg => [reg.ref, doc(db, 'registrationContacts', reg.id)]),
+      ...(consentSnap?.docs.map(d => d.ref) ?? []),
+      doc(db, 'students', id),
+    ];
+    for (let i = 0; i < refs.length; i += 450) {
+      const batch = writeBatch(db);
+      refs.slice(i, i + 450).forEach(ref => batch.delete(ref));
+      await batch.commit();
+    }
+    // The record goes last, so a failure part-way can be retried from the same row
+    await rawFirebaseApi.deleteMember(id);
+    invalidate('events');
+    return { deletedRegistrations: regSnap.size };
   },
 
   getMyMemberProfile: async accountEmail => {
@@ -637,18 +683,26 @@ const rawFirebaseApi: Api = {
     return member;
   },
 
-  saveMyProfile: async (memberId, patch, accountEmail) => {
+  saveMyProfile: async (memberId, patch, accountEmail, recordConsent = false) => {
     const now = new Date().toISOString();
+    const email = accountEmail.toLowerCase();
     const changes = {
       ...buildStudentProfile(patch),
-      accountEmail: accountEmail.toLowerCase(),
+      accountEmail: email,
       profileCompletedAt: now,
       updatedAt: now,
     };
     const batch = writeBatch(db);
     batch.update(doc(db, 'members', memberId), changes);
+    // Kept apart from members/{id}: the Sheet sync rewrites that document whole
+    if (recordConsent) {
+      batch.set(doc(db, 'consents', email, 'versions', PRIVACY_VERSION), { mssv: memberId, version: PRIVACY_VERSION, agreedAt: now });
+    }
     await batch.commit();
   },
+
+  hasConsent: async accountEmail =>
+    (await getDoc(doc(db, 'consents', accountEmail.toLowerCase(), 'versions', PRIVACY_VERSION))).exists(),
 };
 
 // Staff-only; the Apps Script checks the Firebase ID token and the admins/{email} role itself.

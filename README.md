@@ -113,7 +113,7 @@ public/         tệp tĩnh (logo, privacy.html, sitemap, robots, xác minh)
 tools/          Google Apps Script (Sheet sinh viên, BCH, email)
 firestore.rules quy tắc bảo mật Firestore
 .github/        workflow deploy và release
-server.ts       máy chủ Express cho bản demo cục bộ
+tests/          kiểm thử firestore.rules trên emulator (chạy trong CI)
 ```
 
 ## Giấy phép

@@ -17,7 +17,7 @@
     .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:28px 24px; }
     header { text-align:center; border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:8px; }
     header img { width:72px; height:72px; }
-    .badge { display:inline-block; background:var(--accent); color:#fff; font-weight:700; font-size:12px; letter-spacing:1px; padding:5px 14px; border-radius:999px; margin-top:10px; }
+    .badge { display:inline-block; background:var(--accent); color:var(--card); font-weight:700; font-size:12px; letter-spacing:1px; padding:5px 14px; border-radius:999px; margin-top:10px; }
     h1 { margin:12px 0 4px; font-size:24px; color:var(--head); }
     h2 { margin:28px 0 8px; font-size:17px; color:var(--head); }
     p, li { margin:6px 0; }
@@ -38,7 +38,7 @@
       <div><span class="badge">ĐOÀN - HỘI KHOA ĐIỆN - ĐIỆN TỬ</span></div>
       <h1>Chính sách quyền riêng tư</h1>
       <p class="muted">Cổng thông tin chính thức của Đoàn Thanh niên - Hội Sinh viên khoa Điện - Điện tử, Trường Đại học Bách khoa - ĐHQG-HCM<br />
-        Địa chỉ: <a href="https://deeyu-hcmut.github.io/">https://deeyu-hcmut.github.io/</a> · Phiên bản 1.0.0 · Cập nhật lần cuối: 18/10/2026</p>
+        Địa chỉ: <a href="https://deeyu-hcmut.github.io/">https://deeyu-hcmut.github.io/</a> · Phiên bản 1.1.0 · Cập nhật lần cuối: 17/11/2026</p>
     </header>
 
     <h2>1. Đơn vị quản lý dữ liệu</h2>
@@ -111,10 +111,12 @@
       <li><b>Google Firebase</b> (Authentication, Firestore, App Check): đăng nhập, lưu trữ dữ liệu và chống truy cập tự động.</li>
       <li><b>Google reCAPTCHA Enterprise</b> (qua Firebase App Check): xác nhận truy cập đến từ trang web chính thức để chống lạm dụng; Google có thể thu thập một số thông tin thiết bị theo chính sách của họ.</li>
       <li><b>Google Sheets, Google Apps Script, Gmail</b>: danh sách sinh viên và Ban Chấp hành do cán bộ quản lý trên Google Sheets; email tự động được gửi bằng tài khoản Gmail của Đoàn - Hội. Trang Quản trị đọc danh sách sinh viên qua một dịch vụ Apps Script chỉ trả dữ liệu khi tài khoản đăng nhập có quyền.</li>
+      <li><b>Google Drive</b>: bản sao lưu dữ liệu hằng đêm (giữ 30 ngày gần nhất), lưu trong tài khoản Google của Đoàn - Hội và không chia sẻ công khai.</li>
       <li><b>GitHub Pages</b>: lưu trữ và phân phối trang web.</li>
       <li><b>api.qrserver.com</b>: dịch vụ tạo ảnh mã QR. Khi gửi email xác nhận hoặc nhắc lịch, <b>mã vé</b> (không kèm họ tên hay email) được gửi tới dịch vụ này để tạo ảnh QR.</li>
     </ul>
-    <p class="muted">Các nhà cung cấp trên có chính sách riêng và có thể lưu dữ liệu ở máy chủ ngoài Việt Nam.</p>
+    <p class="muted">Các nhà cung cấp trên có chính sách riêng và có thể lưu dữ liệu ở máy chủ ngoài Việt Nam. Việc chuyển dữ liệu ra nước ngoài
+      này được Đoàn - Hội lập hồ sơ đánh giá tác động theo Luật Bảo vệ dữ liệu cá nhân (91/2025/QH15).</p>
 
     <h2>7. Dữ liệu lưu trên trình duyệt của bạn</h2>
     <p>Trang web lưu một số thông tin nhỏ trong trình duyệt (localStorage, sessionStorage và bộ nhớ của Firebase Authentication): trạng thái đăng nhập,
@@ -125,7 +127,10 @@
     <ul>
       <li>Quyền truy cập dữ liệu được kiểm soát bằng quy tắc bảo mật của Firestore theo vai trò (Super Admin, Ban HC-TV, Ban TT-SK, Ban QLNS-CTSV, sinh viên) và chỉ áp dụng cho tài khoản <code>@hcmut.edu.vn</code>.</li>
       <li>Vé, hồ sơ sinh viên và thông tin liên hệ chỉ đọc được bởi chủ sở hữu hoặc cán bộ có quyền (mục 4).</li>
+      <li>Thao tác xoá và phân quyền của cán bộ được ghi nhật ký (ai, lúc nào, làm gì) để phục vụ kiểm tra khi có sự cố.</li>
       <li>Dù áp dụng các biện pháp hợp lý, không hệ thống nào an toàn tuyệt đối; nếu phát hiện sự cố, vui lòng báo ngay qua email ở mục 1.</li>
+      <li>Khi xảy ra sự cố lộ, mất dữ liệu cá nhân, chúng tôi thông báo cho cơ quan chức năng trong vòng <b>72 giờ</b> kể từ khi phát hiện
+        và thông báo cho người bị ảnh hưởng.</li>
     </ul>
 
     <h2>9. Thời gian lưu trữ</h2>
@@ -138,7 +143,9 @@
       <li>Rút lại sự đồng ý xử lý dữ liệu (một số chức năng như đăng ký sự kiện có thể không dùng được sau khi rút).</li>
       <li>Thu hồi quyền đăng nhập bằng Google tại <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
     </ul>
-    <p>Gửi yêu cầu tới <a href="mailto:dtn-ddt@hcmut.edu.vn">dtn-ddt@hcmut.edu.vn</a> kèm họ tên và MSSV để chúng tôi xác minh và xử lý trong thời gian sớm nhất.</p>
+    <p>Gửi yêu cầu tới <a href="mailto:dtn-ddt@hcmut.edu.vn">dtn-ddt@hcmut.edu.vn</a> kèm họ tên và MSSV. Sau khi xác minh, yêu cầu được xử lý <b>trong vòng 20 ngày</b>; với yêu cầu xoá, toàn bộ hồ sơ,
+      vé, thông tin liên hệ và lịch sử tham gia gắn với MSSV của bạn bị xoá khỏi cơ sở dữ liệu.</p>
+    <p>Khi đăng nhập lần đầu, bạn xác nhận đồng ý với chính sách này; thời điểm và phiên bản chính sách bạn đồng ý được lưu cùng hồ sơ.</p>
 
     <h2>11. Thay đổi chính sách</h2>
     <p>Chính sách này có thể được cập nhật khi cổng thông tin thay đổi chức năng. Ngày cập nhật và phiên bản ở đầu trang cho biết bản hiện hành.</p>

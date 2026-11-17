@@ -156,6 +156,9 @@ export function buildMember(input: Partial<MemberInput>, previous?: MemberRecord
   };
 }
 
+// Version shown at the top of public/privacy.html; bumping it asks every student to agree again
+export const PRIVACY_VERSION = '1.1.0';
+
 export function isHcmutEmail(email: string | null | undefined): boolean {
   return Boolean(email && /@hcmut\.edu\.vn$/i.test(email.trim()));
 }

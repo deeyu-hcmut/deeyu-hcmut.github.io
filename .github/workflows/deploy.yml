@@ -15,6 +15,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # firestore.rules is the only access control, so test it against the emulator on every push.
+  # shortcut: not yet a gate for the deploy; once it has run green, add `needs: rules-test` to `build`.
+  rules-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java (Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --no-save @firebase/rules-unit-testing@5
+
+      - name: Test security rules
+        run: npx -y firebase-tools@14 emulators:exec --only firestore --project demo-deeyu-rules "node --test tests/"
+
   build:
     runs-on: ubuntu-latest
     steps:

@@ -391,77 +391,32 @@ const clientStorage = {
   }
 };
 
-// GitHub Pages is a static host with no /api routes: skip the network round-trip
-// (and the 404 it produces) and go straight to localStorage. `npm run dev` serves the
-// Express API, and a production server build can opt in with VITE_API_SERVER=true.
-const HAS_API_SERVER = import.meta.env.DEV || import.meta.env.VITE_API_SERVER === 'true';
-
-async function fetchApi<T>(url: string, init?: RequestInit, acceptStatus: number[] = []): Promise<T | undefined> {
-  if (!HAS_API_SERVER) return undefined;
-  try {
-    const res = await fetch(url, init);
-    if (res.ok || acceptStatus.includes(res.status)) return await res.json();
-  } catch {
-    // Fallback
-  }
-  return undefined;
-}
-
-function postJson(body: unknown): RequestInit {
-  return {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  };
-}
-
+// Demo build (no Firebase config): everything lives in this browser's localStorage
 const localApi = {
   // Stats
-  getStats: async (): Promise<FacultyStats> =>
-    (await fetchApi<FacultyStats>('/api/stats')) ?? clientStorage.getStats(),
+  getStats: async (): Promise<FacultyStats> => clientStorage.getStats(),
 
   // News
-  getNews: async (category?: string, search?: string): Promise<NewsItem[]> => {
-    const params = new URLSearchParams();
-    if (category) params.append('category', category);
-    if (search) params.append('search', search);
-    return (await fetchApi<NewsItem[]>(`/api/news?${params.toString()}`)) ?? clientStorage.getNews(category, search);
-  },
+  getNews: async (category?: string, search?: string): Promise<NewsItem[]> => clientStorage.getNews(category, search),
 
   // Demo mode loads every post at once, so there is nothing older to fetch
   getOlderNews: async (_before: string): Promise<NewsItem[]> => [],
 
-  createNews: async (newsData: Partial<NewsItem>): Promise<NewsItem> =>
-    (await fetchApi<NewsItem>('/api/news', postJson(newsData))) ?? clientStorage.createNews(newsData),
+  createNews: async (newsData: Partial<NewsItem>): Promise<NewsItem> => clientStorage.createNews(newsData),
 
   // Events
-  getEvents: async (type?: string, status?: string): Promise<EventItem[]> => {
-    const params = new URLSearchParams();
-    if (type) params.append('type', type);
-    if (status) params.append('status', status);
-    return (await fetchApi<EventItem[]>(`/api/events?${params.toString()}`)) ?? clientStorage.getEvents(type, status);
-  },
+  getEvents: async (type?: string, status?: string): Promise<EventItem[]> => clientStorage.getEvents(type, status),
 
-  createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> =>
-    (await fetchApi<EventItem>('/api/events', postJson(eventData))) ?? clientStorage.createEvent(eventData),
+  createEvent: async (eventData: Partial<EventItem>): Promise<EventItem> => clientStorage.createEvent(eventData),
 
-  updateNews: async (newsId: string, patch: Partial<NewsItem>): Promise<NewsItem> =>
-    (await fetchApi<NewsItem>(`/api/news/${encodeURIComponent(newsId)}`, { ...postJson(patch), method: 'PATCH' })) ??
-    clientStorage.updateNews(newsId, patch),
+  updateNews: async (newsId: string, patch: Partial<NewsItem>): Promise<NewsItem> => clientStorage.updateNews(newsId, patch),
 
-  deleteNews: async (newsId: string): Promise<void> => {
-    if (await fetchApi(`/api/news/${encodeURIComponent(newsId)}`, { method: 'DELETE' })) return;
-    clientStorage.deleteNews(newsId);
-  },
+  deleteNews: async (newsId: string): Promise<void> => clientStorage.deleteNews(newsId),
 
-  updateEvent: async (eventId: string, patch: Partial<EventItem>): Promise<EventItem> =>
-    (await fetchApi<EventItem>(`/api/events/${encodeURIComponent(eventId)}`, { ...postJson(patch), method: 'PATCH' })) ??
-    clientStorage.updateEvent(eventId, patch),
+  updateEvent: async (eventId: string, patch: Partial<EventItem>): Promise<EventItem> => clientStorage.updateEvent(eventId, patch),
 
   // Also removes the event's registrations / check-ins
-  deleteEvent: async (eventId: string): Promise<{ deletedRegistrations: number }> =>
-    (await fetchApi<{ deletedRegistrations: number }>(`/api/events/${encodeURIComponent(eventId)}`, { method: 'DELETE' })) ??
-    clientStorage.deleteEvent(eventId),
+  deleteEvent: async (eventId: string): Promise<{ deletedRegistrations: number }> => clientStorage.deleteEvent(eventId),
 
   registerEvent: async (eventId: string, registrationData: {
     fullName: string;
@@ -472,32 +427,18 @@ const localApi = {
     faculty: string;
     note?: string;
   }): Promise<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }> =>
-    (await fetchApi<{ success: boolean; message: string; registration: RegistrationRecord; eventUpdated: EventItem }>(
-      `/api/events/${eventId}/register`,
-      postJson(registrationData)
-    )) ?? clientStorage.registerEvent(eventId, registrationData),
+    clientStorage.registerEvent(eventId, registrationData),
 
   // Attendance & Check-in
   checkIn: async (code: string, eventId?: string): Promise<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }> =>
-    (await fetchApi<{ success: boolean; message: string; record: RegistrationRecord; warning?: boolean }>(
-      '/api/attendance/check-in',
-      postJson({ code, eventId }),
-      [409]
-    )) ?? clientStorage.checkIn(code, eventId),
+    clientStorage.checkIn(code, eventId),
 
   // Student history lookup
-  lookupStudent: async (mssv: string) =>
-    (await fetchApi<ReturnType<typeof clientStorage.lookupStudent>>(`/api/attendance/student/${encodeURIComponent(mssv)}`)) ??
-    clientStorage.lookupStudent(mssv),
+  lookupStudent: async (mssv: string) => clientStorage.lookupStudent(mssv),
 
   // Registrations list for admin
-  getRegistrations: async (eventId?: string, search?: string): Promise<RegistrationRecord[]> => {
-    const params = new URLSearchParams();
-    if (eventId) params.append('eventId', eventId);
-    if (search) params.append('search', search);
-    return (await fetchApi<RegistrationRecord[]>(`/api/registrations?${params.toString()}`)) ??
-      clientStorage.getRegistrations(eventId, search);
-  },
+  getRegistrations: async (eventId?: string, search?: string): Promise<RegistrationRecord[]> =>
+    clientStorage.getRegistrations(eventId, search),
 
   // BCH
   getBCH: async (): Promise<BCHMember[]> => clientStorage.getBCH(),
@@ -515,20 +456,13 @@ const localApi = {
 
   deleteBchMember: async (id: string): Promise<void> => clientStorage.deleteBchMember(id),
 
-
-
   // Notifications
-  getNotifications: async (): Promise<NotificationItem[]> =>
-    (await fetchApi<NotificationItem[]>('/api/notifications')) ?? clientStorage.getNotifications(),
+  getNotifications: async (): Promise<NotificationItem[]> => clientStorage.getNotifications(),
 
-  markNotificationsRead: async (): Promise<void> => {
-    await fetchApi('/api/notifications/mark-read', { method: 'POST' });
-    clientStorage.markNotificationsRead();
-  },
+  markNotificationsRead: async (): Promise<void> => clientStorage.markNotificationsRead(),
 
   // Email Logs
-  getEmailLogs: async (): Promise<EmailDispatchLog[]> =>
-    (await fetchApi<EmailDispatchLog[]>('/api/email-logs')) ?? clientStorage.getEmailLogs(),
+  getEmailLogs: async (): Promise<EmailDispatchLog[]> => clientStorage.getEmailLogs(),
 
   // Student / Đoàn viên / Hội viên records (Ban QLNS-CTSV); the demo keeps them in this browser only
   getMembers: async (): Promise<MemberRecord[]> => clientStorage.getMembers(),
@@ -539,6 +473,15 @@ const localApi = {
     clientStorage.saveMember(input, previousId, unlinkAccount),
 
   deleteMember: async (memberId: string): Promise<void> => clientStorage.deleteMember(memberId),
+
+  // Right-to-erasure request: the record plus every ticket, contact and consent tied to this MSSV
+  eraseStudentData: async (memberId: string): Promise<{ deletedRegistrations: number }> => {
+    const registrations = getLocalData<RegistrationRecord[]>(STORAGE_KEYS.REGISTRATIONS, INITIAL_REGISTRATIONS);
+    const keep = registrations.filter(r => r.mssv.toLowerCase() !== memberId);
+    setLocalData(STORAGE_KEYS.REGISTRATIONS, keep);
+    clientStorage.deleteMember(memberId);
+    return { deletedRegistrations: registrations.length - keep.length };
+  },
 
 
   // ---------- First sign-in of a student with an @hcmut.edu.vn account ----------
@@ -551,9 +494,13 @@ const localApi = {
   findMemberForLink: async (mssv: string, fullName: string, accountEmail: string): Promise<MemberRecord> =>
     clientStorage.findMemberForLink(mssv, fullName, accountEmail),
 
-  // Links the account and stores what the student filled in
-  saveMyProfile: async (memberId: string, patch: StudentProfilePatch, accountEmail: string): Promise<void> =>
-    clientStorage.saveMyProfile(memberId, patch, accountEmail)
+  // Links the account and stores what the student filled in; `recordConsent` also logs agreement to the
+  // current privacy policy version (only when hasConsent said it was missing: the log is create-only)
+  saveMyProfile: async (memberId: string, patch: StudentProfilePatch, accountEmail: string, _recordConsent = false): Promise<void> =>
+    clientStorage.saveMyProfile(memberId, patch, accountEmail),
+
+  // Whether this account agreed to the current privacy policy version (the demo has no accounts)
+  hasConsent: async (_accountEmail: string): Promise<boolean> => true
 };
 
 export type Api = typeof localApi;
