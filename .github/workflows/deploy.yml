@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # firestore.rules is the only access control, so test it against the emulator on every push.
-  # shortcut: not yet a gate for the deploy; once it has run green, add `needs: rules-test` to `build`.
+  # firestore.rules is the only access control, so test it against the emulator on every push;
+  # the site is not built or deployed while a rules test fails.
   rules-test:
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +44,7 @@ jobs:
         run: npx -y firebase-tools@14 emulators:exec --only firestore --project demo-deeyu-rules "node --test tests/firestore.rules.test.mjs"
 
   build:
+    needs: rules-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
